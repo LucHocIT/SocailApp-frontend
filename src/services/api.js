@@ -24,7 +24,8 @@ api.interceptors.request.use(
 
 // Add a response interceptor to handle auth errors
 api.interceptors.response.use(
-  (response) => response,  (error) => {
+  (response) => response,
+  (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized errors - clear storage and redirect to login
       localStorage.removeItem('token');

@@ -3,9 +3,6 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import '../../styles/auth-modal.css';
-import '../../styles/auth-components.css';
-import '../../styles/auth-animations.css';
 
 // Registration step 1: Validate and submit user information
 const RegisterInfoSchema = Yup.object().shape({

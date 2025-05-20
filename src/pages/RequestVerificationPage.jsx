@@ -4,7 +4,6 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import '../styles/auth.css';
 
 const EmailSchema = Yup.object().shape({
   email: Yup.string()

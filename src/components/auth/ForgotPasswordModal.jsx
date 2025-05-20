@@ -3,9 +3,6 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
-import '../../styles/auth-modal.css';
-import '../../styles/auth-components.css';
-
 // Step 1: Request code
 const RequestCodeSchema = Yup.object().shape({
   email: Yup.string()

@@ -122,7 +122,20 @@ class AuthService {
   getCurrentUser() {
     return JSON.parse(localStorage.getItem('user'));
   }
+  
   // Helper method to handle errors
+  handleError(error) {
+    if (error.response) {
+      // Server responded with an error status code
+      return error.response.data;
+    } else if (error.request) {
+      // Request was made but no response received
+      return { message: 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.' };
+    } else {
+      // Something else caused the error
+      return { message: error.message || 'Đã xảy ra lỗi không xác định.' };
+    }
+  }
 }
 
 export default new AuthService();
