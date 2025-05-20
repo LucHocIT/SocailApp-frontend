@@ -1,0 +1,115 @@
+/* Animations and transitions for auth components */
+
+/* Slide in animation for form steps */
+.slide-in-right {
+  animation: slideInRight 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.slide-out-left {
+  animation: slideOutLeft 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.slide-out-right {
+  animation: slideOutRight 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Floating label animation */
+.form-floating {
+  position: relative;
+}
+
+.form-floating label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  padding: 1rem 0.75rem;
+  pointer-events: none;
+  border: 1px solid transparent;
+  transform-origin: 0 0;
+  transition: opacity .1s ease-in-out, transform .1s ease-in-out;
+  color: #6b7280;
+}
+
+.form-floating input:focus ~ label,
+.form-floating input:not(:placeholder-shown) ~ label {
+  opacity: .65;
+  transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+/* Input focus effects */
+.input-focus-effect {
+  position: relative;
+}
+
+.input-focus-effect::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #4a90e2;
+  transition: all 0.3s ease;
+}
+
+.input-focus-effect:focus-within::after {
+  width: 100%;
+  left: 0;
+}
+
+/* Verification code input */
+.verification-input {
+  letter-spacing: 0.5em;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.25rem;
+}

@@ -16,12 +16,16 @@ const RequestVerificationPage = () => {
   const { requestVerificationCode } = useAuth();
   const [requestError, setRequestError] = useState('');
   const [success, setSuccess] = useState(false);
-
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await requestVerificationCode(values.email);
-      setSuccess(true);
-      toast.success('Mã xác nhận đã được gửi đến email của bạn');
+      const response = await requestVerificationCode(values.email);
+      if (response?.success) {
+        setSuccess(true);
+        toast.success('Mã xác nhận đã được gửi đến email của bạn');
+      } else {
+        setRequestError(response?.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại sau.');
+        toast.error('Không thể gửi mã xác nhận.');
+      }
     } catch (error) {
       setRequestError(error.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại.');
       toast.error('Không thể gửi mã xác nhận.');

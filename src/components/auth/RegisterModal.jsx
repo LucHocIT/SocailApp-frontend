@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import '../../styles/auth-modal.css';
+import '../../styles/auth-animations.css';
 
-const RegisterSchema = Yup.object().shape({
+// Registration step 1: Validate and submit user information
+const RegisterInfoSchema = Yup.object().shape({
   username: Yup.string()
     .min(3, 'Tên đăng nhập phải có ít nhất 3 ký tự')
     .max(30, 'Tên đăng nhập không được vượt quá 30 ký tự')
@@ -23,48 +25,107 @@ const RegisterSchema = Yup.object().shape({
     .required('Vui lòng nhập họ'),
   lastName: Yup.string()
     .required('Vui lòng nhập tên'),
+});
+
+// Registration step 2: Verify email with code
+const VerifyEmailSchema = Yup.object().shape({
   verificationCode: Yup.string()
-    .required('Vui lòng nhập mã xác nhận'),
+    .required('Vui lòng nhập mã xác nhận')
+    .length(6, 'Mã xác nhận phải có đúng 6 ký tự')
 });
 
 const RegisterModal = ({ onClose, onSwitchToLogin }) => {
-  const { registerWithVerification, requestVerificationCode } = useAuth();
+  const { registerWithVerification, requestVerificationCode, verifyCode } = useAuth();
   const [registerError, setRegisterError] = useState('');
+  const [currentStep, setCurrentStep] = useState(1);
+  const [userData, setUserData] = useState({});
   const [isCodeSent, setIsCodeSent] = useState(false);
-
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const [stepDirection, setStepDirection] = useState('next'); // 'next' or 'prev' for animations
+  // Step 1: Submit user registration info and request verification code
+  const handleSubmitInfo = async (values, { setSubmitting }) => {
+    setRegisterError(''); // Clear any previous errors
     try {
-      await registerWithVerification({
+      // Store the user data for the next step
+      setUserData({
         username: values.username,
         email: values.email,
         password: values.password,
         firstName: values.firstName,
-        lastName: values.lastName,
-        verificationCode: values.verificationCode
+        lastName: values.lastName
       });
-      toast.success('Đăng ký thành công!');
-      onClose();
+
+      // Request verification code
+      const response = await requestVerificationCode(values.email);
+        if (response?.success) {
+        // Advance to verification step
+        setIsCodeSent(true);
+        setStepDirection('next');
+        setCurrentStep(2);
+        toast.success('Mã xác nhận đã được gửi đến email của bạn');
+      } else {
+        setRegisterError(response?.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại sau.');
+      }
     } catch (error) {
+      // Set error but don't close the modal
       setRegisterError(error.message || 'Đăng ký thất bại. Vui lòng thử lại.');
-      toast.error('Đăng ký thất bại.');
+    } finally {
+      setSubmitting(false);
+    }
+  };  // Step 2: Verify code and complete registration
+  const handleVerifyCode = async (values, { setSubmitting }) => {
+    setRegisterError(''); // Clear any previous errors
+    try {
+      // First, verify the code with the server
+      const result = await verifyCode(userData.email, values.verificationCode);
+      
+      if (!result.success) {
+        setRegisterError(result.message || 'Mã xác nhận không chính xác hoặc đã hết hạn');
+        setSubmitting(false);
+        return;
+      }
+      
+      // If code is valid, combine user data with verification code
+      const completeUserData = {
+        Username: userData.username,
+        Email: userData.email,
+        Password: userData.password,
+        ConfirmPassword: userData.password,
+        FirstName: userData.firstName,
+        LastName: userData.lastName,
+        VerificationCode: values.verificationCode
+      };      // Complete registration with verification
+      await registerWithVerification(completeUserData);
+      
+      toast.success('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.');
+      
+      // Switch to login modal instead of closing
+      onSwitchToLogin();
+    } catch (error) {
+      // Set error but don't close the modal
+      setRegisterError(error.message || 'Xác thực thất bại. Vui lòng thử lại.');
     } finally {
       setSubmitting(false);
     }
   };
-
-  const handleSendVerificationCode = async (email) => {
-    if (!email) {
-      toast.error('Vui lòng nhập email');
-      return;
-    }
-
+  // Handle resending verification code  const handleResendCode = async () => {
     try {
-      await requestVerificationCode(email);
-      setIsCodeSent(true);
-      toast.success('Mã xác nhận đã được gửi đến email của bạn');
+      setRegisterError('');
+      const response = await requestVerificationCode(userData.email);
+      
+      if (response?.success) {
+        toast.success('Mã xác nhận mới đã được gửi đến email của bạn');
+      } else {
+        setRegisterError(response?.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại sau.');
+      }
     } catch (error) {
-      toast.error('Không thể gửi mã xác nhận. Vui lòng thử lại.');
+      setRegisterError(error.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại sau.');
     }
+  };
+  
+  // Handle going back to previous step
+  const handleGoBack = () => {
+    setStepDirection('prev');
+    setCurrentStep(1);
   };
 
   return (
@@ -74,93 +135,142 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
           <h2>Đăng ký tài khoản</h2>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
-        
-        {registerError && <div className="error-message">{registerError}</div>}
-        
-        <Formik
-          initialValues={{
-            username: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
-            firstName: '',
-            lastName: '',
-            verificationCode: ''
-          }}
-          validationSchema={RegisterSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting, values }) => (
-            <Form>
-              <div className="form-row">
-                <div className="form-group">
+        {registerError && (
+          <div className="error-message">
+            <strong>Lỗi đăng ký:</strong> {registerError}
+          </div>
+        )}        <div className="step-indicator">
+          <div 
+            className={`step ${currentStep >= 1 ? 'active' : ''} ${currentStep > 1 ? 'completed' : ''}`} 
+            data-title="Thông tin"
+          >
+            1
+          </div>
+          <div 
+            className={`step ${currentStep >= 2 ? 'active' : ''}`}
+            data-title="Xác minh"
+          >
+            2
+          </div>
+        </div>        {currentStep === 1 && (
+          <div className={stepDirection === 'next' ? 'slide-in-left' : 'slide-in-right'}>
+            <Formik
+            initialValues={{
+              username: '',
+              email: '',
+              password: '',
+              confirmPassword: '',
+              firstName: '',
+              lastName: '',
+            }}
+            validationSchema={RegisterInfoSchema}
+            onSubmit={handleSubmitInfo}
+          >
+            {({ isSubmitting }) => (
+              <Form>
+                <div className="form-row">                <div className="form-group input-focus-effect">
                   <label htmlFor="firstName">Họ</label>
                   <Field type="text" name="firstName" className="form-control" />
                   <ErrorMessage name="firstName" component="div" className="error-text" />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group input-focus-effect">
                   <label htmlFor="lastName">Tên</label>
                   <Field type="text" name="lastName" className="form-control" />
                   <ErrorMessage name="lastName" component="div" className="error-text" />
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="username">Tên đăng nhập</label>
-                <Field type="text" name="username" className="form-control" />
-                <ErrorMessage name="username" component="div" className="error-text" />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <div className="form-email-group">
-                  <Field type="email" name="email" className="form-control" />
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary"
-                    onClick={() => handleSendVerificationCode(values.email)}
-                    disabled={isCodeSent}
-                  >
-                    {isCodeSent ? 'Đã gửi mã' : 'Gửi mã'}
-                  </button>
+                </div>                <div className="form-group input-focus-effect">
+                  <label htmlFor="username">Tên đăng nhập</label>
+                  <Field type="text" name="username" className="form-control" />
+                  <ErrorMessage name="username" component="div" className="error-text" />
                 </div>
-                <ErrorMessage name="email" component="div" className="error-text" />
-              </div>
 
-              <div className="form-group">
-                <label htmlFor="verificationCode">Mã xác nhận</label>
-                <Field type="text" name="verificationCode" className="form-control" />
-                <ErrorMessage name="verificationCode" component="div" className="error-text" />
-              </div>
+                <div className="form-group input-focus-effect">
+                  <label htmlFor="email">Email</label>
+                  <Field type="email" name="email" className="form-control" />
+                  <ErrorMessage name="email" component="div" className="error-text" />
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="password">Mật khẩu</label>
-                <Field type="password" name="password" className="form-control" />
-                <ErrorMessage name="password" component="div" className="error-text" />
-              </div>
+                <div className="form-group input-focus-effect">
+                  <label htmlFor="password">Mật khẩu</label>
+                  <Field type="password" name="password" className="form-control" />
+                  <ErrorMessage name="password" component="div" className="error-text" />
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
-                <Field type="password" name="confirmPassword" className="form-control" />
-                <ErrorMessage name="confirmPassword" component="div" className="error-text" />
-              </div>
+                <div className="form-group input-focus-effect">
+                  <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
+                  <Field type="password" name="confirmPassword" className="form-control" />
+                  <ErrorMessage name="confirmPassword" component="div" className="error-text" />
+                </div><button 
+                  type="submit" 
+                  className="btn btn-primary btn-block" 
+                  disabled={isSubmitting}
+                >
+                  <span>
+                    {isSubmitting ? 'Đang đăng ký...' : 'Đăng ký'}
+                  </span>
+                </button>
+              </Form>
+            )}          </Formik>
+          </div>
+        )}
 
-              <button 
-                type="submit" 
-                className="btn btn-primary btn-block" 
-                disabled={isSubmitting}
+        {currentStep === 2 && (
+          <div className={`verification-step ${stepDirection === 'next' ? 'slide-in-right' : 'slide-in-left'}`}>
+            <div className="verification-header">
+              <button
+                type="button"
+                className="back-btn"
+                onClick={handleGoBack}
               >
-                {isSubmitting ? 'Đang đăng ký...' : 'Đăng ký'}
+                <span>&larr;</span> Quay lại
               </button>
-            </Form>
-          )}
-        </Formik>
+              <p>Nhập mã xác nhận đã được gửi đến email của bạn.</p>
+            </div>
+            <Formik
+              initialValues={{ verificationCode: '' }}
+              validationSchema={VerifyEmailSchema}
+              onSubmit={handleVerifyCode}
+            >
+              {({ isSubmitting }) => (
+                <Form>                  <div className="form-group input-focus-effect">
+                    <label htmlFor="verificationCode">Mã xác nhận</label>
+                    <Field 
+                      type="text" 
+                      name="verificationCode" 
+                      className="form-control verification-input" 
+                      maxLength={6}
+                    />
+                    <ErrorMessage name="verificationCode" component="div" className="error-text" />
+                  </div>
+
+                  <div className="resend-code">                    <button 
+                      type="button" 
+                      className="link-btn resend-code-btn" 
+                      onClick={handleResendCode}
+                    >
+                      <span>Gửi lại mã xác nhận</span>
+                    </button>
+                  </div>                  <button 
+                    type="submit" 
+                    className="btn btn-primary btn-block" 
+                    disabled={isSubmitting}
+                  >
+                    <span>
+                      {isSubmitting ? 'Đang xác nhận...' : 'Xác nhận'}
+                    </span>
+                  </button>
+                </Form>
+              )}
+            </Formik>
+          </div>
+        )}
         
-        <div className="auth-links">
-          <p>
+        <div className="auth-links">          <p>
             Đã có tài khoản?{' '}
-            <button className="link-btn" onClick={onSwitchToLogin}>Đăng nhập</button>
+            <button className="link-btn" onClick={onSwitchToLogin}>
+              <span>Đăng nhập</span>
+            </button>
           </p>
         </div>
       </div>

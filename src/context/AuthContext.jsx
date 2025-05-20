@@ -28,7 +28,6 @@ export function AuthProvider({ children }) {
 
     initAuth();
   }, []);
-
   // Login function
   const login = async (username, password) => {
     setLoading(true);
@@ -38,20 +37,22 @@ export function AuthProvider({ children }) {
       setUser(response.user);
       return response;
     } catch (err) {
-      setError(err.message || 'Đăng nhập thất bại');
+      // Đảm bảo lỗi được cập nhật trong state
+      const errorMessage = err.message || 'Đăng nhập thất bại';
+      setError(errorMessage);
+      // Đảm bảo lỗi được ném ra để component có thể bắt và xử lý
       throw err;
     } finally {
       setLoading(false);
     }
   };
-
   // Register function
   const register = async (userData) => {
     setLoading(true);
     setError(null);
     try {
       const response = await authService.register(userData);
-      setUser(response.user);
+      // Do not automatically log in after registration
       return response;
     } catch (err) {
       setError(err.message || 'Đăng ký thất bại');
@@ -60,14 +61,13 @@ export function AuthProvider({ children }) {
       setLoading(false);
     }
   };
-
   // Register with verification code
   const registerWithVerification = async (userData) => {
     setLoading(true);
     setError(null);
     try {
       const response = await authService.registerWithVerification(userData);
-      setUser(response.user);
+      // Do not automatically log in after registration
       return response;
     } catch (err) {
       setError(err.message || 'Đăng ký thất bại');
@@ -85,6 +85,48 @@ export function AuthProvider({ children }) {
       return await authService.requestVerificationCode(email);
     } catch (err) {
       setError(err.message || 'Gửi mã xác thực thất bại');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Request password reset code
+  const requestPasswordReset = async (email) => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await authService.requestPasswordReset(email);
+    } catch (err) {
+      setError(err.message || 'Gửi mã đặt lại mật khẩu thất bại');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verify reset code
+  const verifyResetCode = async (email, code) => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await authService.verifyResetCode(email, code);
+    } catch (err) {
+      setError(err.message || 'Xác thực mã đặt lại mật khẩu thất bại');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Reset password
+  const resetPassword = async (resetData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await authService.resetPassword(resetData);
+    } catch (err) {
+      setError(err.message || 'Đặt lại mật khẩu thất bại');
       throw err;
     } finally {
       setLoading(false);
@@ -112,6 +154,19 @@ export function AuthProvider({ children }) {
     authService.logout();
     setUser(null);
   };
+  // Verify email code
+  const verifyCode = async (email, code) => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await authService.verifyCode(email, code);
+    } catch (err) {
+      setError(err.message || 'Xác thực mã thất bại');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Context value
   const contextValue = {
@@ -122,6 +177,10 @@ export function AuthProvider({ children }) {
     register,
     registerWithVerification,
     requestVerificationCode,
+    verifyCode,
+    requestPasswordReset,
+    verifyResetCode,
+    resetPassword,
     socialLogin,
     logout,
     isAuthenticated: !!user,

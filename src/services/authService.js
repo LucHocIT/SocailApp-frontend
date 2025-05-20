@@ -28,11 +28,10 @@ class AuthService {
       throw this.handleError(error);
     }
   }
-
   // Register a user with email verification code
   async registerWithVerification(userData) {
     try {
-      const response = await api.post('/auth/register-with-verification', userData);
+      const response = await api.post('/auth/verifyAndRegister', userData);
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -41,12 +40,50 @@ class AuthService {
     } catch (error) {
       throw this.handleError(error);
     }
-  }
-
-  // Request verification code to be sent to email
+  }  // Request verification code to be sent to email
   async requestVerificationCode(email) {
     try {
-      const response = await api.post('/auth/request-verification', { email });
+      const response = await api.post('/auth/sendVerificationCode', { email });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+  
+  // Verify email verification code
+  async verifyCode(email, code) {
+    try {
+      const response = await api.post('/auth/verifyCode', { email, code });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Forgot password - request reset code
+  async requestPasswordReset(email) {
+    try {
+      const response = await api.post('/auth/forgotPassword', { email });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Verify reset code
+  async verifyResetCode(email, code) {
+    try {
+      const response = await api.post('/auth/verifyResetCode', { email, code });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Reset password
+  async resetPassword(resetData) {
+    try {
+      const response = await api.post('/auth/resetPassword', resetData);
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -85,14 +122,25 @@ class AuthService {
   getCurrentUser() {
     return JSON.parse(localStorage.getItem('user'));
   }
-
   // Helper method to handle errors
   handleError(error) {
+    // Ensure we return an Error object that has a message property
+    const errorObj = new Error();
+    
     if (error.response && error.response.data) {
-      // Return error message from the server
-      return error.response.data;
+      // Get error message from server response
+      if (typeof error.response.data === 'string') {
+        errorObj.message = error.response.data;
+      } else if (error.response.data.message) {
+        errorObj.message = error.response.data.message;
+      } else {
+        errorObj.message = 'Đăng nhập thất bại. Kiểm tra thông tin đăng nhập.';
+      }
+    } else {
+      errorObj.message = 'Không thể kết nối với server. Vui lòng thử lại sau.';
     }
-    return { message: 'Không thể kết nối với server. Vui lòng thử lại sau.' };
+    
+    return errorObj;
   }
 }
 
