@@ -64,37 +64,43 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
       // Không đặt toast vì chúng ta hiển thị lỗi trong modal
       setIsProcessing(false);    }
   };
-  
-  const handleFacebookLogin = async () => {
+    const handleFacebookLogin = async () => {
     if (isProcessing) return; // Prevent multiple submissions
     
     try {
       setLoginError(''); // Clear any previous errors
       setIsProcessing(true);
-      
-      // Import dynamically to avoid loading the SDK until needed
+        // Import dynamically to avoid loading the SDK until needed
       const { signInWithFacebook } = await import('../../services/social-auth');
       signInWithFacebook((provider, accessToken) => {
         handleSocialLoginCallback(provider, accessToken);
       });
     } catch (error) {
-      setLoginError('Không thể kết nối với Facebook. Vui lòng thử lại sau.');
-      // Không đặt toast vì chúng ta hiển thị lỗi trong modal      setIsProcessing(false);
+      console.error('Facebook login handler error:', error);
+      if (error.message && (error.message.includes('Tracking Prevention') || error.message.includes('chặn'))) {
+        setLoginError('Trình duyệt đang chặn Facebook. Vui lòng tắt chế độ chặn theo dõi trong cài đặt trình duyệt hoặc sử dụng phương thức đăng nhập khác.');
+      } else {
+        setLoginError('Không thể kết nối với Facebook. Vui lòng thử lại sau: ' + error.message);
+      }
+      // Không đặt toast vì chúng ta hiển thị lỗi trong modal
+      setIsProcessing(false);
     }
   };
-  
-  const handleSocialLoginCallback = async (provider, accessToken) => {
+    const handleSocialLoginCallback = async (provider, accessToken) => {
     setLoginError(''); // Clear any previous errors
     setIsProcessing(true);
-    
-    try {
+      try {
+      if (!accessToken) {
+        throw new Error('Không nhận được token xác thực từ ' + provider);
+      }
+      
       const result = await socialLogin(provider, accessToken);
+      
       if (result) {
         toast.success('Đăng nhập thành công!');
         onClose(); // Đăng nhập thành công vẫn được phép đóng modal
-      }
-    } catch (error) {
-      console.error(`${provider} login error:`, error);
+      }    } catch (error) {
+      console.error(`${provider} login failed`);
       setLoginError(error.message || `Đăng nhập bằng ${provider} thất bại. Vui lòng thử lại.`);
       // Không gọi onClose() để giữ modal mở và hiển thị lỗi
     } finally {
