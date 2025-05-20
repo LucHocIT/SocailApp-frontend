@@ -1,38 +1,10 @@
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
 
 const HomePage = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="home-container">
-      <header className="app-header">
-        <div className="app-title">
-          <h1>SocialApp</h1>
-        </div>
-        <div className="user-controls">
-          {user ? (
-            <>
-              <span className="welcome-message">
-                Xin chào, {user.firstName} {user.lastName}
-              </span>
-              <button className="btn btn-logout" onClick={logout}>
-                Đăng xuất
-              </button>
-            </>
-          ) : (
-            <div className="auth-buttons">
-              <Link to="/login" className="btn btn-login">
-                Đăng nhập
-              </Link>
-              <Link to="/register" className="btn btn-register">
-                Đăng ký
-              </Link>
-            </div>
-          )}
-        </div>
-      </header>
-
       <main className="content">
         {user ? (
           <div className="dashboard">

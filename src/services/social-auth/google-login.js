@@ -43,7 +43,7 @@ export const signInWithGoogle = async (callback) => {
     const google = await initializeGoogle();
     
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '752599213337-kt7cuvqmlvgipolpousvemossg067her.apps.googleusercontent.com',
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '497964594859-v6deipuqgcdb41m6qsndeqskd8j8a88e.apps.googleusercontent.com',
       scope: 'email profile',
       callback: (response) => {
         if (response.access_token) {

@@ -17,20 +17,11 @@ const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
   
   const handleSwitchToLogin = () => setCurrentMode('login');
   const handleSwitchToRegister = () => setCurrentMode('register');
-  const handleSwitchToForgotPassword = () => setCurrentMode('forgotPassword');
-  
-  const handleBackdropClick = (e) => {
-    // Close the modal only when clicking on the backdrop itself,
-    // and confirm first to prevent accidental closing
+  const handleSwitchToForgotPassword = () => setCurrentMode('forgotPassword');    const handleBackdropClick = (e) => {
+    // Nếu click vào backdrop (bên ngoài modal), hiện thông báo xác nhận trước khi đóng
     if (e.target === e.currentTarget) {
-      // The user clicked outside the modal
-      if (currentMode === 'login') {
+      if (window.confirm('Bạn có chắc muốn đóng cửa sổ này?')) {
         onClose();
-      } else if (currentMode === 'register' || currentMode === 'forgotPassword') {
-        // For registration and forgot password, ask for confirmation since it involves data entry
-        if (window.confirm('Bạn có chắc muốn hủy quá trình này?')) {
-          onClose();
-        }
       }
     }
   };

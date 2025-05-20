@@ -123,25 +123,6 @@ class AuthService {
     return JSON.parse(localStorage.getItem('user'));
   }
   // Helper method to handle errors
-  handleError(error) {
-    // Ensure we return an Error object that has a message property
-    const errorObj = new Error();
-    
-    if (error.response && error.response.data) {
-      // Get error message from server response
-      if (typeof error.response.data === 'string') {
-        errorObj.message = error.response.data;
-      } else if (error.response.data.message) {
-        errorObj.message = error.response.data.message;
-      } else {
-        errorObj.message = 'Đăng nhập thất bại. Kiểm tra thông tin đăng nhập.';
-      }
-    } else {
-      errorObj.message = 'Không thể kết nối với server. Vui lòng thử lại sau.';
-    }
-    
-    return errorObj;
-  }
 }
 
 export default new AuthService();
