@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import '../../styles/auth-modal.css';
+import '../../styles/auth-components.css';
 import '../../styles/auth-animations.css';
 
 // Registration step 1: Validate and submit user information
@@ -38,9 +39,11 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
   const { registerWithVerification, requestVerificationCode, verifyCode } = useAuth();
   const [registerError, setRegisterError] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
+  const [stepDirection, setStepDirection] = useState('next'); // 'next' or 'prev' for animations
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userData, setUserData] = useState({});
   const [isCodeSent, setIsCodeSent] = useState(false);
-  const [stepDirection, setStepDirection] = useState('next'); // 'next' or 'prev' for animations
   // Step 1: Submit user registration info and request verification code
   const handleSubmitInfo = async (values, { setSubmitting }) => {
     setRegisterError(''); // Clear any previous errors
@@ -107,7 +110,8 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
       setSubmitting(false);
     }
   };
-  // Handle resending verification code  const handleResendCode = async () => {
+  // Handle resending verification code
+  const handleResendCode = async () => {
     try {
       setRegisterError('');
       const response = await requestVerificationCode(userData.email);
@@ -119,20 +123,28 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
       }
     } catch (error) {
       setRegisterError(error.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại sau.');
-    }
-  };
+    }  };
   
   // Handle going back to previous step
   const handleGoBack = () => {
     setStepDirection('prev');
     setCurrentStep(1);
   };
+  
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+  
+  // Toggle confirm password visibility
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   return (
     <div className="auth-modal">
-      <div className="auth-modal-content register-modal">
-        <div className="modal-header">
-          <h2>Đăng ký tài khoản</h2>
+      <div className="auth-modal-content register-modal">        <div className="modal-header">
+          <h2 className="gradient-text">Đăng ký tài khoản</h2>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
         {registerError && (
@@ -141,7 +153,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
           </div>
         )}        <div className="step-indicator">
           <div 
-            className={`step ${currentStep >= 1 ? 'active' : ''} ${currentStep > 1 ? 'completed' : ''}`} 
+            className={`step ${currentStep >= 1 ? 'active' : ''} ${currentStep > 1 ? 'completed' : ''}`}
             data-title="Thông tin"
           >
             1
@@ -152,9 +164,10 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
           >
             2
           </div>
-        </div>        {currentStep === 1 && (
-          <div className={stepDirection === 'next' ? 'slide-in-left' : 'slide-in-right'}>
-            <Formik
+        </div>
+
+        {currentStep === 1 && (
+          <Formik
             initialValues={{
               username: '',
               email: '',
@@ -167,43 +180,87 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
             onSubmit={handleSubmitInfo}
           >
             {({ isSubmitting }) => (
-              <Form>
-                <div className="form-row">                <div className="form-group input-focus-effect">
-                  <label htmlFor="firstName">Họ</label>
-                  <Field type="text" name="firstName" className="form-control" />
-                  <ErrorMessage name="firstName" component="div" className="error-text" />
-                </div>
+              <Form>                <div className="form-row">
+                  <div className="form-group input-focus-effect">
+                    <label htmlFor="firstName">Họ</label>
+                    <Field 
+                      type="text" 
+                      name="firstName" 
+                      className="form-control" 
+                      placeholder="Nhập họ của bạn"
+                    />
+                    <ErrorMessage name="firstName" component="div" className="error-text" />
+                  </div>
 
-                <div className="form-group input-focus-effect">
-                  <label htmlFor="lastName">Tên</label>
-                  <Field type="text" name="lastName" className="form-control" />
-                  <ErrorMessage name="lastName" component="div" className="error-text" />
-                </div>
+                  <div className="form-group input-focus-effect">
+                    <label htmlFor="lastName">Tên</label>
+                    <Field 
+                      type="text" 
+                      name="lastName" 
+                      className="form-control" 
+                      placeholder="Nhập tên của bạn"
+                    />
+                    <ErrorMessage name="lastName" component="div" className="error-text" />
+                  </div>
                 </div>                <div className="form-group input-focus-effect">
                   <label htmlFor="username">Tên đăng nhập</label>
-                  <Field type="text" name="username" className="form-control" />
+                  <Field 
+                    type="text" 
+                    name="username" 
+                    className="form-control" 
+                    placeholder="Chọn tên đăng nhập của bạn"
+                  />
                   <ErrorMessage name="username" component="div" className="error-text" />
                 </div>
 
                 <div className="form-group input-focus-effect">
                   <label htmlFor="email">Email</label>
-                  <Field type="email" name="email" className="form-control" />
+                  <Field 
+                    type="email" 
+                    name="email" 
+                    className="form-control" 
+                    placeholder="Nhập địa chỉ email của bạn"
+                  />
                   <ErrorMessage name="email" component="div" className="error-text" />
-                </div>
-
-                <div className="form-group input-focus-effect">
+                </div><div className="form-group">
                   <label htmlFor="password">Mật khẩu</label>
-                  <Field type="password" name="password" className="form-control" />
+                  <div className="password-field">
+                    <Field 
+                      type={showPassword ? "text" : "password"} 
+                      name="password" 
+                      className="form-control" 
+                    />
+                    <button 
+                      type="button" 
+                      className="password-toggle" 
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? "🙈" : "👁️"}
+                    </button>
+                  </div>
                   <ErrorMessage name="password" component="div" className="error-text" />
                 </div>
 
-                <div className="form-group input-focus-effect">
+                <div className="form-group">
                   <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
-                  <Field type="password" name="confirmPassword" className="form-control" />
+                  <div className="password-field">
+                    <Field 
+                      type={showConfirmPassword ? "text" : "password"} 
+                      name="confirmPassword" 
+                      className="form-control" 
+                    />
+                    <button 
+                      type="button" 
+                      className="password-toggle" 
+                      onClick={toggleConfirmPasswordVisibility}
+                    >
+                      {showConfirmPassword ? "🙈" : "👁️"}
+                    </button>
+                  </div>
                   <ErrorMessage name="confirmPassword" component="div" className="error-text" />
-                </div><button 
+                </div>                <button 
                   type="submit" 
-                  className="btn btn-primary btn-block" 
+                  className={`btn btn-primary btn-block btn-shimmer ${isSubmitting ? 'btn-loading' : ''}`}
                   disabled={isSubmitting}
                 >
                   <span>
@@ -211,11 +268,9 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                   </span>
                 </button>
               </Form>
-            )}          </Formik>
-          </div>
-        )}
-
-        {currentStep === 2 && (
+            )}
+          </Formik>
+        )}        {currentStep === 2 && (
           <div className={`verification-step ${stepDirection === 'next' ? 'slide-in-right' : 'slide-in-left'}`}>
             <div className="verification-header">
               <button
@@ -240,6 +295,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                       name="verificationCode" 
                       className="form-control verification-input" 
                       maxLength={6}
+                      placeholder="000000"
                     />
                     <ErrorMessage name="verificationCode" component="div" className="error-text" />
                   </div>
@@ -253,7 +309,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                     </button>
                   </div>                  <button 
                     type="submit" 
-                    className="btn btn-primary btn-block" 
+                    className={`btn btn-primary btn-block btn-shimmer ${isSubmitting ? 'btn-loading' : ''}`}
                     disabled={isSubmitting}
                   >
                     <span>

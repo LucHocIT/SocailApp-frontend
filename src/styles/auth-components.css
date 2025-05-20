@@ -28,187 +28,44 @@
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="white" d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>');
 }
 
-/* Styles for forgot password steps and verification */
-.forgot-password-step,
-.verification-step {
-  margin-bottom: 1.5rem;
-  animation: fadeSlideIn 0.6s ease-in-out;
-}
-
-@keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.verification-header {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.verification-step p {
-  margin-bottom: 1.5rem;
-  color: #4a5568;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  text-align: center;
-  position: relative;
-  padding-bottom: 1rem;
-}
-
-.verification-step p::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 2px;
-  background: #e2e8f0;
-  border-radius: 2px;
-}
-
-.back-btn {
-  position: absolute;
-  left: 0;
-  top: 0;
-  background: none;
-  border: none;
-  color: #718096;
-  font-size: 0.9rem;
-  padding: 0.35rem 0.6rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.back-btn:hover {
-  color: #4a5568;
-  background-color: #f7fafc;
-}
-
-.back-btn span {
-  font-size: 1.1rem;
+/* Styles for forgot password steps */
+.forgot-password-step {
+  margin-bottom: 1rem;
 }
 
 .resend-code {
   display: flex;
   justify-content: flex-end;
-  margin-top: 0.25rem;
-  margin-bottom: 1.5rem;
-  animation: fadeIn 1s ease-in-out 0.5s backwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
 }
 
 /* Multi-step progress indicator */
 .step-indicator {
   display: flex;
   justify-content: center;
-  margin: 2rem 0;
-  position: relative;
-}
-
-.step-indicator::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: calc(25% + 15px);
-  right: calc(25% + 15px);
-  height: 2px;
-  background-color: #e2e8f0;
-  transform: translateY(-50%);
-  z-index: 1;
+  margin-bottom: 1.5rem;
 }
 
 .step {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background-color: #f7fafc;
-  border: 2px solid #e2e8f0;
+  background-color: #ddd;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 15px;
-  font-weight: 600;
-  color: #718096;
-  position: relative;
-  z-index: 2;
-  transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
-  box-shadow: 0 0 0 4px white;
-}
-
-.step::after {
-  content: attr(data-title);
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 8px;
-  font-size: 0.75rem;
-  color: #718096;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.step:hover::after {
-  opacity: 1;
+  margin: 0 10px;
+  font-weight: bold;
+  color: #555;
 }
 
 .step.active {
-  background: linear-gradient(135deg, #4a90e2 0%, #63b3ed 100%);
+  background-color: #4a90e2;
   color: white;
-  border-color: #4a90e2;
-  transform: scale(1.15);
-  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
-  animation: pulseActive 1.5s infinite;
-}
-
-@keyframes pulseActive {
-  0% {
-    box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(74, 144, 226, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
-  }
 }
 
 .step.completed {
-  background: linear-gradient(135deg, #48bb78 0%, #68d391 100%);
+  background-color: #4CAF50;
   color: white;
-  border-color: #48bb78;
-  animation: completeStep 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-}
-
-@keyframes completeStep {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1.1);
-  }
 }

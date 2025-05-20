@@ -24,7 +24,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.75);  -webkit-backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.75);
+  -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
   z-index: 1000;
   animation: modalFadeIn 0.4s ease-out;
@@ -167,10 +168,6 @@
   margin-bottom: 1.2rem;
 }
 
-.form-row .form-group {
-  flex: 1;
-}
-
 .form-control {
   width: 100%;
   padding: 0.9rem 1rem;
@@ -196,15 +193,6 @@
 
 .form-group:focus-within label {
   color: #4a90e2;
-}
-
-.form-email-group {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.form-email-group .form-control {
-  flex: 1;
 }
 
 /* Error message styling */
@@ -338,20 +326,30 @@
   background-color: #db4437;
   color: white;
   border-color: #db4437;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-google:hover {
   background-color: #c53929;
+  transform: translateY(-2px);
 }
 
 .btn-facebook {
   background-color: #4267B2;
   color: white;
   border-color: #4267B2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-facebook:hover {
   background-color: #365899;
+  transform: translateY(-2px);
 }
 
 /* Social buttons container */
@@ -428,4 +426,51 @@
 .btn:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+/* Back button for verification step */
+.back-btn {
+  background: none;
+  border: none;
+  color: #718096;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background-color: #f0f4f8;
+  color: #4a5568;
+}
+
+.verification-header {
+  margin-bottom: 1.5rem;
+}
+
+/* Password visibility toggle */
+.password-field {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.password-toggle:hover {
+  color: #4a5568;
 }
