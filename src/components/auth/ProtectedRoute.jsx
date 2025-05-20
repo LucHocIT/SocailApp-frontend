@@ -8,10 +8,9 @@ const ProtectedRoute = () => {
   if (loading) {
     return <div className="loading">Đang tải...</div>;
   }
-  
-  // Redirect to login if not authenticated
+    // Redirect to home page if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   
   // Render child routes if authenticated

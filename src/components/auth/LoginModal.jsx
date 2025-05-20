@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import '../styles/auth.css';
+import '../../styles/auth-modal.css';
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string()
@@ -13,16 +12,15 @@ const LoginSchema = Yup.object().shape({
     .required('Vui lòng nhập mật khẩu')
 });
 
-const LoginPage = () => {
+const LoginModal = ({ onClose, onSwitchToRegister }) => {
   const { login, socialLogin } = useAuth();
-  const navigate = useNavigate();
   const [loginError, setLoginError] = useState('');
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       await login(values.username, values.password);
       toast.success('Đăng nhập thành công!');
-      navigate('/');
+      onClose();
     } catch (error) {
       setLoginError(error.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
       toast.error('Đăng nhập thất bại.');
@@ -32,25 +30,20 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = async () => {
-    // This would typically integrate with Google OAuth
-    // For now, just show a placeholder message
     toast.info('Chức năng đăng nhập bằng Google đang được phát triển');
-    
-    // When integrating with real Google OAuth:
-    // 1. Call the Google OAuth popup
-    // 2. Get the access token
-    // 3. Call socialLogin('google', accessToken)
   };
 
   const handleFacebookLogin = async () => {
-    // Similar to Google login, this would integrate with Facebook OAuth
     toast.info('Chức năng đăng nhập bằng Facebook đang được phát triển');
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-form-container">
-        <h1>Đăng nhập</h1>
+    <div className="auth-modal">
+      <div className="auth-modal-content">
+        <div className="modal-header">
+          <h2>Đăng nhập</h2>
+          <button className="close-btn" onClick={onClose}>&times;</button>
+        </div>
         
         {loginError && <div className="error-message">{loginError}</div>}
         
@@ -99,10 +92,12 @@ const LoginPage = () => {
         <div className="auth-links">
           <p>
             Chưa có tài khoản?{' '}
-            <Link to="/register">Đăng ký</Link>
+            <button className="link-btn" onClick={onSwitchToRegister}>Đăng ký</button>
           </p>
           <p>
-            <Link to="/request-verification">Quên mật khẩu?</Link>
+            <button className="link-btn" onClick={() => toast.info("Chức năng quên mật khẩu đang được phát triển")}>
+              Quên mật khẩu?
+            </button>
           </p>
         </div>
       </div>
@@ -110,4 +105,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default LoginModal;

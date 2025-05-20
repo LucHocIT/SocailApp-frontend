@@ -1,9 +1,27 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import AuthModals from './auth/AuthModals';
 import './Navbar.css';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login');
+
+  const openLoginModal = () => {
+    setAuthModalMode('login');
+    setAuthModalOpen(true);
+  };
+
+  const openRegisterModal = () => {
+    setAuthModalMode('register');
+    setAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setAuthModalOpen(false);
+  };
 
   return (
     <nav className="navbar">
@@ -28,12 +46,16 @@ const Navbar = () => {
             </>
           ) : (
             <div className="navbar-auth">
-              <Link to="/login" className="btn btn-outline">Đăng nhập</Link>
-              <Link to="/register" className="btn btn-primary">Đăng ký</Link>
-            </div>
-          )}
+              <button onClick={openLoginModal} className="btn btn-outline">Đăng nhập</button>
+              <button onClick={openRegisterModal} className="btn btn-primary">Đăng ký</button>
+            </div>          )}
         </div>
       </div>
+      <AuthModals 
+        isOpen={authModalOpen} 
+        onClose={closeAuthModal} 
+        initialMode={authModalMode} 
+      />
     </nav>
   );
 };

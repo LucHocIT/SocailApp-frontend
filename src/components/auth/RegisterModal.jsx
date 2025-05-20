@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import '../styles/auth.css';
+import '../../styles/auth-modal.css';
 
 const RegisterSchema = Yup.object().shape({
   username: Yup.string()
@@ -28,9 +27,8 @@ const RegisterSchema = Yup.object().shape({
     .required('Vui lòng nhập mã xác nhận'),
 });
 
-const RegisterPage = () => {
+const RegisterModal = ({ onClose, onSwitchToLogin }) => {
   const { registerWithVerification, requestVerificationCode } = useAuth();
-  const navigate = useNavigate();
   const [registerError, setRegisterError] = useState('');
   const [isCodeSent, setIsCodeSent] = useState(false);
 
@@ -45,7 +43,7 @@ const RegisterPage = () => {
         verificationCode: values.verificationCode
       });
       toast.success('Đăng ký thành công!');
-      navigate('/');
+      onClose();
     } catch (error) {
       setRegisterError(error.message || 'Đăng ký thất bại. Vui lòng thử lại.');
       toast.error('Đăng ký thất bại.');
@@ -70,9 +68,12 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-form-container">
-        <h1>Đăng ký tài khoản</h1>
+    <div className="auth-modal">
+      <div className="auth-modal-content register-modal">
+        <div className="modal-header">
+          <h2>Đăng ký tài khoản</h2>
+          <button className="close-btn" onClick={onClose}>&times;</button>
+        </div>
         
         {registerError && <div className="error-message">{registerError}</div>}
         
@@ -159,7 +160,7 @@ const RegisterPage = () => {
         <div className="auth-links">
           <p>
             Đã có tài khoản?{' '}
-            <Link to="/login">Đăng nhập</Link>
+            <button className="link-btn" onClick={onSwitchToLogin}>Đăng nhập</button>
           </p>
         </div>
       </div>
@@ -167,4 +168,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default RegisterModal;
