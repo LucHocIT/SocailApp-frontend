@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "dsznajder.es7-react-js-snippets",
+    "ms-vscode.vscode-typescript-next",
+    "ms-vscode.js-debug",
+    "formulahendry.auto-rename-tag",
+    "formulahendry.auto-close-tag"
+  ]
+}
