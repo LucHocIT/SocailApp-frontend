@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@use "../../styles/variables" as *;
 
 .followers-list-container {
   background: white;

@@ -1,4 +1,4 @@
-@import '../styles/variables';
+@use "../styles/variables" as *;
 
 .verification-container {
   max-width: 800px;

@@ -1,4 +1,4 @@
-@import '../styles/variables';
+@use "../styles/variables" as *;
 
 .navbar {
   background: white;
@@ -131,7 +131,7 @@
     
     &:hover {
       background: rgba($danger-color, 0.1);
-      color: darken($danger-color, 10%);
+      color: color.adjust($danger-color, $lightness: -10%);
     }
   }
 }

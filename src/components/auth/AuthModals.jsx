@@ -49,18 +49,20 @@ const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
                 onSwitchToForgotPassword={handleSwitchToForgotPassword}
                />;
     }
-  };
+  };  // Use motion explicitly to satisfy linter
+  const MotionDiv = motion.div;
+  
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div 
+        <MotionDiv 
           className="modal-overlay" 
           onClick={handleBackdropClick}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <motion.div 
+          <MotionDiv 
             className="auth-modal"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -69,8 +71,8 @@ const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
             onClick={e => e.stopPropagation()}
           >
             {renderModalContent()}
-          </motion.div>
-        </motion.div>
+          </MotionDiv>
+        </MotionDiv>
       )}
     </AnimatePresence>
   );

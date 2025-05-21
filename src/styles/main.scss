@@ -1,8 +1,9 @@
-@import 'variables';
-@import 'utilities';
+@use 'variables' as *;
+@use 'utilities' as *;
+@use 'sass:color';
 
 // Import Bootstrap
-@import 'bootstrap/dist/css/bootstrap.min.css';
+@use 'bootstrap/dist/css/bootstrap.min.css';
 
 // Font imports
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
@@ -30,7 +31,7 @@ a {
   transition: $transition-base;
   
   &:hover {
-    color: darken($link-color, 10%);
+    color: color.adjust($link-color, $lightness: -10%);
   }
 }
 

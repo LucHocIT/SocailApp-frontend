@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // Color variables
 $primary-color: #4f46e5;
 $primary-light: #6366f1;
@@ -22,16 +24,17 @@ $bg-card: #ffffff;
 // Gradient colors
 $gradient-primary: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
 $gradient-secondary: linear-gradient(135deg, $secondary-color 0%, $secondary-light 100%);
-$gradient-success: linear-gradient(135deg, $success-color 0%, lighten($success-color, 10%) 100%);
-$gradient-danger: linear-gradient(135deg, $danger-color 0%, lighten($danger-color, 10%) 100%);
-$gradient-warning: linear-gradient(135deg, $warning-color 0%, lighten($warning-color, 10%) 100%);
-$gradient-info: linear-gradient(135deg, $info-color, lighten($info-color, 10%) 100%);
-$gradient-dark: linear-gradient(135deg, $bg-dark 0%, lighten($bg-dark, 10%) 100%);
+$gradient-success: linear-gradient(135deg, $success-color 0%, color.adjust($success-color, $lightness: 10%) 100%);
+$gradient-danger: linear-gradient(135deg, $danger-color 0%, color.adjust($danger-color, $lightness: 10%) 100%);
+$gradient-warning: linear-gradient(135deg, $warning-color 0%, color.adjust($warning-color, $lightness: 10%) 100%);
+$gradient-info: linear-gradient(135deg, $info-color, color.adjust($info-color, $lightness: 10%) 100%);
+$gradient-dark: linear-gradient(135deg, $bg-dark 0%, color.adjust($bg-dark, $lightness: 10%) 100%);
 
 // Typography
 $font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 $font-family-heading: 'Poppins', $font-family-base;
 $font-size-base: 1rem;
+$font-size-xs: $font-size-base * 0.75;
 $font-size-sm: $font-size-base * 0.875;
 $font-size-lg: $font-size-base * 1.125;
 $font-size-xl: $font-size-base * 1.25;
