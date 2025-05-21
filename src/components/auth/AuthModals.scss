@@ -1,4 +1,5 @@
 @use "../../styles/variables" as *;
+@use "sass:color";
 
 // Modal Overlay
 .modal-overlay {
@@ -264,7 +265,7 @@
           border: none;
           
           &:hover {
-            background: darken(#1877F2, 5%);
+            background: color.adjust(#1877F2, $lightness: -5%);
             box-shadow: $shadow;
             transform: translateY(-2px);
           }
