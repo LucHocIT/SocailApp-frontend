@@ -7,7 +7,7 @@ const ProfileContext = createContext();
 
 // Provider component
 export function ProfileProvider({ children }) {
-  const { user, setUser } = useAuth();
+  const { setUser } = useAuth(); // Only using setUser for now
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 

@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from 'react';
-// Trong tương lai sẽ import service liên quan đến tính năng xã hội
+import { createContext, useContext } from 'react';
+// Trong tương lai sẽ import useState và service liên quan đến tính năng xã hội
+// import { useState } from 'react';
 // import socialService from '../../services/socialService';
 
 // Create social context
@@ -7,9 +8,8 @@ const SocialContext = createContext();
 
 // Provider component
 export function SocialProvider({ children }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
+  // State variables will be added when implementing social features
+  
   // Các chức năng liên quan đến bài đăng, bình luận, thông báo, v.v. sẽ được thêm vào đây
   // trong tương lai khi phát triển các tính năng này
 
@@ -20,11 +20,10 @@ export function SocialProvider({ children }) {
   // - commentOnPost
   // - getNotifications
   // - markNotificationAsRead
-
   // Context value
   const contextValue = {
-    socialLoading: loading,
-    socialError: error,
+    // socialLoading: loading,
+    // socialError: error,
     // Trong tương lai sẽ thêm các chức năng xã hội vào đây
   };
 
