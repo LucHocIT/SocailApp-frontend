@@ -2,6 +2,12 @@ import { useAuth, useProfile } from '../context';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaEdit, FaCamera, FaCheckCircle, FaUser, FaLock } from 'react-icons/fa';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
+// Import styles
+import './ProfilePage.scss';
 
 // Import the extracted components
 import { 

@@ -1,0 +1,213 @@
+@import 'variables';
+@import 'utilities';
+
+// Import Bootstrap
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+// Font imports
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+// Base styles
+html, body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  color: $text-color;
+  line-height: 1.5;
+  background-color: $bg-light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-family-heading;
+  font-weight: 600;
+  margin-bottom: $spacing-4;
+}
+
+a {
+  color: $link-color;
+  text-decoration: none;
+  transition: $transition-base;
+  
+  &:hover {
+    color: darken($link-color, 10%);
+  }
+}
+
+// Container with max-width for better reading
+.container-max {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-4;
+}
+
+// App Layout
+.app-content {
+  min-height: calc(100vh - 140px); // Adjusted for footer
+  padding: $spacing-6 0;
+  
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-4 0;
+  }
+}
+
+// App footer
+.app-footer {
+  background: white;
+  padding: $spacing-4 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  color: $text-light;
+  font-size: $font-size-sm;
+  
+  p {
+    margin: 0;
+  }
+}
+
+// Custom scrollbar for webkit browsers
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: $primary-light;
+  border-radius: $border-radius-full;
+  
+  &:hover {
+    background-color: $primary-color;
+  }
+}
+
+// Forms
+.form-control {
+  border-radius: $border-radius-md;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: $spacing-3 $spacing-4;
+  transition: $transition-base;
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.25);
+    border-color: $primary-color;
+  }
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: $spacing-2;
+}
+
+// Custom button styles
+.btn {
+  padding: $spacing-2 $spacing-5;
+  font-weight: 500;
+  border-radius: $border-radius;
+  transition: $transition-base;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.btn-primary {
+  background-color: $primary-color;
+  border-color: $primary-color;
+  
+  &:hover {
+    background-color: $primary-dark;
+    border-color: $primary-dark;
+  }
+}
+
+.btn-secondary {
+  background-color: $secondary-color;
+  border-color: $secondary-color;
+  
+  &:hover {
+    background-color: $secondary-dark;
+    border-color: $secondary-dark;
+  }
+}
+
+.btn-outline-primary {
+  color: $primary-color;
+  border-color: $primary-color;
+  
+  &:hover {
+    background-color: $primary-color;
+    color: white;
+  }
+}
+
+// Bootstrap overrides
+.card {
+  border-radius: $border-radius-lg;
+  border: none;
+  box-shadow: $shadow;
+  overflow: hidden;
+}
+
+.badge {
+  font-weight: 500;
+  padding: $spacing-1 $spacing-3;
+  border-radius: $border-radius-full;
+}
+
+// Animation classes
+.animated {
+  animation-duration: 1s;
+  animation-fill-mode: both;
+}
+
+// Toast overrides
+.Toastify__toast {
+  border-radius: $border-radius-md !important;
+  box-shadow: $shadow-lg !important;
+}
+
+// Custom components
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  box-shadow: $shadow-sm;
+  
+  &.avatar-sm {
+    width: 30px;
+    height: 30px;
+  }
+  
+  &.avatar-lg {
+    width: 60px;
+    height: 60px;
+  }
+  
+  &.avatar-xl {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+// Loader
+.loader {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba($primary-color, 0.2);
+  border-top-color: $primary-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
+
+// Import styles
+import './AuthModals.scss';
 
 const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
   const [currentMode, setCurrentMode] = useState(initialMode);
@@ -46,11 +50,29 @@ const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
                />;
     }
   };
-
   return (
-    <div className="modal-overlay" onClick={handleBackdropClick}>
-      {renderModalContent()}
-    </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          className="modal-overlay" 
+          onClick={handleBackdropClick}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="auth-modal"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            onClick={e => e.stopPropagation()}
+          >
+            {renderModalContent()}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

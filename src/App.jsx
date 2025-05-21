@@ -1,6 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useEffect } from 'react';
+import AOS from 'aos';
+
+// Bootstrap CSS & App styles
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.scss';
 
 // Import context providers
 import { AppProvider } from './context';
@@ -15,21 +21,54 @@ import ProfilePage from './pages/ProfilePage';
 import RequestVerificationPage from './pages/RequestVerificationPage';
 
 function App() {
+  // Initialize AOS animation library
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-out',
+      once: false
+    });
+  }, []);
+
   return (
     <Router>
       <AppProvider>
-        <ToastContainer position="top-right" autoClose={5000} />
+        <ToastContainer 
+          position="top-right" 
+          autoClose={3000} 
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
         <Navbar />
         <div className="app-content">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/request-verification" element={<RequestVerificationPage />} />
-              {/* Protected routes */}
+            {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/profile/:userId" element={<ProfilePage />} />
-            </Route>          </Routes>
+            </Route>
+          </Routes>
         </div>
+        <footer className="app-footer">
+          <div className="container">
+            <div className="row">
+              <div className="col-md-6">
+                <p>&copy; 2025 SocialApp. All rights reserved.</p>
+              </div>
+              <div className="col-md-6 text-end">
+                <p>Made with ❤️ for social connections</p>
+              </div>
+            </div>
+          </div>
+        </footer>
       </AppProvider>
     </Router>
   );

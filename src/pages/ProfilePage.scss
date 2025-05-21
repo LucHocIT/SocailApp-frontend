@@ -1,0 +1,499 @@
+@import '../styles/variables';
+
+.profile-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: $spacing-4;
+  
+  .profile-header {
+    background: white;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: $spacing-6;
+    animation: fadeIn 0.5s ease;
+    
+    .cover-photo {
+      height: 200px;
+      background: $gradient-primary;
+      position: relative;
+      overflow: hidden;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .edit-cover {
+        position: absolute;
+        bottom: $spacing-4;
+        right: $spacing-4;
+        background: rgba(255, 255, 255, 0.8);
+        border: none;
+        border-radius: $border-radius;
+        padding: $spacing-2 $spacing-4;
+        cursor: pointer;
+        transition: $transition-base;
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        
+        &:hover {
+          background: white;
+          box-shadow: $shadow;
+        }
+      }
+    }
+    
+    .profile-details {
+      display: flex;
+      padding: $spacing-6;
+      position: relative;
+      
+      @media (max-width: $breakpoint-md) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      
+      .avatar-container {
+        margin-top: -80px;
+        margin-right: $spacing-6;
+        position: relative;
+        
+        @media (max-width: $breakpoint-md) {
+          margin-right: 0;
+          margin-bottom: $spacing-4;
+        }
+        
+        .avatar {
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+          border: 5px solid white;
+          object-fit: cover;
+          box-shadow: $shadow;
+          background: white;
+        }
+        
+        .verified-badge {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          width: 30px;
+          height: 30px;
+          background: $gradient-primary;
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: $shadow;
+          animation: pulse 2s infinite;
+        }
+        
+        .edit-avatar {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          width: 35px;
+          height: 35px;
+          background: white;
+          border: none;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: $transition-base;
+          box-shadow: $shadow;
+          
+          &:hover {
+            background: $bg-light;
+            box-shadow: $shadow-md;
+          }
+        }
+      }
+      
+      .profile-info {
+        flex: 1;
+        
+        .name-container {
+          display: flex;
+          align-items: center;
+          gap: $spacing-3;
+          margin-bottom: $spacing-2;
+          
+          @media (max-width: $breakpoint-md) {
+            justify-content: center;
+          }
+          
+          .name {
+            font-size: $font-size-2xl;
+            font-weight: 600;
+            color: $text-color;
+            margin: 0;
+          }
+          
+          .username {
+            color: $text-light;
+            font-size: $font-size-lg;
+          }
+        }
+        
+        .bio {
+          margin-bottom: $spacing-4;
+          line-height: 1.6;
+          color: $text-light;
+        }
+        
+        .stats {
+          display: flex;
+          gap: $spacing-6;
+          
+          @media (max-width: $breakpoint-md) {
+            justify-content: center;
+          }
+          
+          .stat {
+            cursor: pointer;
+            
+            .count {
+              font-size: $font-size-lg;
+              font-weight: 600;
+              color: $text-color;
+            }
+            
+            .label {
+              color: $text-light;
+              font-size: $font-size-sm;
+            }
+            
+            &:hover {
+              .count {
+                color: $primary-color;
+              }
+            }
+          }
+        }
+      }
+      
+      .profile-actions {
+        display: flex;
+        gap: $spacing-3;
+        align-items: center;
+        position: absolute;
+        top: $spacing-6;
+        right: $spacing-6;
+        
+        @media (max-width: $breakpoint-md) {
+          position: static;
+          margin-top: $spacing-4;
+        }
+        
+        button {
+          padding: $spacing-2 $spacing-4;
+          border-radius: $border-radius;
+          font-weight: 500;
+          transition: $transition-base;
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+          
+          &.btn-follow {
+            background: $gradient-primary;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 6px rgba($primary-color, 0.2);
+            
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 6px 8px rgba($primary-color, 0.3);
+            }
+            
+            &:active {
+              transform: translateY(0);
+            }
+          }
+          
+          &.btn-following {
+            background: white;
+            border: 1px solid $primary-color;
+            color: $primary-color;
+            
+            &:hover {
+              background: rgba($primary-color, 0.1);
+            }
+          }
+          
+          &.btn-edit {
+            background: transparent;
+            border: 1px solid $text-muted;
+            color: $text-light;
+            
+            &:hover {
+              background: $bg-light;
+              border-color: $text-light;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .profile-tabs {
+    display: flex;
+    background: white;
+    border-radius: $border-radius-lg;
+    margin-bottom: $spacing-6;
+    overflow: hidden;
+    box-shadow: $shadow;
+    
+    .tab {
+      flex: 1;
+      padding: $spacing-4;
+      text-align: center;
+      font-weight: 500;
+      color: $text-light;
+      cursor: pointer;
+      transition: $transition-base;
+      border-bottom: 2px solid transparent;
+      
+      &:hover {
+        color: $primary-color;
+      }
+      
+      &.active {
+        color: $primary-color;
+        border-bottom: 2px solid $primary-color;
+      }
+    }
+  }
+  
+  .profile-content {
+    background: white;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow;
+    padding: $spacing-6;
+    animation: fadeIn 0.5s ease;
+    
+    .section-title {
+      font-size: $font-size-xl;
+      font-weight: 600;
+      margin-bottom: $spacing-6;
+      color: $text-color;
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -10px;
+        height: 3px;
+        width: 40px;
+        background: $gradient-primary;
+        border-radius: $border-radius;
+      }
+    }
+    
+    .form-row {
+      display: flex;
+      gap: $spacing-4;
+      margin-bottom: $spacing-4;
+      
+      @media (max-width: $breakpoint-md) {
+        flex-direction: column;
+      }
+      
+      .form-group {
+        flex: 1;
+        
+        label {
+          display: block;
+          font-weight: 500;
+          margin-bottom: $spacing-2;
+          color: $text-light;
+        }
+        
+        input, textarea {
+          width: 100%;
+          padding: $spacing-3;
+          border: 1px solid #e5e7eb;
+          border-radius: $border-radius;
+          transition: $transition-base;
+          
+          &:focus {
+            outline: none;
+            border-color: $primary-color;
+            box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+          }
+        }
+        
+        textarea {
+          min-height: 100px;
+          resize: vertical;
+        }
+      }
+    }
+    
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: $spacing-3;
+      margin-top: $spacing-6;
+      
+      button {
+        padding: $spacing-2 $spacing-6;
+        border-radius: $border-radius;
+        font-weight: 500;
+        transition: $transition-base;
+        
+        &.btn-save {
+          background: $gradient-primary;
+          color: white;
+          border: none;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: $shadow-md;
+          }
+          
+          &:active {
+            transform: translateY(0);
+          }
+        }
+        
+        &.btn-cancel {
+          background: transparent;
+          border: 1px solid $text-muted;
+          color: $text-light;
+          
+          &:hover {
+            background: $bg-light;
+            border-color: $text-light;
+          }
+        }
+      }
+    }
+  }
+  
+  // Modal styles
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: $z-index-modal;
+    animation: fadeIn 0.3s ease;
+    
+    .modal-content {
+      background: white;
+      border-radius: $border-radius-lg;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: $shadow-xl;
+      animation: scaleIn 0.3s ease;
+      
+      .modal-header {
+        padding: $spacing-4 $spacing-6;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .modal-title {
+          font-size: $font-size-xl;
+          font-weight: 600;
+          color: $text-color;
+          margin: 0;
+        }
+        
+        .modal-close {
+          background: transparent;
+          border: none;
+          font-size: $font-size-xl;
+          cursor: pointer;
+          color: $text-light;
+          padding: $spacing-2;
+          
+          &:hover {
+            color: $danger-color;
+          }
+        }
+      }
+      
+      .modal-body {
+        padding: $spacing-6;
+        
+        .user-list {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-4;
+          
+          .user-item {
+            display: flex;
+            align-items: center;
+            gap: $spacing-3;
+            padding: $spacing-3;
+            border-radius: $border-radius;
+            transition: $transition-base;
+            
+            &:hover {
+              background: $bg-light;
+            }
+            
+            .user-avatar {
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              object-fit: cover;
+            }
+            
+            .user-info {
+              flex: 1;
+              
+              .user-name {
+                font-weight: 600;
+                color: $text-color;
+                margin: 0;
+              }
+              
+              .user-username {
+                color: $text-light;
+                font-size: $font-size-sm;
+              }
+            }
+            
+            .follow-btn {
+              padding: $spacing-1 $spacing-4;
+              border-radius: $border-radius-full;
+              font-size: $font-size-sm;
+              font-weight: 500;
+              
+              &.following {
+                background: transparent;
+                border: 1px solid $primary-color;
+                color: $primary-color;
+              }
+              
+              &.follow {
+                background: $primary-color;
+                color: white;
+                border: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

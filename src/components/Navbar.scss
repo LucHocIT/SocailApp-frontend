@@ -1,0 +1,228 @@
+@import '../styles/variables';
+
+.navbar {
+  background: white;
+  box-shadow: $shadow;
+  padding: $spacing-3 0;
+  position: sticky;
+  top: 0;
+  z-index: $z-index-fixed;
+  transition: $transition-base;
+  
+  &.navbar-scrolled {
+    padding: $spacing-2 0;
+    box-shadow: $shadow-md;
+  }
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-4;
+}
+
+.navbar-logo {
+  a {
+    font-family: $font-family-heading;
+    font-size: $font-size-xl;
+    font-weight: 700;
+    color: $primary-color;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    
+    &:hover {
+      color: $primary-dark;
+    }
+    
+    img {
+      height: 30px;
+      margin-right: $spacing-2;
+    }
+  }
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: $spacing-5;
+  
+  .nav-link {
+    color: $text-color;
+    font-weight: 500;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $border-radius;
+    transition: $transition-base;
+    position: relative;
+    
+    &:hover, &.active {
+      color: $primary-color;
+      
+      &::after {
+        width: 100%;
+        opacity: 1;
+      }
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: $gradient-primary;
+      transition: $transition-base;
+      opacity: 0;
+    }
+  }
+}
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  
+  .user-greeting {
+    font-weight: 500;
+    color: $text-light;
+    margin-right: $spacing-3;
+  }
+  
+  .btn-outline {
+    border: 1px solid $primary-color;
+    color: $primary-color;
+    padding: $spacing-2 $spacing-5;
+    border-radius: $border-radius;
+    background: transparent;
+    transition: $transition-base;
+    
+    &:hover {
+      background: rgba($primary-color, 0.1);
+      transform: translateY(-2px);
+    }
+  }
+  
+  .btn-primary {
+    background: $gradient-primary;
+    color: white;
+    padding: $spacing-2 $spacing-5;
+    border-radius: $border-radius;
+    border: none;
+    transition: $transition-base;
+    box-shadow: 0 4px 10px rgba($primary-color, 0.3);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba($primary-color, 0.4);
+    }
+  }
+  
+  .btn-logout {
+    color: $danger-color;
+    background: transparent;
+    border: 1px solid $danger-color;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $border-radius;
+    transition: $transition-base;
+    
+    &:hover {
+      background: rgba($danger-color, 0.1);
+      color: darken($danger-color, 10%);
+    }
+  }
+}
+
+// Mobile menu
+.navbar-mobile-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: $spacing-2;
+  
+  .hamburger {
+    width: 24px;
+    height: 2px;
+    background: $text-color;
+    position: relative;
+    transition: $transition-base;
+    
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 2px;
+      background: $text-color;
+      transition: $transition-base;
+    }
+    
+    &::before {
+      transform: translateY(-8px);
+    }
+    
+    &::after {
+      transform: translateY(8px);
+    }
+  }
+  
+  &.active {
+    .hamburger {
+      background: transparent;
+      
+      &::before {
+        transform: rotate(45deg);
+      }
+      
+      &::after {
+        transform: rotate(-45deg);
+      }
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: $breakpoint-md) {
+  .navbar-mobile-toggle {
+    display: block;
+  }
+  
+  .navbar-links {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: $spacing-4;
+    flex-direction: column;
+    gap: $spacing-4;
+    box-shadow: $shadow-lg;
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: $transition-base;
+    
+    &.active {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .nav-link {
+      width: 100%;
+      text-align: center;
+    }
+    
+    .navbar-auth {
+      flex-direction: column;
+      width: 100%;
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+}
