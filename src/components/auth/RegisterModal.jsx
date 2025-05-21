@@ -40,7 +40,6 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userData, setUserData] = useState({});
-  const [isCodeSent, setIsCodeSent] = useState(false);
   // Step 1: Submit user registration info and request verification code
   const handleSubmitInfo = async (values, { setSubmitting }) => {
     setRegisterError(''); // Clear any previous errors
@@ -52,13 +51,10 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
         password: values.password,
         firstName: values.firstName,
         lastName: values.lastName
-      });
-
-      // Request verification code
+      });      // Request verification code
       const response = await requestVerificationCode(values.email);
         if (response?.success) {
         // Advance to verification step
-        setIsCodeSent(true);
         setStepDirection('next');
         setCurrentStep(2);
         toast.success('Mã xác nhận đã được gửi đến email của bạn');
