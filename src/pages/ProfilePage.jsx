@@ -2,7 +2,6 @@ import { useAuth, useProfile } from '../context';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
-import './ProfilePage.css';
 
 // Import the extracted components
 import { 
