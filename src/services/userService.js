@@ -53,7 +53,6 @@ class UserService {
       throw this.handleError(error);
     }
   }
-
   // Tải lên ảnh đại diện
   async uploadProfilePicture(imageFile) {
     try {

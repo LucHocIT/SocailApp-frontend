@@ -17,7 +17,16 @@ const ProfileEditForm = ({ profile: initialProfile, onCancel, onProfileUpdated }
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     try {
-      await updateProfile(profile);
+      // Đảm bảo gửi đủ trường bắt buộc theo UpdateProfileDTO ở backend
+      const updatedProfile = {
+        username: profile.username,
+        email: profile.email,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        bio: profile.bio
+      };
+      
+      await updateProfile(updatedProfile);
       toast.success('Cập nhật thông tin thành công!');
       onProfileUpdated({
         firstName: profile.firstName,

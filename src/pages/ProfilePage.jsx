@@ -35,8 +35,9 @@ const ProfilePage = () => {
   const [following, setFollowing] = useState([]);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
-  
-  const [profile, setProfile] = useState({
+    const [profile, setProfile] = useState({
+    username: '',
+    email: '',
     firstName: '',
     lastName: '',
     bio: ''
@@ -59,10 +60,11 @@ const ProfilePage = () => {
         // Fetch profile data
         const data = await getUserProfile(targetUserId);
         setProfileData(data);
-        
-        // Initialize form if it's own profile
+          // Initialize form if it's own profile
         if (!userId || (user && targetUserId === user.id)) {
           setProfile({
+            username: data.username || '',
+            email: data.email || '',
             firstName: data.firstName || '',
             lastName: data.lastName || '',
             bio: data.bio || ''
