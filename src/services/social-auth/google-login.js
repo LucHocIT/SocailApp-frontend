@@ -21,7 +21,7 @@ const loadGoogleScript = () => {
 };
 
 // Initialize Google login
-const initializeGoogle = (clientId) => {
+const initializeGoogle = () => {
   return new Promise((resolve) => {
     if (!window.google) {
       const checkGoogleInterval = setInterval(() => {

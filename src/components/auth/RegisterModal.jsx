@@ -40,6 +40,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userData, setUserData] = useState({});
+  const [isCodeSent, setIsCodeSent] = useState(false);
   // Step 1: Submit user registration info and request verification code
   const handleSubmitInfo = async (values, { setSubmitting }) => {
     setRegisterError(''); // Clear any previous errors
@@ -53,8 +54,9 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
         lastName: values.lastName
       });      // Request verification code
       const response = await requestVerificationCode(values.email);
-        if (response?.success) {
+      if (response?.success) {
         // Advance to verification step
+        setIsCodeSent(true);
         setStepDirection('next');
         setCurrentStep(2);
         toast.success('Mã xác nhận đã được gửi đến email của bạn');
@@ -106,10 +108,10 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
   // Handle resending verification code
   const handleResendCode = async () => {
     try {
-      setRegisterError('');
-      const response = await requestVerificationCode(userData.email);
+      setRegisterError('');      const response = await requestVerificationCode(userData.email);
       
       if (response?.success) {
+        setIsCodeSent(true);
         toast.success('Mã xác nhận mới đã được gửi đến email của bạn');
       } else {
         setRegisterError(response?.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại sau.');
@@ -117,11 +119,11 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
     } catch (error) {
       setRegisterError(error.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại sau.');
     }  };
-  
-  // Handle going back to previous step
+    // Handle going back to previous step
   const handleGoBack = () => {
     setStepDirection('prev');
     setCurrentStep(1);
+    setIsCodeSent(false);
   };
   
   // Toggle password visibility
@@ -262,8 +264,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                 </button>
               </Form>
             )}
-          </Formik>
-        )}        {currentStep === 2 && (
+          </Formik>        )}        {currentStep === 2 && (
           <div className={`verification-step ${stepDirection === 'next' ? 'slide-in-right' : 'slide-in-left'}`}>
             <div className="verification-header">
               <button
@@ -273,7 +274,10 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
               >
                 <span>&larr;</span> Quay lại
               </button>
-              <p>Nhập mã xác nhận đã được gửi đến email của bạn.</p>
+              <p>
+                {isCodeSent 
+                  ? "Nhập mã xác nhận đã được gửi đến email của bạn." 
+                  : "Đang chờ gửi mã xác nhận..."}              </p>
             </div>
             <Formik
               initialValues={{ verificationCode: '' }}
@@ -289,6 +293,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                       className="form-control verification-input" 
                       maxLength={6}
                       placeholder="000000"
+                      disabled={!isCodeSent}
                     />
                     <ErrorMessage name="verificationCode" component="div" className="error-text" />
                   </div>
@@ -298,12 +303,12 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                       className="link-btn resend-code-btn" 
                       onClick={handleResendCode}
                     >
-                      <span>Gửi lại mã xác nhận</span>
+                      <span>{isCodeSent ? 'Gửi lại mã xác nhận' : 'Gửi mã xác nhận'}</span>
                     </button>
                   </div>                  <button 
                     type="submit" 
                     className={`btn btn-primary btn-block btn-shimmer ${isSubmitting ? 'btn-loading' : ''}`}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !isCodeSent}
                   >
                     <span>
                       {isSubmitting ? 'Đang xác nhận...' : 'Xác nhận'}
