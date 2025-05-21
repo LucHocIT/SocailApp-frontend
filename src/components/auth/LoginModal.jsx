@@ -3,8 +3,6 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../context';
 import { toast } from 'react-toastify';
-
-// Import styles
 import './LoginModal.scss';
 
 const LoginSchema = Yup.object().shape({
