@@ -60,7 +60,8 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
         handleSocialLoginCallback(provider, accessToken);
       });
     } catch (error) {
-      setLoginError('Không thể kết nối với Google. Vui lòng thử lại sau.');
+      console.error('Google login error:', error);
+      setLoginError(`Không thể kết nối với Google: ${error.message || 'Vui lòng thử lại sau.'}`);
       // Không đặt toast vì chúng ta hiển thị lỗi trong modal
       setIsProcessing(false);    }
   };
