@@ -4,6 +4,9 @@ import * as Yup from 'yup';
 import { useAuth } from '../../context';
 import { toast } from 'react-toastify';
 
+// Import styles
+import './LoginModal.scss';
+
 const LoginSchema = Yup.object().shape({
   username: Yup.string()
     .required('Vui lòng nhập tên đăng nhập'),

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useProfile } from '../../context';
-
+import './PasswordChangeForm.scss';
 const PasswordChangeForm = ({ onCancel }) => {
   const { changePassword } = useProfile();
   

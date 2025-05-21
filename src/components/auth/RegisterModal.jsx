@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../context';
 import { toast } from 'react-toastify';
-
+import './RegisterMModal.scss';
 // Registration step 1: Validate and submit user information
 const RegisterInfoSchema = Yup.object().shape({
   username: Yup.string()

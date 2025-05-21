@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useProfile } from '../../context';
+import './ProfileHeader.scss';
 
 const ProfileHeader = ({ 
   profileData, 

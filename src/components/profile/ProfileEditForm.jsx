@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useProfile } from '../../context';
+import './PasswordEditForm.scss';
 
 const ProfileEditForm = ({ profile: initialProfile, onCancel, onProfileUpdated }) => {
   const { updateProfile } = useProfile();
