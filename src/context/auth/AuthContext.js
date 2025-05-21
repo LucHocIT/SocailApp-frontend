@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import authService from '../services/authService';
+import authService from '../../services/authService';
 
 // Create auth context
 const AuthContext = createContext();
@@ -28,6 +28,7 @@ export function AuthProvider({ children }) {
 
     initAuth();
   }, []);
+
   // Login function
   const login = async (username, password) => {
     setLoading(true);
@@ -37,22 +38,20 @@ export function AuthProvider({ children }) {
       setUser(response.user);
       return response;
     } catch (err) {
-      // Đảm bảo lỗi được cập nhật trong state
       const errorMessage = err.message || 'Đăng nhập thất bại';
       setError(errorMessage);
-      // Đảm bảo lỗi được ném ra để component có thể bắt và xử lý
       throw err;
     } finally {
       setLoading(false);
     }
   };
+
   // Register function
   const register = async (userData) => {
     setLoading(true);
     setError(null);
     try {
       const response = await authService.register(userData);
-      // Do not automatically log in after registration
       return response;
     } catch (err) {
       setError(err.message || 'Đăng ký thất bại');
@@ -61,13 +60,13 @@ export function AuthProvider({ children }) {
       setLoading(false);
     }
   };
+
   // Register with verification code
   const registerWithVerification = async (userData) => {
     setLoading(true);
     setError(null);
     try {
       const response = await authService.registerWithVerification(userData);
-      // Do not automatically log in after registration
       return response;
     } catch (err) {
       setError(err.message || 'Đăng ký thất bại');
@@ -133,6 +132,20 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Verify email code
+  const verifyCode = async (email, code) => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await authService.verifyCode(email, code);
+    } catch (err) {
+      setError(err.message || 'Xác thực mã thất bại');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Social login
   const socialLogin = async (provider, accessToken) => {
     setLoading(true);
@@ -154,23 +167,11 @@ export function AuthProvider({ children }) {
     authService.logout();
     setUser(null);
   };
-  // Verify email code
-  const verifyCode = async (email, code) => {
-    setLoading(true);
-    setError(null);
-    try {
-      return await authService.verifyCode(email, code);
-    } catch (err) {
-      setError(err.message || 'Xác thực mã thất bại');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Context value
   const contextValue = {
     user,
+    setUser, // Expose setUser to other contexts
     loading,
     error,
     login,

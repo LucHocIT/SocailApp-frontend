@@ -1,4 +1,4 @@
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context';
 
 const HomePage = () => {
   const { user } = useAuth();

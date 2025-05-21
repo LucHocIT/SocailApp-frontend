@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context';
 // Step 1: Request code
 const RequestCodeSchema = Yup.object().shape({
   email: Yup.string()

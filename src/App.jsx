@@ -3,7 +3,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Import context providers
-import { AuthProvider } from './context/AuthContext';
+import { AppProvider } from './context';
 
 // Import components
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -17,21 +17,20 @@ import RequestVerificationPage from './pages/RequestVerificationPage';
 function App() {
   return (
     <Router>
-      <AuthProvider>
+      <AppProvider>
         <ToastContainer position="top-right" autoClose={5000} />
         <Navbar />
         <div className="app-content">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/request-verification" element={<RequestVerificationPage />} />
-            
-            {/* Protected routes */}
+              {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
-            </Route>
-          </Routes>
+              <Route path="/profile/:userId" element={<ProfilePage />} />
+            </Route>          </Routes>
         </div>
-      </AuthProvider>
+      </AppProvider>
     </Router>
   );
 }
