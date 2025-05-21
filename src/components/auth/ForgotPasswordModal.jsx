@@ -37,12 +37,10 @@ const ResetPasswordSchema = Yup.object().shape({
 });
 
 const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
-  const { requestPasswordReset, verifyResetCode, resetPassword } = useAuth();
-  const [currentStep, setCurrentStep] = useState(1);
+  const { requestPasswordReset, verifyResetCode, resetPassword } = useAuth();  const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
-  const [isCodeSent, setIsCodeSent] = useState(false);
   
   // Step 1: Request reset password code
   const handleRequestCode = async (values, { setSubmitting }) => {
@@ -50,10 +48,8 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
     try {
       setEmail(values.email);
       const response = await requestPasswordReset(values.email);
-      
-      if (response.success) {
+        if (response.success) {
         toast.success('Mã xác nhận đã được gửi đến email của bạn');
-        setIsCodeSent(true);
         setCurrentStep(2);
       } else {
         setError(response.message || 'Không thể gửi mã xác nhận. Vui lòng thử lại.');
