@@ -154,13 +154,11 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           <FaSignInAlt style={{ marginRight: '8px' }} /> Đăng nhập
-        </motion.h2>
-        <motion.button 
+        </motion.h2>        <motion.button 
           className={styles.closeButton} 
           onClick={onClose}
-          whileHover={{ rotate: 90 }}
+          whileHover={{ rotate: 90, scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          transition={{ duration: 0.2 }}
         >
           <FaTimes />
         </motion.button>
@@ -307,14 +305,13 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
               </motion.div>
             </Form>
           )}
-        </Formik>
-          <motion.div 
+        </Formik>          <motion.div 
           className="modal-footer"
+          style={{ padding: "var(--spacing-2) var(--spacing-6) var(--spacing-4)" }} // Reduced padding
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.3 }}
-        >
-          <motion.div 
+        ><motion.div 
             className="divider"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
@@ -323,17 +320,16 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.7, duration: 0.3 }}
+              transition={{ delay: 0.6, duration: 0.3 }}
             >
               Hoặc đăng nhập với
             </motion.span>
           </motion.div>
-          
-          <motion.div 
+            <motion.div 
             className={styles.socialLoginButtons}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.3 }}
+            transition={{ delay: 0.7, duration: 0.3 }}
           >
             <motion.button 
               onClick={handleGoogleLogin} 
@@ -357,11 +353,10 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
               <FaFacebook size={20} />
             </motion.button>
           </motion.div>
-          
-          <motion.p
+            <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.3 }}
+            transition={{ delay: 0.8, duration: 0.3 }}
           >
             Chưa có tài khoản?{' '}
             <motion.a 

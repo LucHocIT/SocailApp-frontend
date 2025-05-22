@@ -23,25 +23,6 @@
 // Font imports
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
-/* 
-  Note on CSS Architecture:
-  
-  We're using a hybrid approach with global styles defined here
-  and component-specific styles in CSS Modules (.module.scss files).
-  
-  We've successfully implemented CSS Modules for:
-  - Page components (home, profile, verification)
-  - Auth components (login, register, forgot password)
-  - Profile components (profile header, edit form, followers/following)
-  - Navigation components
-  
-  This approach allows us to:
-  1. Maintain global styles and design tokens in a central location
-  2. Keep component-specific styles scoped to avoid CSS conflicts
-  3. Reuse mixins and variables across the application
-  
-  Reference the README.md in this directory for more details on our approach.
-*/
 
 // Base styles
 html, body {
