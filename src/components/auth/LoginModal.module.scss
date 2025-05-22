@@ -3,8 +3,16 @@
 @use 'sass:color';
 @use '../../styles/abstracts/mixins' as *;
 
+// Custom gradient for login modal
+$login-gradient: linear-gradient(135deg, $primary-color 0%, color.adjust($primary-color, $lightness: 15%) 100%);
+
 .formGroup {
   margin-bottom: $spacing-4;
+  transition: $transition-base;
+  
+  &:focus-within {
+    transform: translateY(-2px);
+  }
   
   label {
     display: block;
@@ -16,6 +24,12 @@
   
   input {
     @include form-input;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+      transform: translateY(-1px);
+    }
   }
   
   .error {
@@ -23,8 +37,7 @@
     font-size: $font-size-xs;
     margin-top: $spacing-1;
   }
-  
-  .passwordField {
+    .passwordField {
     position: relative;
     
     .toggleVisibility {
@@ -36,9 +49,11 @@
       border: none;
       color: $text-muted;
       cursor: pointer;
+      transition: $transition-fast;
       
       &:hover {
-        color: $text-light;
+        color: $primary-color;
+        transform: translateY(-50%) scale(1.1);
       }
     }
   }
@@ -52,6 +67,41 @@
   
   button {
     width: 100%;
+    position: relative;
+    overflow: hidden;
+    background: $login-gradient;
+    border: none;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg, 0 0 15px rgba($primary-color, 0.5);
+    }
+    
+    &:active {
+      transform: translateY(-1px);
+    }
+    
+    // Create shine effect on hover
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to right,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      );
+      transition: left 0.7s ease;
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
   }
   
   .forgotPassword {
@@ -63,16 +113,26 @@
     
     &:hover {
       color: $primary-color;
+      transform: translateY(-1px);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
   }
 }
 
 .loginError {
-  background-color: rgba($danger-color, 0.1);
+  background: linear-gradient(135deg, rgba($danger-color, 0.08) 0%, rgba($danger-color, 0.15) 100%);
   color: $danger-color;
   padding: $spacing-3;
-  border-radius: $border-radius;
+  border-radius: $border-radius-md;
   margin-bottom: $spacing-4;
   text-align: center;
   font-size: $font-size-sm;
+  border-left: 3px solid $danger-color;
+  box-shadow: 0 2px 10px rgba($danger-color, 0.1);
+  animation: errorPulse 1s ease-in-out;
+  
+  @keyframes errorPulse {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
 }

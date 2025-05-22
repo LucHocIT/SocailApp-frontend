@@ -129,12 +129,28 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: $border-radius;
   font-size: $font-size-base;
-  transition: $transition-base;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background-color: rgba(255, 255, 255, 0.9);
+  
+  &::placeholder {
+    color: $text-muted;
+    transition: opacity 0.3s, transform 0.3s;
+  }
   
   &:focus {
     border-color: $primary-color;
     box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
     outline: none;
+    background-color: white;
+    
+    &::placeholder {
+      opacity: 0.7;
+      transform: translateX(5px);
+    }
+  }
+  
+  &:hover:not(:focus) {
+    border-color: rgba($primary-color, 0.5);
   }
   
   &:disabled {

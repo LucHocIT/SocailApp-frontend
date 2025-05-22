@@ -59,13 +59,17 @@ const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-        >
-          <MotionDiv 
+        >          <MotionDiv 
             className={styles.modal}
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 10 }}
+            transition={{ 
+              type: "spring", 
+              damping: 22, 
+              stiffness: 350, 
+              mass: 0.8 
+            }}
             onClick={e => e.stopPropagation()}
           >
             {renderModalContent()}
