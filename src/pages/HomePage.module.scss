@@ -87,6 +87,25 @@
   }
 }
 
+.postOnlyContainer {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: $shadow-sm;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: $primary-color;
+    text-align: center;
+  }
+}
+
 .userProfile {
   background-color: white;
   border-radius: 8px;  padding: 1.5rem;
@@ -201,6 +220,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .statsSection {

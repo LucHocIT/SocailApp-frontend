@@ -66,14 +66,13 @@ const postService = {
       throw error.response?.data || { message: 'Error toggling like' };
     }
   },
-  
-  // Upload media for a post
+    // Upload media for a post
   uploadMedia: async (mediaFile) => {
     try {
       const formData = new FormData();
       formData.append('media', mediaFile);
       
-      const response = await api.post('/media/upload', formData, {
+      const response = await api.post('/posts/upload-media', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
