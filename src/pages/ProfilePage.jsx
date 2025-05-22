@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaEdit, FaCamera, FaCheckCircle, FaUser, FaLock } from 'react-icons/fa';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import styles from './ProfilePage.module.scss';
 
 
 // Import the extracted components
@@ -146,9 +147,8 @@ const ProfilePage = () => {
   if (!profileData && !loading) {
     return <div className="error">Không thể tải thông tin hồ sơ người dùng này</div>;
   }
-
   return (
-    <div className="profile-container">
+    <div className={styles.profileContainer}>
       <ProfileHeader 
         profileData={profileData}
         isOwnProfile={isOwnProfile}

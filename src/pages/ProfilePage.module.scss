@@ -1,0 +1,162 @@
+// ProfilePage.module.scss
+@use '../styles/abstracts/variables' as *;
+@use '../styles/abstracts/mixins' as *;
+
+.profileContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.profileContent {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar {
+  @media (max-width: 992px) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    
+    > div {
+      flex: 1 1 300px;
+    }
+  }
+}
+
+.statsCard {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: $box-shadow-sm;
+  
+  h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: $text-dark;
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 0.5rem;
+  }
+}
+
+.statsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  
+  li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid $border-color-light;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .label {
+      color: $text-muted;
+    }
+    
+    .value {
+      font-weight: 600;
+      color: $text-dark;
+    }
+  }
+}
+
+.activitySection {
+  flex: 1;
+}
+
+// .mainContent {
+//   // This will hold posts or any other main content
+// }
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  
+  button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    svg {
+      font-size: 1rem;
+    }
+  }
+  
+  .editButton {
+    @include button-outline;
+  }
+  
+  .passwordButton {
+    @include button-outline;
+    color: $secondary-color;
+    border-color: $secondary-color;
+    
+    &:hover {
+      background-color: $secondary-color;
+      color: white;
+    }
+  }
+}
+
+.followButton {
+  @include button-primary;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.unfollowButton {
+  @include button-outline;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: $text-dark;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  svg {
+    color: $primary-color;
+    font-size: 1.25rem;
+  }
+}
+
+.postsList {
+  margin-top: 1.5rem;
+}
+
+.postsEmptyState {
+  text-align: center;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: $box-shadow-sm;
+  color: $text-muted;
+  
+  p {
+    margin-bottom: 1rem;
+  }
+}

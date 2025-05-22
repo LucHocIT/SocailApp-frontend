@@ -1,0 +1,309 @@
+// RequestVerificationPage.module.scss
+@use '../styles/abstracts/variables' as *;
+@use '../styles/abstracts/mixins' as *;
+
+.verificationContainer {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.verificationCard {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: $box-shadow-lg;
+  margin-bottom: 2rem;
+}
+
+.cardHeader {
+  background: linear-gradient(135deg, $primary-color, darken($primary-color, 15%));
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  
+  h1 {
+    font-size: 2rem;
+    margin: 1rem 0 0.5rem;
+    position: relative;
+    z-index: 2;
+  }
+  
+  p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+  }
+}
+
+.headerBlob {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  
+  &.blob1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    left: -100px;
+  }
+  
+  &.blob2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    right: -50px;
+  }
+}
+
+.verificationIcon {
+  background-color: white;
+  color: $primary-color;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  
+  svg {
+    font-size: 2.5rem;
+  }
+}
+
+.cardBody {
+  padding: 2rem;
+}
+
+.errorMessage {
+  background-color: rgba($danger, 0.1);
+  color: $danger;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  svg {
+    font-size: 1.25rem;
+  }
+}
+
+.successMessage {
+  text-align: center;
+  padding: 1rem 0;
+  
+  .successIcon {
+    width: 60px;
+    height: 60px;
+    background-color: $success;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    
+    svg {
+      font-size: 1.5rem;
+    }
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: $text-dark;
+  }
+  
+  p {
+    color: $text-muted;
+    margin-bottom: 1.5rem;
+  }
+  
+  .homeLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $primary-color;
+    font-weight: 500;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.verificationForm {
+  .formGroup {
+    margin-bottom: 1.5rem;
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: $text-dark;
+    }
+  }
+  
+  .inputGroup {
+    position: relative;
+    
+    &.hasIcon {
+      .inputIcon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $text-muted;
+        font-size: 1rem;
+      }
+      
+      input {
+        padding-left: 2.75rem;
+      }
+    }
+    
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid $border-color;
+      border-radius: 8px;
+      font-size: 1rem;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+      }
+    }
+  }
+  
+  .error {
+    color: $danger;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+.submitButton {
+  @include button-primary;
+  width: 100%;
+  padding: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  .faSpin {
+    animation: spin 1s infinite linear;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cardFooter {
+  background-color: $gray-100;
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid $border-color;
+  
+  p {
+    margin: 0;
+    
+    a {
+      color: $primary-color;
+      text-decoration: none;
+      font-weight: 500;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.steps {
+  h3 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: $text-dark;
+    font-size: 1.5rem;
+  }
+}
+
+.stepsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.step {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: $box-shadow-sm;
+  text-align: center;
+  position: relative;
+  
+  .stepNumber {
+    width: 40px;
+    height: 40px;
+    background-color: $primary-color;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin: 0 auto 1rem;
+  }
+  
+  h4 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: $text-dark;
+  }
+  
+  p {
+    color: $text-muted;
+    margin: 0;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 40px;
+    right: -28px;
+    width: 35px;
+    height: 2px;
+    background-color: $primary-color;
+    
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+  
+  &:last-child {
+    &::after {
+      display: none;
+    }
+  }
+}

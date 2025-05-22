@@ -94,9 +94,27 @@ Global styles are organized in the `src/styles/` directory and imported in `main
 
 We've converted these components to use CSS Modules:
 
-1. Navbar (`Navbar.module.scss`)
-2. Auth Modals (`AuthModals.module.scss`, `LoginModal.module.scss`)
-3. Profile components (`ProfileHeader.module.scss`)
+1. **Page Components**:
+   - `HomePage.module.scss`
+   - `ProfilePage.module.scss`
+   - `RequestVerificationPage.module.scss`
+   
+2. **Navigation**:
+   - `Navbar.module.scss`
+   
+3. **Auth Components**:
+   - `LoginModal.module.scss`
+   - `RegisterModal.module.scss`
+   - `ForgotPasswordModal.module.scss`
+   
+4. **Profile Components**:
+   - `ProfileHeader.module.scss`
+   - `ProfileEditForm.module.scss`
+   - `PasswordChangeForm.module.scss`
+   - `FollowersModal.module.scss`
+   - `FollowingModal.module.scss`
+   - `FollowersList.module.scss`
+   - `UserList.module.scss`
 
 ## Best Practices
 

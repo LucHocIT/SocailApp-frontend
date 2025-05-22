@@ -3,6 +3,7 @@ import { useProfile } from '../../context';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { FaUserCheck, FaUserPlus, FaTimes } from 'react-icons/fa';
+import styles from './FollowersList.module.scss';
 
 
 const FollowersList = ({ userId, type = 'followers', onClose }) => {
@@ -57,63 +58,69 @@ const FollowersList = ({ userId, type = 'followers', onClose }) => {
   };
   
   const title = type === 'followers' ? 'Người theo dõi' : 'Đang theo dõi';
-  
-  return (
-    <div className="followers-list-container">
-      <div className="followers-header">
-        <h3>{title}</h3>
-        <button className="close-button" onClick={onClose}>
+    return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>{title}</h2>
+        <button className={styles.closeButton} onClick={onClose}>
           <FaTimes />
         </button>
       </div>
       
       {loading ? (
-        <div className="loading-state">
-          <div className="spinner"></div>
+        <div className={styles.loadingSpinner}>
+          <div className={styles.spinner}></div>
           <p>Đang tải...</p>
         </div>
       ) : error ? (
-        <div className="error-state">
+        <div className={styles.errorMessage}>
           <p>{error}</p>
         </div>
       ) : users.length === 0 ? (
-        <div className="empty-state">
+        <div className={styles.emptyMessage}>
           <p>
             {type === 'followers' 
               ? 'Chưa có người theo dõi nào.' 
               : 'Chưa theo dõi ai.'}
           </p>
-        </div>
-      ) : (
-        <ul className="followers-list">
+        </div>      ) : (
+        <ul className={styles.usersList}>
           {users.map(user => (
-            <li key={user.id} className="follower-item">
-              <div className="follower-info">
-                <Link to={`/profile/${user.username}`} className="follower-avatar">
-                  <img 
-                    src={user.profilePictureUrl || '/images/default-avatar.png'} 
-                    alt={user.username}
-                  />
+            <li key={user.id} className={styles.userItem}>
+              <div className={styles.userInfo}>
+                <Link to={`/profile/${user.username}`}>
+                  {user.profilePictureUrl ? (
+                    <img 
+                      src={user.profilePictureUrl} 
+                      alt={user.username}
+                      className={styles.profileImage}
+                    />
+                  ) : (
+                    <div className={styles.defaultAvatar}>
+                      {user.firstName?.charAt(0) || ''}{user.lastName?.charAt(0) || ''}
+                    </div>
+                  )}
                 </Link>
-                <div className="follower-details">
-                  <Link to={`/profile/${user.username}`} className="follower-name">
-                    {user.firstName} {user.lastName}
-                    {user.isVerified && <span className="verified-badge">✓</span>}
-                  </Link>
-                  <p className="follower-username">@{user.username}</p>
+                <div className={styles.userDetails}>
+                  <h3 className={styles.userName}>
+                    <Link to={`/profile/${user.username}`}>
+                      {user.firstName} {user.lastName}
+                      {user.isVerified && <span className={styles.verifiedBadge}>✓</span>}
+                    </Link>
+                  </h3>
+                  <p className={styles.userUsername}>@{user.username}</p>
                 </div>
               </div>
               
               {user.isSelf ? null : (
                 <button 
-                  className={`follow-button ${user.isFollowing ? 'following' : ''}`}
+                  className={user.isFollowing ? styles.unfollowButton : styles.followButton}
                   onClick={() => handleFollowToggle(user)}
                 >
                   {user.isFollowing ? (
                     <>
                       <FaUserCheck />
-                      <span className="follow-text">Đang theo dõi</span>
-                      <span className="unfollow-text">Bỏ theo dõi</span>
+                      <span>Đang theo dõi</span>
                     </>
                   ) : (
                     <>

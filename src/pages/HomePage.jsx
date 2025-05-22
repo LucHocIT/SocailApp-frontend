@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { FaUsers, FaComments, FaHeart, FaShare } from 'react-icons/fa';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import styles from './HomePage.module.scss';
 
 const HomePage = () => {
   const { user, openLoginModal, openRegisterModal } = useAuth();
@@ -15,109 +16,92 @@ const HomePage = () => {
       once: true
     });
   }, []);
-
   return (
-    <div className="home-container">
-      <main className="content">
+    <div className={styles.homeContainer}>
+      <main className={styles.content}>
         {user ? (
-          <div className="dashboard">
+          <div className={styles.dashboard}>
             <h2 data-aos="fade-right">Bảng điều khiển</h2>
-            <div className="user-profile" data-aos="fade-up">
+            <div className={styles.userProfile} data-aos="fade-up">
               <h3>Thông tin người dùng</h3>
-              <div className="profile-info">
+              <div className={styles.profileInfo}>
                 <p><strong>Tên đăng nhập:</strong> {user.username}</p>
                 <p><strong>Email:</strong> {user.email}</p>
                 <p><strong>Họ và tên:</strong> {user.firstName} {user.lastName}</p>
                 <p><strong>Vai trò:</strong> {user.role}</p>
                 <p><strong>Hoạt động lần cuối:</strong> {new Date(user.lastActive).toLocaleString()}</p>
               </div>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="stats-grid">
-              <div className="stat-card" data-aos="zoom-in" data-aos-delay="100">
-                <div className="icon icon-primary">
+            </div>            {/* Stats Grid */}
+            <div className={styles.featureGrid}>
+              <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="100">
+                <span className={styles.icon}>
                   <FaUsers />
-                </div>
-                <h4>125</h4>
+                </span>
+                <h3>125</h3>
                 <p>Followers</p>
               </div>
-              <div className="stat-card" data-aos="zoom-in" data-aos-delay="200">
-                <div className="icon icon-success">
+              <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="200">
+                <span className={styles.icon}>
                   <FaComments />
-                </div>
-                <h4>348</h4>
+                </span>
+                <h3>348</h3>
                 <p>Comments</p>
               </div>
-              <div className="stat-card" data-aos="zoom-in" data-aos-delay="300">
-                <div className="icon icon-warning">
+              <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="300">
+                <span className={styles.icon}>
                   <FaHeart />
-                </div>
-                <h4>523</h4>
+                </span>
+                <h3>523</h3>
                 <p>Likes</p>
               </div>
-              <div className="stat-card" data-aos="zoom-in" data-aos-delay="400">
-                <div className="icon icon-info">
+              <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="400">
+                <span className={styles.icon}>
                   <FaShare />
-                </div>
-                <h4>42</h4>
+                </span>
+                <h3>42</h3>
                 <p>Shares</p>
               </div>
             </div>
           </div>
-        ) : (
-          <>
-            <div className="welcome">
-              <div className="hero-shapes">
-                <div className="shape shape-1"></div>
-                <div className="shape shape-2"></div>
-                <div className="shape shape-3"></div>
+        ) : (          <>
+            <div className={styles.heroSection}>
+              <div className={styles.heroText}>
+                <h1 data-aos="fade-down">Chào mừng đến với SocialApp</h1>
+                <p data-aos="fade-up" data-aos-delay="100">Kết nối với bạn bè, chia sẻ khoảnh khắc và khám phá thế giới mới!</p>
+                <div className={styles.actionButtons}>
+                  <button onClick={openLoginModal} className={styles.loginButton} data-aos="fade-right" data-aos-delay="200">
+                    Đăng nhập
+                  </button>
+                  <button onClick={openRegisterModal} className={styles.registerButton} data-aos="fade-left" data-aos-delay="300">
+                    Đăng ký ngay
+                  </button>
+                </div>
               </div>
-              <h2 data-aos="fade-down">Chào mừng đến với SocialApp</h2>
-              <p data-aos="fade-up" data-aos-delay="100">Kết nối với bạn bè, chia sẻ khoảnh khắc và khám phá thế giới mới!</p>
-              <div className="hero-buttons">
-                <button onClick={openLoginModal} className="btn btn-white shadow-hover" data-aos="fade-right" data-aos-delay="200">
-                  Đăng nhập
-                </button>
-                <button onClick={openRegisterModal} className="btn btn-outline-white shadow-hover" data-aos="fade-left" data-aos-delay="300">
-                  Đăng ký ngay
-                </button>
-              </div>
-            </div>
-
-            {/* Features Section */}
-            <div className="features-section">
-              <div className="section-title" data-aos="fade-up">
-                <h2>Tính năng nổi bật</h2>
-                <p>Khám phá những tính năng tuyệt vời mà SocialApp mang lại cho bạn</p>
-              </div>
-              <div className="features-grid">
-                <div className="feature-card" data-aos="fade-up" data-aos-delay="100">
-                  <div className="feature-icon">
+            </div>            {/* Features Section */}
+            <div className={styles.ctaSection}>
+              <h2 data-aos="fade-up">Tính năng nổi bật</h2>
+              <p data-aos="fade-up">Khám phá những tính năng tuyệt vời mà SocialApp mang lại cho bạn</p>
+              <div className={styles.featureGrid}>
+                <div className={styles.featureCard} data-aos="fade-up" data-aos-delay="100">
+                  <span className={styles.icon}>
                     <FaUsers />
-                  </div>
-                  <div className="feature-content">
-                    <h3>Kết nối bạn bè</h3>
-                    <p>Dễ dàng kết nối với bạn bè và những người có cùng sở thích từ khắp nơi trên thế giới.</p>
-                  </div>
+                  </span>
+                  <h3>Kết nối bạn bè</h3>
+                  <p>Dễ dàng kết nối với bạn bè và những người có cùng sở thích từ khắp nơi trên thế giới.</p>
                 </div>
-                <div className="feature-card" data-aos="fade-up" data-aos-delay="200">
-                  <div className="feature-icon">
+                <div className={styles.featureCard} data-aos="fade-up" data-aos-delay="200">
+                  <span className={styles.icon}>
                     <FaComments />
-                  </div>
-                  <div className="feature-content">
-                    <h3>Trò chuyện trực tiếp</h3>
-                    <p>Giao tiếp ngay lập tức với bạn bè của bạn thông qua các tin nhắn và cuộc trò chuyện nhóm.</p>
-                  </div>
+                  </span>
+                  <h3>Trò chuyện trực tiếp</h3>
+                  <p>Giao tiếp ngay lập tức với bạn bè của bạn thông qua các tin nhắn và cuộc trò chuyện nhóm.</p>
                 </div>
-                <div className="feature-card" data-aos="fade-up" data-aos-delay="300">
-                  <div className="feature-icon">
+                <div className={styles.featureCard} data-aos="fade-up" data-aos-delay="300">
+                  <span className={styles.icon}>
                     <FaHeart />
-                  </div>
-                  <div className="feature-content">
-                    <h3>Chia sẻ khoảnh khắc</h3>
-                    <p>Chia sẻ những khoảnh khắc đặc biệt của bạn với hình ảnh, video và bài đăng hấp dẫn.</p>
-                  </div>
+                  </span>
+                  <h3>Chia sẻ khoảnh khắc</h3>
+                  <p>Chia sẻ những khoảnh khắc đặc biệt của bạn với hình ảnh, video và bài đăng hấp dẫn.</p>
                 </div>
               </div>
             </div>
