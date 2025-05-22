@@ -1,0 +1,18 @@
+// Create aliases for color variables to maintain backwards compatibility
+
+// Import the variables
+@use 'variables' as vars;
+
+// Create aliased variables
+$success: vars.$success-color;
+$danger: vars.$danger-color; 
+$warning: vars.$warning-color;
+$info: vars.$info-color;
+
+// Re-export variables
+:export {
+  success: $success;
+  danger: $danger;
+  warning: $warning;
+  info: $info;
+}

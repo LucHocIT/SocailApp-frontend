@@ -1,31 +1,27 @@
-// Font imports
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
-
 // Import Bootstrap
 @use 'bootstrap/dist/css/bootstrap.min.css';
-
 // Import our architecture files
-@use 'abstracts/variables';
+@use 'abstracts/variables' as *; // Using * imports all variables into the global scope
+@use 'abstracts/color-aliases' as *; // Import color aliases
+@use 'sass:color';
 @use 'abstracts/mixins';
-
 @use 'base/reset';
 @use 'base/typography';
 @use 'base/animations';
-
 @use 'components/buttons';
 @use 'components/forms';
 @use 'components/cards';
 @use 'components/modals';
-
 @use 'layout/grid';
 @use 'layout/header';
 @use 'layout/footer';
 @use 'layout/navigation';
-
-// Import global utility classes
 @use 'utilities/spacing';
 @use 'utilities/display';
 @use 'utilities/shadows';
+
+// Font imports
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 /* 
   Note on CSS Architecture:

@@ -1,5 +1,7 @@
 // ProfilePage.module.scss
 @use '../styles/abstracts/variables' as *;
+@use '../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
 @use '../styles/abstracts/mixins' as *;
 
 .profileContainer {
@@ -36,8 +38,7 @@
   background-color: white;
   border-radius: 8px;
   padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: $box-shadow-sm;
+  margin-bottom: 1.5rem;  box-shadow: $shadow-sm;
   
   h3 {
     font-size: 1.25rem;
@@ -150,10 +151,9 @@
 
 .postsEmptyState {
   text-align: center;
-  padding: 2rem;
-  background-color: white;
+  padding: 2rem;  background-color: white;
   border-radius: 8px;
-  box-shadow: $box-shadow-sm;
+  box-shadow: $shadow-sm;
   color: $text-muted;
   
   p {

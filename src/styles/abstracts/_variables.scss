@@ -1,3 +1,8 @@
+@use "sass:color";
+
+// Import other abstract modules
+@use 'z-index';
+
 // Main colors
 $primary-color: #4f46e5;
 $primary-light: #6366f1;
@@ -5,13 +10,25 @@ $primary-dark: #4338ca;
 $secondary-color: #f97316;
 $secondary-light: #fb923c;
 $secondary-dark: #ea580c;
-$success-color: #10b981;
-$danger-color: #ef4444;
-$warning-color: #f59e0b;
-$info-color: #3b82f6;
+$success-color: #28a745; // Updated success color
+$danger-color: #dc3545;  // Updated danger color
+$warning-color: #ffc107; // Updated warning color
+$info-color: #17a2b8;    // Updated info color
+
+// Gray scale colors
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
 
 // Text colors
 $text-color: #111827;
+$text-dark: #1f2937;
 $text-light: #4b5563;
 $text-muted: #9ca3af;
 $link-color: $primary-color;
@@ -21,14 +38,18 @@ $bg-light: #f9fafb;
 $bg-dark: #111827;
 $bg-card: #ffffff;
 
+// Border colors
+$border-color: #e5e7eb;
+$border-color-light: #f3f4f6;
+
 // Gradient colors
 $gradient-primary: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
 $gradient-secondary: linear-gradient(135deg, $secondary-color 0%, $secondary-light 100%);
-$gradient-success: linear-gradient(135deg, $success-color 0%, adjust-color($success-color, $lightness: 10%) 100%);
-$gradient-danger: linear-gradient(135deg, $danger-color 0%, adjust-color($danger-color, $lightness: 10%) 100%);
-$gradient-warning: linear-gradient(135deg, $warning-color 0%, adjust-color($warning-color, $lightness: 10%) 100%);
-$gradient-info: linear-gradient(135deg, $info-color, adjust-color($info-color, $lightness: 10%) 100%);
-$gradient-dark: linear-gradient(135deg, $bg-dark 0%, adjust-color($bg-dark, $lightness: 10%) 100%);
+$gradient-success: linear-gradient(135deg, $success-color 0%, color.adjust($success-color, $lightness: 10%) 100%);
+$gradient-danger: linear-gradient(135deg, $danger-color 0%, color.adjust($danger-color, $lightness: 10%) 100%);
+$gradient-warning: linear-gradient(135deg, $warning-color 0%, color.adjust($warning-color, $lightness: 10%) 100%);
+$gradient-info: linear-gradient(135deg, $info-color, color.adjust($info-color, $lightness: 10%) 100%);
+$gradient-dark: linear-gradient(135deg, $bg-dark 0%, color.adjust($bg-dark, $lightness: 10%) 100%);
 
 // Typography
 $font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -87,11 +108,13 @@ $transition-slow: all 0.5s ease;
 $transition-fast: all 0.2s ease;
 
 // Z-index
-$z-index-dropdown: 1000;
-$z-index-sticky: 1020;
-$z-index-fixed: 1030;
-$z-index-modal-backdrop: 1040;
-$z-index-modal: 1050;
-$z-index-popover: 1060;
-$z-index-tooltip: 1070;
-$z-index-toast: 1080;
+// Make z-index variables available from the z-index module
+$z-index-dropdown: z-index.$z-index-dropdown;
+$z-index-sticky: z-index.$z-index-sticky;
+$z-index-fixed: z-index.$z-index-fixed;
+$z-index-modal-backdrop: z-index.$z-index-modal-backdrop;
+$z-index-modal: z-index.$z-index-modal;
+$z-index-popover: z-index.$z-index-popover;
+$z-index-tooltip: z-index.$z-index-tooltip;
+$z-index-toast: z-index.$z-index-toast;
+$z-index-header: z-index.$z-index-header;

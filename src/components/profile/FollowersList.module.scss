@@ -1,5 +1,7 @@
 // FollowersList.module.scss
 @use '../../styles/abstracts/variables' as *;
+@use '../../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
 @use '../../styles/abstracts/mixins' as *;
 
 .followersList {
@@ -22,17 +24,16 @@
 }
 
 .followerCard {
-  background-color: white;
-  border-radius: 8px;
+  background-color: white;  border-radius: 8px;
   padding: 1rem;
-  box-shadow: $box-shadow-sm;
+  box-shadow: $shadow-sm;
   display: flex;
   align-items: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   
   &:hover {
     transform: translateY(-3px);
-    box-shadow: $box-shadow-md;
+    box-shadow: $shadow-md;
   }
 }
 

@@ -1,4 +1,6 @@
 @use '../abstracts/variables' as *;
+@use '../abstracts/color-aliases' as *;
+@use "sass:color";
 
 // Card base
 .card {

@@ -1,5 +1,7 @@
 // HomePage.module.scss
 @use '../styles/abstracts/variables' as *;
+@use '../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
 @use '../styles/abstracts/mixins' as *;
 
 .homeContainer {
@@ -55,21 +57,19 @@
 
 .heroImage {
   flex: 1;
-  
-  img {
+    img {
     width: 100%;
     max-width: 500px;
     border-radius: 1rem;
-    box-shadow: $box-shadow-lg;
+    box-shadow: $shadow-lg;
   }
 }
 
 .dashboard {
   background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
+  border-radius: 8px;  padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: $box-shadow-sm;
+  box-shadow: $shadow-sm;
   
   h2 {
     font-size: 1.8rem;
@@ -82,10 +82,9 @@
 
 .userProfile {
   background-color: white;
-  border-radius: 8px;
-  padding: 1.5rem;
+  border-radius: 8px;  padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: $box-shadow-sm;
+  box-shadow: $shadow-sm;
   
   h3 {
     font-size: 1.5rem;
@@ -118,15 +117,13 @@
 }
 
 .featureCard {
-  background: white;
-  border-radius: 8px;
+  background: white;  border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: $box-shadow-sm;
+  box-shadow: $shadow-sm;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  
-  &:hover {
+    &:hover {
     transform: translateY(-5px);
-    box-shadow: $box-shadow-lg;
+    box-shadow: $shadow-lg;
   }
   
   .icon {

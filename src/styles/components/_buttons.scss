@@ -1,4 +1,6 @@
 @use '../abstracts/variables' as *;
+@use '../abstracts/color-aliases' as *;
+@use "sass:color";
 
 // Button base styles
 .btn {
@@ -114,6 +116,6 @@
   color: white;
   
   &:hover {
-    background-color: adjust-color($danger-color, $lightness: -5%);
+    background-color: color.adjust($danger-color, $lightness: -5%);
   }
 }

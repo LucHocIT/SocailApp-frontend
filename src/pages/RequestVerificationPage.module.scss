@@ -1,5 +1,7 @@
 // RequestVerificationPage.module.scss
 @use '../styles/abstracts/variables' as *;
+@use '../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
 @use '../styles/abstracts/mixins' as *;
 
 .verificationContainer {
@@ -10,15 +12,14 @@
 }
 
 .verificationCard {
-  background-color: white;
-  border-radius: 12px;
+  background-color: white;  border-radius: 12px;
   overflow: hidden;
-  box-shadow: $box-shadow-lg;
+  box-shadow: $shadow-lg;
   margin-bottom: 2rem;
 }
 
 .cardHeader {
-  background: linear-gradient(135deg, $primary-color, darken($primary-color, 15%));
+  background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: -15%));
   color: white;
   padding: 2rem;
   text-align: center;
@@ -85,8 +86,8 @@
 }
 
 .errorMessage {
-  background-color: rgba($danger, 0.1);
-  color: $danger;
+  background-color: rgba($danger-color, 0.1);
+  color: $danger-color;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -255,11 +256,10 @@
   gap: 1.5rem;
 }
 
-.step {
-  background-color: white;
+.step {  background-color: white;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: $box-shadow-sm;
+  box-shadow: $shadow-sm;
   text-align: center;
   position: relative;
   

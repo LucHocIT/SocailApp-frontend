@@ -1,12 +1,14 @@
 // ProfileEditForm.module.scss
 @use '../../styles/abstracts/variables' as *;
+@use '../../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
 @use '../../styles/abstracts/mixins' as *;
 
 .editForm {
   background-color: white;
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: $box-shadow-sm;
+  box-shadow: $shadow-sm;
 }
 
 .formGroup {

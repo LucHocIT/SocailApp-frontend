@@ -1,0 +1,19 @@
+// Z-index variables organized by component
+// This allows for better organization and prevents z-index conflicts
+
+// Base z-index values
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+$z-index-toast: 1080;
+
+// Application specific z-index values
+$z-index-header: 900;
+$z-index-footer: 800;
+$z-index-sidebar: 850;
+$z-index-overlay: 1000;
+$z-index-notification: 1090;

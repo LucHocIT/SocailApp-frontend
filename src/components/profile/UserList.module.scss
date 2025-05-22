@@ -1,5 +1,7 @@
 // UserList.module.scss
 @use '../../styles/abstracts/variables' as *;
+@use '../../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
 @use '../../styles/abstracts/mixins' as *;
 
 .userList {

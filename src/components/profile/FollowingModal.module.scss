@@ -1,5 +1,7 @@
 // FollowingModal.module.scss
 @use '../../styles/abstracts/variables' as *;
+@use '../../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
 @use '../../styles/abstracts/mixins' as *;
 
 .modalOverlay {
@@ -19,11 +21,10 @@
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
-  width: 100%;
-  max-width: 500px;
+  width: 100%;  max-width: 500px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: $box-shadow-lg;
+  box-shadow: $shadow-lg;
 }
 
 .modalHeader {

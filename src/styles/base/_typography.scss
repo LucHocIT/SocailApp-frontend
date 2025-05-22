@@ -1,4 +1,5 @@
 @use '../abstracts/variables' as *;
+@use "sass:color";
 
 h1, h2, h3, h4, h5, h6 {
   font-family: $font-family-heading;
@@ -45,7 +46,7 @@ a {
   transition: $transition-base;
   
   &:hover {
-    color: adjust-color($link-color, $lightness: -10%);
+    color: color.adjust($link-color, $lightness: -10%);
   }
 }
 
