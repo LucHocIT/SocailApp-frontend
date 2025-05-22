@@ -1,0 +1,245 @@
+@use "../../styles/abstracts/variables" as *;
+@use "../../styles/abstracts/mixins" as *;
+
+.header {
+  background: white;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow;
+  overflow: hidden;
+  margin-bottom: $spacing-6;
+}
+
+.coverPhoto {
+  position: relative;
+  height: 200px;
+  background: $gradient-primary;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.coverOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
+}
+
+.editCover {
+  position: absolute;
+  top: $spacing-4;
+  right: $spacing-4;
+  background: rgba(255, 255, 255, 0.9);
+  color: $text-color;
+  border: none;
+  border-radius: $border-radius;
+  padding: $spacing-2 $spacing-3;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: $transition-base;
+  
+  &:hover {
+    background: white;
+    box-shadow: $shadow;
+  }
+}
+
+.profileInfo {
+  position: relative;
+  padding: $spacing-6;
+  display: flex;
+  flex-direction: column;
+  
+  @media (min-width: $breakpoint-md) {
+    padding-top: 0;
+    padding-left: 220px; // Make room for the avatar
+    min-height: 150px;
+  }
+}
+
+.avatarContainer {
+  position: relative;
+  margin-bottom: $spacing-4;
+  
+  @media (min-width: $breakpoint-md) {
+    position: absolute;
+    left: $spacing-6;
+    top: -60px;
+    margin-bottom: 0;
+  }
+}
+
+.profileAvatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 5px solid white;
+  box-shadow: $shadow;
+  object-fit: cover;
+  background: white;
+  cursor: pointer;
+  transition: $transition-base;
+  
+  &:hover {
+    box-shadow: $shadow-lg;
+  }
+}
+
+.avatarEditOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: $font-size-sm;
+  transition: $transition-base;
+  cursor: pointer;
+  
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.verifiedBadge {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  background: $primary-color;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xs;
+  border: 2px solid white;
+}
+
+.profileMeta {
+  margin-bottom: $spacing-3;
+}
+
+.profileName {
+  font-size: $font-size-2xl;
+  font-weight: bold;
+  margin: 0 0 $spacing-1 0;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+.verifiedIcon {
+  color: $primary-color;
+  font-size: $font-size-base;
+}
+
+.username {
+  color: $text-light;
+  margin: 0 0 $spacing-3 0;
+  font-size: $font-size-base;
+}
+
+.bio {
+  margin: 0 0 $spacing-4 0;
+  font-size: $font-size-sm;
+  color: $text-color;
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+.profileStats {
+  display: flex;
+  gap: $spacing-6;
+  margin-top: $spacing-3;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  
+  .statValue {
+    font-weight: bold;
+    font-size: $font-size-lg;
+    color: $text-color;
+  }
+  
+  .statLabel {
+    font-size: $font-size-sm;
+    color: $text-light;
+  }
+  
+  &:hover .statValue {
+    color: $primary-color;
+  }
+}
+
+.profileActions {
+  display: flex;
+  gap: $spacing-3;
+  margin-top: $spacing-4;
+  flex-wrap: wrap;
+  
+  @media (min-width: $breakpoint-md) {
+    position: absolute;
+    top: $spacing-6;
+    right: $spacing-6;
+    margin-top: 0;
+  }
+}
+
+.profileNav {
+  display: flex;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.navItem {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-4 0;
+  cursor: pointer;
+  font-weight: 500;
+  color: $text-light;
+  position: relative;
+  transition: $transition-base;
+  
+  &:hover {
+    color: $primary-color;
+  }
+  
+  &.active {
+    color: $primary-color;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 25%;
+      right: 25%;
+      height: 3px;
+      background: $primary-color;
+      border-radius: $border-radius;
+    }
+  }
+}
+
+.fileInput {
+  display: none;
+}

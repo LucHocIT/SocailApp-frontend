@@ -6,8 +6,6 @@ import { FaEdit, FaCamera, FaCheckCircle, FaUser, FaLock } from 'react-icons/fa'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-// Import styles
-import './ProfilePage.scss';
 
 // Import the extracted components
 import { 

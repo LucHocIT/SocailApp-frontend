@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import styles from './UserList.module.scss';
 
 const UserList = ({ users, emptyMessage }) => {
   const navigate = useNavigate();
@@ -6,30 +7,31 @@ const UserList = ({ users, emptyMessage }) => {
   const handleViewProfile = (userId) => {
     navigate(`/profile/${userId}`);
   };
-  
-  return (
+    return (
     <>
       {users.length === 0 ? (
-        <p className="empty-list">{emptyMessage}</p>
+        <p className={styles.emptyList}>{emptyMessage}</p>
       ) : (
-        <ul className="user-list">
+        <ul className={styles.userList}>
           {users.map(user => (
-            <li key={user.id} className="user-item">
-              <div className="user-avatar">
-                {user.profilePictureUrl ? (
-                  <img src={user.profilePictureUrl} alt={user.username} />
-                ) : (
-                  <div className="default-avatar small">
-                    {user.firstName?.charAt(0) || ''}{user.lastName?.charAt(0) || ''}
-                  </div>
-                )}
-              </div>
-              <div className="user-info">
-                <h3>{user.firstName} {user.lastName}</h3>
-                <p>@{user.username}</p>
+            <li key={user.id} className={styles.userItem}>
+              {user.profilePictureUrl ? (
+                <img 
+                  src={user.profilePictureUrl} 
+                  alt={user.username}
+                  className={styles.profileImage}
+                />
+              ) : (
+                <div className={styles.defaultAvatar}>
+                  {user.firstName?.charAt(0) || ''}{user.lastName?.charAt(0) || ''}
+                </div>
+              )}
+              <div className={styles.userInfo}>
+                <h3 className={styles.userName}>{user.firstName} {user.lastName}</h3>
+                <p className={styles.userBio}>@{user.username}</p>
               </div>
               <button 
-                className="btn btn-sm"
+                className={styles.viewProfileButton}
                 onClick={() => handleViewProfile(user.id)}
               >
                 Xem hồ sơ

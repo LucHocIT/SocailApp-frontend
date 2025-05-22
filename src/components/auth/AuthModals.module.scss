@@ -1,0 +1,221 @@
+@use '../../styles/abstracts/variables' as *;
+@use '../../styles/abstracts/mixins' as *;
+@use "sass:color";
+
+// Modal Overlay
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: $z-index-modal;
+}
+
+// Modal Container
+.modal {
+  background: white;
+  border-radius: $border-radius-xl;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: $shadow-2xl;
+  overflow: hidden;
+  position: relative;
+
+  // Modal Header (this will be used by child components)
+  :global(.modal-header) {
+    position: relative;
+    padding: $spacing-8 $spacing-6 $spacing-6;
+    text-align: center;
+    background: $gradient-primary;
+    color: white;
+    
+    h2 {
+      font-size: $font-size-2xl;
+      margin: 0;
+      margin-bottom: $spacing-2;
+      font-weight: 600;
+    }
+    
+    p {
+      font-size: $font-size-base;
+      margin: 0;
+      opacity: 0.9;
+    }
+    
+    .closeButton {
+      position: absolute;
+      top: $spacing-4;
+      right: $spacing-4;
+      background: transparent;
+      border: none;
+      color: white;
+      opacity: 0.8;
+      cursor: pointer;
+      transition: $transition-base;
+      
+      &:hover {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  // Modal Body (this will be used by child components)
+  :global(.modal-body) {
+    padding: $spacing-6;
+  }
+
+  // Modal Footer (this will be used by child components)
+  :global(.modal-footer) {
+    padding: $spacing-4 $spacing-6 $spacing-6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: $text-light;
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      margin: $spacing-6 0;
+      
+      &::before, &::after {
+        content: '';
+        flex-grow: 1;
+        height: 1px;
+        background: rgba(0, 0, 0, 0.1);
+      }
+      
+      span {
+        padding: 0 $spacing-3;
+        font-size: $font-size-sm;
+        color: $text-muted;
+      }
+    }
+    
+    p {
+      margin: $spacing-3 0;
+      
+      a {
+        color: $primary-color;
+        font-weight: 500;
+        cursor: pointer;
+        transition: $transition-base;
+        
+        &:hover {
+          color: $primary-dark;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  // Social login buttons
+  :global(.social-login-buttons) {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-3;
+    margin-top: $spacing-4;
+    
+    button {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: $transition-base;
+      
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: $shadow-md;
+      }
+      
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  // Form styles
+  :global(.auth-form) {
+    margin-top: $spacing-6;
+    
+    .formGroup {
+      margin-bottom: $spacing-4;
+      
+      label {
+        display: block;
+        font-size: $font-size-sm;
+        font-weight: 500;
+        margin-bottom: $spacing-2;
+        color: $text-light;
+      }
+      
+      input {
+        @include form-input;
+      }
+      
+      .error {
+        color: $danger-color;
+        font-size: $font-size-xs;
+        margin-top: $spacing-1;
+      }
+    }
+    
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-3;
+      margin-top: $spacing-6;
+      
+      button {
+        width: 100%;
+      }
+      
+      .forgotPassword {
+        font-size: $font-size-sm;
+        color: $text-light;
+        text-align: center;
+        cursor: pointer;
+        transition: $transition-base;
+        
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: $breakpoint-sm) {
+  .modal {
+    width: 95%;
+    max-width: none;
+    
+    :global(.modal-header) {
+      padding: $spacing-6 $spacing-4 $spacing-4;
+    }
+    
+    :global(.modal-body) {
+      padding: $spacing-4;
+    }
+    
+    :global(.modal-footer) {
+      padding: $spacing-3 $spacing-4 $spacing-4;
+    }
+  }
+}

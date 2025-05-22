@@ -1,0 +1,76 @@
+// FollowingModal.module.scss
+@use '../../styles/abstracts/variables' as *;
+@use '../../styles/abstracts/mixins' as *;
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContainer {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: $box-shadow-lg;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid $border-color;
+  
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: $text-muted;
+    
+    &:hover {
+      color: $text-dark;
+    }
+  }
+}
+
+.modalBody {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: $text-muted;
+  
+  p {
+    margin: 0.5rem 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .modalContainer {
+    width: 90%;
+    max-height: 70vh;
+  }
+}

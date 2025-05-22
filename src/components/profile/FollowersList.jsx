@@ -4,8 +4,6 @@ import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { FaUserCheck, FaUserPlus, FaTimes } from 'react-icons/fa';
 
-// Import styles
-import './FollowersList.scss';
 
 const FollowersList = ({ userId, type = 'followers', onClose }) => {
   const [users, setUsers] = useState([]);

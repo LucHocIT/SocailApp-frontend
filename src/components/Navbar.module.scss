@@ -1,4 +1,5 @@
-@use "../styles/variables" as *;
+@use '../styles/abstracts/variables' as *;
+@use '../styles/abstracts/mixins' as *;
 @use "sass:color";
 
 .navbar {
@@ -10,13 +11,13 @@
   z-index: $z-index-fixed;
   transition: $transition-base;
   
-  &.navbar-scrolled {
+  &.scrolled {
     padding: $spacing-2 0;
     box-shadow: $shadow-md;
   }
 }
 
-.navbar-container {
+.container {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25,7 +26,7 @@
   padding: 0 $spacing-4;
 }
 
-.navbar-logo {
+.logo {
   a {
     font-family: $font-family-heading;
     font-size: $font-size-xl;
@@ -46,12 +47,12 @@
   }
 }
 
-.navbar-links {
+.links {
   display: flex;
   align-items: center;
   gap: $spacing-5;
   
-  .nav-link {
+  .navLink {
     color: $text-color;
     font-weight: 500;
     padding: $spacing-2 $spacing-3;
@@ -82,63 +83,22 @@
   }
 }
 
-.navbar-auth {
+.auth {
   display: flex;
   align-items: center;
   gap: $spacing-3;
   
-  .user-greeting {
+  .userGreeting {
     font-weight: 500;
     color: $text-light;
     margin-right: $spacing-3;
   }
   
-  .btn-outline {
-    border: 1px solid $primary-color;
-    color: $primary-color;
-    padding: $spacing-2 $spacing-5;
-    border-radius: $border-radius;
-    background: transparent;
-    transition: $transition-base;
-    
-    &:hover {
-      background: rgba($primary-color, 0.1);
-      transform: translateY(-2px);
-    }
-  }
-  
-  .btn-primary {
-    background: $gradient-primary;
-    color: white;
-    padding: $spacing-2 $spacing-5;
-    border-radius: $border-radius;
-    border: none;
-    transition: $transition-base;
-    box-shadow: 0 4px 10px rgba($primary-color, 0.3);
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba($primary-color, 0.4);
-    }
-  }
-  
-  .btn-logout {
-    color: $danger-color;
-    background: transparent;
-    border: 1px solid $danger-color;
-    padding: $spacing-2 $spacing-4;
-    border-radius: $border-radius;
-    transition: $transition-base;
-    
-    &:hover {
-      background: rgba($danger-color, 0.1);
-      color: color.adjust($danger-color, $lightness: -10%);
-    }
-  }
+  // Using global button classes from components/_buttons.scss for consistency
 }
 
-// Mobile menu
-.navbar-mobile-toggle {
+// Mobile menu toggle
+.mobileToggle {
   display: none;
   background: transparent;
   border: none;
@@ -187,11 +147,11 @@
 
 // Responsive styles
 @media (max-width: $breakpoint-md) {
-  .navbar-mobile-toggle {
+  .mobileToggle {
     display: block;
   }
   
-  .navbar-links {
+  .links {
     position: fixed;
     top: 70px;
     left: 0;
@@ -212,16 +172,16 @@
       pointer-events: all;
     }
     
-    .nav-link {
+    .navLink {
       width: 100%;
       text-align: center;
     }
     
-    .navbar-auth {
+    .auth {
       flex-direction: column;
       width: 100%;
       
-      .btn {
+      :global(.btn) {
         width: 100%;
       }
     }

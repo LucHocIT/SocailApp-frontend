@@ -3,9 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context';
 import { FaHome, FaUser, FaBell, FaSignOutAlt } from 'react-icons/fa';
 import AuthModals from './auth/AuthModals';
+import styles from './Navbar.module.scss';
 
-// Import SCSS styles
-import './Navbar.scss';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -52,11 +51,10 @@ const Navbar = () => {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
-  };
-  return (
-    <nav className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
-      <div className="navbar-container">
-        <div className="navbar-logo">
+  };  return (
+    <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
+      <div className={styles.container}>
+        <div className={styles.logo}>
           <Link to="/" className="fade-in">
             <img src="/logo.svg" alt="SocialApp" />
             SocialApp
@@ -64,25 +62,25 @@ const Navbar = () => {
         </div>
         
         <button 
-          className={`navbar-mobile-toggle ${mobileMenuOpen ? 'active' : ''}`}
+          className={`${styles.mobileToggle} ${mobileMenuOpen ? styles.active : ''}`}
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
         >
-          <span className="hamburger"></span>
+          <span className={styles.hamburger}></span>
         </button>
         
-        <div className={`navbar-links ${mobileMenuOpen ? 'active' : ''}`}>
-          <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
+        <div className={`${styles.links} ${mobileMenuOpen ? styles.active : ''}`}>
+          <Link to="/" className={`${styles.navLink} ${location.pathname === '/' ? styles.active : ''}`}>
             <FaHome className="me-1" /> Trang chủ
           </Link>
           
           {user ? (
             <>
-              <Link to="/profile" className={`nav-link ${location.pathname.includes('/profile') ? 'active' : ''}`}>
+              <Link to="/profile" className={`${styles.navLink} ${location.pathname.includes('/profile') ? styles.active : ''}`}>
                 <FaUser className="me-1" /> Hồ sơ
               </Link>
-              <div className="navbar-auth">
-                <span className="user-greeting">
+              <div className={styles.auth}>
+                <span className={styles.userGreeting}>
                   Xin chào, {user.firstName}
                 </span>
                 <button onClick={logout} className="btn btn-logout">
@@ -91,7 +89,7 @@ const Navbar = () => {
               </div>
             </>
           ) : (
-            <div className="navbar-auth">
+            <div className={styles.auth}>
               <button onClick={openLoginModal} className="btn btn-outline shadow-hover">Đăng nhập</button>
               <button onClick={openRegisterModal} className="btn btn-primary shadow-hover">Đăng ký</button>
             </div>

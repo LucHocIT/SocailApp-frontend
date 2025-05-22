@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { toast } from 'react-toastify';
 import { useProfile } from '../../context';
-import './ProfileHeader.scss';
+import styles from './ProfileHeader.module.scss';
 
 const ProfileHeader = ({ 
   profileData, 
@@ -60,56 +60,88 @@ const ProfileHeader = ({
   };
 
   return (
-    <div className="profile-header">
-      <div className="profile-image" onClick={handleProfilePictureClick}>
-        {profileData.profilePictureUrl ? (
-          <img src={profileData.profilePictureUrl} alt={`${profileData.firstName} ${profileData.lastName}`} />
-        ) : (
-          <div className="default-avatar">
-            {profileData.firstName?.charAt(0) || ''}{profileData.lastName?.charAt(0) || ''}
-          </div>
+    <div className={styles.header}>
+      <div className={styles.coverPhoto}>
+        {profileData.coverPhotoUrl && (
+          <img src={profileData.coverPhotoUrl} alt="Cover" />
         )}
+        <div className={styles.coverOverlay}></div>
         {isOwnProfile && (
-          <div className="profile-image-overlay">
-            <span>Thay đổi ảnh</span>
-          </div>
+          <button className={styles.editCover}>
+            <i className="fas fa-camera"></i> Thay đổi ảnh bìa
+          </button>
         )}
-        <input 
-          type="file" 
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          onChange={handleFileChange}
-          accept="image/jpeg, image/png, image/gif"
-        />
       </div>
 
-      <div className="profile-info">
-        <h1>{profileData.firstName} {profileData.lastName}</h1>
-        <p className="username">@{profileData.username}</p>
-        
-        {!isEditing && profileData.bio && (
-          <p className="bio">{profileData.bio}</p>
-        )}
-        {!isEditing && !profileData.bio && (
-          <p className="bio-empty">Chưa có thông tin giới thiệu.</p>
-        )}
-        
-        <div className="profile-stats">
-          <div className="stat" onClick={onShowFollowers}>
-            <span className="count">{profileData.followersCount}</span>
-            <span className="label">Người theo dõi</span>
+      <div className={styles.profileInfo}>
+        <div className={styles.avatarContainer}>
+          <div 
+            className={styles.profileAvatar}
+            onClick={handleProfilePictureClick}
+          >
+            {profileData.profilePictureUrl ? (
+              <img src={profileData.profilePictureUrl} alt={`${profileData.firstName} ${profileData.lastName}`} className={styles.profileAvatar} />
+            ) : (
+              <div className={styles.profileAvatar}>
+                {profileData.firstName?.charAt(0) || ''}{profileData.lastName?.charAt(0) || ''}
+              </div>
+            )}
           </div>
-          <div className="stat" onClick={onShowFollowing}>
-            <span className="count">{profileData.followingCount}</span>
-            <span className="label">Đang theo dõi</span>
+          
+          {isOwnProfile && (
+            <div className={styles.avatarEditOverlay}>
+              <i className="fas fa-camera"></i>
+            </div>
+          )}
+          
+          {profileData.isVerified && (
+            <div className={styles.verifiedBadge}>
+              <i className="fas fa-check"></i>
+            </div>
+          )}
+          
+          <input 
+            type="file" 
+            ref={fileInputRef}
+            className={styles.fileInput}
+            onChange={handleFileChange}
+            accept="image/jpeg, image/png, image/gif"
+          />
+        </div>
+
+        <div className={styles.profileMeta}>
+          <h1 className={styles.profileName}>
+            {profileData.firstName} {profileData.lastName}
+            {profileData.isVerified && (
+              <i className={`fas fa-badge-check ${styles.verifiedIcon}`}></i>
+            )}
+          </h1>
+          <p className={styles.username}>@{profileData.username}</p>
+          
+          {!isEditing && profileData.bio && (
+            <p className={styles.bio}>{profileData.bio}</p>
+          )}
+          {!isEditing && !profileData.bio && (
+            <p className={styles.bio}>Chưa có thông tin giới thiệu.</p>
+          )}
+        </div>
+        
+        <div className={styles.profileStats}>
+          <div className={styles.statItem} onClick={onShowFollowers}>
+            <span className={styles.statValue}>{profileData.followersCount}</span>
+            <span className={styles.statLabel}>Người theo dõi</span>
           </div>
-          <div className="stat">
-            <span className="count">{profileData.postsCount}</span>
-            <span className="label">Bài viết</span>
+          <div className={styles.statItem} onClick={onShowFollowing}>
+            <span className={styles.statValue}>{profileData.followingCount}</span>
+            <span className={styles.statLabel}>Đang theo dõi</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{profileData.postsCount}</span>
+            <span className={styles.statLabel}>Bài viết</span>
           </div>
         </div>
         
-        <div className="profile-actions">
+        <div className={styles.profileActions}>
           {isOwnProfile ? (
             <>
               <button 

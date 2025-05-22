@@ -3,9 +3,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import styles from './AuthModals.module.scss';
 
-// Import styles
-import './AuthModals.scss';
 
 const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
   const [currentMode, setCurrentMode] = useState(initialMode);
@@ -51,19 +50,18 @@ const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
     }
   };  // Use motion explicitly to satisfy linter
   const MotionDiv = motion.div;
-  
-  return (
+    return (
     <AnimatePresence>
       {isOpen && (
         <MotionDiv 
-          className="modal-overlay" 
+          className={styles.overlay}
           onClick={handleBackdropClick}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <MotionDiv 
-            className="auth-modal"
+            className={styles.modal}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}

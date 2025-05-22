@@ -1,12 +1,40 @@
-@use 'variables' as *;
-@use 'utilities' as *;
-@use 'sass:color';
+// Font imports
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 // Import Bootstrap
 @use 'bootstrap/dist/css/bootstrap.min.css';
 
-// Font imports
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+// Import our architecture files
+@use 'abstracts/variables';
+@use 'abstracts/mixins';
+
+@use 'base/reset';
+@use 'base/typography';
+@use 'base/animations';
+
+@use 'components/buttons';
+@use 'components/forms';
+@use 'components/cards';
+@use 'components/modals';
+
+@use 'layout/grid';
+@use 'layout/header';
+@use 'layout/footer';
+@use 'layout/navigation';
+
+// Import global utility classes
+@use 'utilities/spacing';
+@use 'utilities/display';
+@use 'utilities/shadows';
+
+/* 
+  Note on CSS Architecture:
+  
+  We're using a hybrid approach with global styles defined here
+  and component-specific styles in CSS Modules (.module.scss files).
+  
+  Reference the README.md in this directory for more details.
+*/
 
 // Base styles
 html, body {

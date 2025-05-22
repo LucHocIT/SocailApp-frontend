@@ -1,0 +1,67 @@
+@use '../abstracts/variables' as *;
+
+// Shadow utilities
+.shadow-none { box-shadow: none !important; }
+.shadow-sm { box-shadow: $shadow-sm !important; }
+.shadow { box-shadow: $shadow !important; }
+.shadow-md { box-shadow: $shadow-md !important; }
+.shadow-lg { box-shadow: $shadow-lg !important; }
+.shadow-xl { box-shadow: $shadow-xl !important; }
+.shadow-2xl { box-shadow: $shadow-2xl !important; }
+.shadow-inner { box-shadow: $shadow-inner !important; }
+
+// Shadow with hover effect
+.shadow-hover {
+  transition: $transition-base;
+  box-shadow: $shadow;
+  
+  &:hover {
+    box-shadow: $shadow-lg;
+    transform: translateY(-2px);
+  }
+}
+
+.shadow-hover-lg {
+  transition: $transition-base;
+  box-shadow: $shadow-lg;
+  
+  &:hover {
+    box-shadow: $shadow-xl;
+    transform: translateY(-3px);
+  }
+}
+
+.shadow-hover-xl {
+  transition: $transition-base;
+  box-shadow: $shadow-xl;
+  
+  &:hover {
+    box-shadow: $shadow-2xl;
+    transform: translateY(-4px);
+  }
+}
+
+// Colored shadows
+.shadow-primary {
+  box-shadow: 0 4px 10px rgba($primary-color, 0.3) !important;
+}
+
+.shadow-secondary {
+  box-shadow: 0 4px 10px rgba($secondary-color, 0.3) !important;
+}
+
+.shadow-success {
+  box-shadow: 0 4px 10px rgba($success-color, 0.3) !important;
+}
+
+.shadow-danger {
+  box-shadow: 0 4px 10px rgba($danger-color, 0.3) !important;
+}
+
+.shadow-warning {
+  box-shadow: 0 4px 10px rgba($warning-color, 0.3) !important;
+}
+
+.shadow-info {
+  box-shadow: 0 4px 10px rgba($info-color, 0.3) !important;
+}

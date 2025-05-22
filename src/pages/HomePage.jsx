@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { FaUsers, FaComments, FaHeart, FaShare } from 'react-icons/fa';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import './HomePage.scss';
 
 const HomePage = () => {
   const { user, openLoginModal, openRegisterModal } = useAuth();

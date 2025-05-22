@@ -1,0 +1,119 @@
+@use '../abstracts/variables' as *;
+
+// Button base styles
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-2 $spacing-4;
+  font-weight: 500;
+  border-radius: $border-radius;
+  transition: $transition-base;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  gap: $spacing-2;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+// Primary button
+.btn-primary {
+  background-color: $primary-color;
+  background-image: $gradient-primary;
+  color: white;
+  box-shadow: 0 4px 6px rgba($primary-color, 0.25);
+  
+  &:hover {
+    box-shadow: 0 6px 10px rgba($primary-color, 0.35);
+  }
+}
+
+// Secondary button
+.btn-secondary {
+  background-color: $secondary-color;
+  background-image: $gradient-secondary;
+  color: white;
+  box-shadow: 0 4px 6px rgba($secondary-color, 0.25);
+  
+  &:hover {
+    box-shadow: 0 6px 10px rgba($secondary-color, 0.35);
+  }
+}
+
+// Outline button
+.btn-outline {
+  background: transparent;
+  border: 1px solid currentColor;
+  
+  &.btn-outline-primary {
+    color: $primary-color;
+    border-color: $primary-color;
+    
+    &:hover {
+      background-color: rgba($primary-color, 0.08);
+    }
+  }
+  
+  &.btn-outline-white {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.8);
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-color: white;
+    }
+  }
+}
+
+// Button sizes
+.btn-sm {
+  padding: $spacing-1 $spacing-3;
+  font-size: $font-size-sm;
+}
+
+.btn-lg {
+  padding: $spacing-3 $spacing-6;
+  font-size: $font-size-lg;
+}
+
+// Special buttons
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-white {
+  background: white;
+  color: $primary-color;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.btn-danger {
+  background-color: $danger-color;
+  color: white;
+  
+  &:hover {
+    background-color: adjust-color($danger-color, $lightness: -5%);
+  }
+}

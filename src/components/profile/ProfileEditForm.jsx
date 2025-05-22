@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useProfile } from '../../context';
 import { motion, AnimatePresence } from 'framer-motion';
-import './ProfileEditForm.scss';
+import styles from './ProfileEditForm.module.scss';
 
 const ProfileEditForm = ({ profile: initialProfile, onCancel, onProfileUpdated }) => {
   // Use motion explicitly to satisfy linter
@@ -51,25 +51,24 @@ const ProfileEditForm = ({ profile: initialProfile, onCancel, onProfileUpdated }
   };
   
   return (
-    <AnimatePresence>
-      <MotionDiv 
-        className="modal-overlay" 
+    <AnimatePresence>      <MotionDiv 
+        className={styles.modalOverlay}
         onClick={handleBackdropClick}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <MotionDiv 
-          className="auth-modal profile-edit"
+          className={styles.editForm}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ type: "spring", damping: 20, stiffness: 300 }}
           onClick={e => e.stopPropagation()}
         >
-          <h2>Chỉnh sửa thông tin cá nhân</h2>
+          <h2 className={styles.formTitle}>Chỉnh sửa thông tin cá nhân</h2>
           <form onSubmit={handleProfileUpdate}>
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="firstName">Họ</label>
               <input 
                 type="text" 
@@ -77,11 +76,8 @@ const ProfileEditForm = ({ profile: initialProfile, onCancel, onProfileUpdated }
                 id="firstName"
                 value={profile.firstName} 
                 onChange={handleInputChange}
-                className="form-control"
               />
-            </div>
-
-            <div className="form-group">
+            </div>            <div className={styles.formGroup}>
               <label htmlFor="lastName">Tên</label>
               <input 
                 type="text" 
@@ -89,29 +85,27 @@ const ProfileEditForm = ({ profile: initialProfile, onCancel, onProfileUpdated }
                 id="lastName"
                 value={profile.lastName} 
                 onChange={handleInputChange}
-                className="form-control"
               />
             </div>
 
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="bio">Giới thiệu</label>
               <textarea 
                 name="bio" 
                 id="bio"
                 value={profile.bio} 
                 onChange={handleInputChange}
-                className="form-control"
                 rows="3"
               ></textarea>
             </div>
 
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
+            <div className={styles.buttonGroup}>
+              <button type="submit" className={styles.saveButton}>
                 Lưu thay đổi
               </button>
               <button 
                 type="button" 
-                className="btn btn-secondary"
+                className={styles.cancelButton}
                 onClick={onCancel}
               >
                 Hủy

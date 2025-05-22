@@ -1,0 +1,74 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Global header styles
+.header {
+  width: 100%;
+  background-color: $bg-card;
+  box-shadow: $shadow;
+  position: relative;
+  z-index: $z-index-header;
+  
+  &-container {
+    @include flex-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: $spacing-3 $spacing-4;
+  }
+  
+  &-logo {
+    display: flex;
+    align-items: center;
+    
+    img {
+      max-height: 40px;
+      margin-right: $spacing-2;
+    }
+    
+    h1 {
+      font-family: $font-family-heading;
+      font-size: $font-size-xl;
+      font-weight: 700;
+      color: $primary-color;
+      margin: 0;
+    }
+  }
+  
+  &-actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+  }
+}
+
+// Fixed header variant
+.header-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  animation: slideDown 0.3s ease;
+}
+
+// Transparent header variant
+.header-transparent {
+  background-color: transparent;
+  box-shadow: none;
+  
+  .header-logo h1 {
+    color: white;
+  }
+}
+
+// Responsive styles
+@media (max-width: $breakpoint-md) {
+  .header {
+    &-container {
+      padding: $spacing-2 $spacing-3;
+    }
+    
+    &-actions {
+      gap: $spacing-2;
+    }
+  }
+}

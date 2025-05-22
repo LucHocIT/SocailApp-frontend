@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useProfile } from '../../context';
 import { motion, AnimatePresence } from 'framer-motion';
-import './PasswordChangeForm.scss';
+import styles from './PasswordChangeForm.module.scss';
 
 const PasswordChangeForm = ({ onCancel }) => {
   const { changePassword } = useProfile();
@@ -51,25 +51,24 @@ const PasswordChangeForm = ({ onCancel }) => {
     }
   };
   return (
-    <AnimatePresence>
-      <MotionDiv 
-        className="modal-overlay" 
+    <AnimatePresence>      <MotionDiv 
+        className={styles.modalOverlay} 
         onClick={handleBackdropClick}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <MotionDiv 
-          className="auth-modal password-change"
+          className={styles.passwordForm}
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ type: "spring", damping: 20, stiffness: 300 }}
           onClick={e => e.stopPropagation()}
         >
-          <h2>Đổi mật khẩu</h2>
+          <h2 className={styles.formTitle}>Đổi mật khẩu</h2>
           <form onSubmit={handlePasswordUpdate}>
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="currentPassword">Mật khẩu hiện tại</label>
               <input 
                 type="password" 
@@ -77,12 +76,9 @@ const PasswordChangeForm = ({ onCancel }) => {
                 id="currentPassword"
                 value={passwordData.currentPassword} 
                 onChange={handlePasswordChange}
-                className="form-control"
                 required
               />
-            </div>
-
-            <div className="form-group">
+            </div>            <div className={styles.formGroup}>
               <label htmlFor="newPassword">Mật khẩu mới</label>
               <input 
                 type="password" 
@@ -90,13 +86,15 @@ const PasswordChangeForm = ({ onCancel }) => {
                 id="newPassword"
                 value={passwordData.newPassword} 
                 onChange={handlePasswordChange}
-                className="form-control"
                 required
                 minLength="6"
               />
+              <div className={styles.passwordRequirements}>
+                Mật khẩu phải chứa ít nhất 6 ký tự
+              </div>
             </div>
 
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label htmlFor="confirmPassword">Xác nhận mật khẩu mới</label>
               <input 
                 type="password" 
@@ -104,19 +102,18 @@ const PasswordChangeForm = ({ onCancel }) => {
                 id="confirmPassword"
                 value={passwordData.confirmPassword} 
                 onChange={handlePasswordChange}
-                className="form-control"
                 required
                 minLength="6"
               />
             </div>
 
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
+            <div className={styles.buttonGroup}>
+              <button type="submit" className={styles.saveButton}>
                 Đổi mật khẩu
               </button>
               <button 
                 type="button" 
-                className="btn btn-secondary"
+                className={styles.cancelButton}
                 onClick={onCancel}
               >
                 Hủy

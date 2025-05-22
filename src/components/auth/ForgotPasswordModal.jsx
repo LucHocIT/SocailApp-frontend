@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context';
-import './ForgotPasswordModal.scss';
+import styles from './ForgotPasswordModal.module.scss';
 
 // Step 1: Request code
 const RequestCodeSchema = Yup.object().shape({
@@ -39,7 +39,8 @@ const ResetPasswordSchema = Yup.object().shape({
 });
 
 const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
-  const { requestPasswordReset, verifyResetCode, resetPassword } = useAuth();  const [currentStep, setCurrentStep] = useState(1);
+  const { requestPasswordReset, verifyResetCode, resetPassword } = useAuth();
+  const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -128,29 +129,28 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
       // toast.error('Không thể gửi mã xác nhận.');
     }
   };
-
   return (
-    <div className="auth-modal">
-      <div className="auth-modal-content">
-        <div className="modal-header">
-          <h2>Quên mật khẩu</h2>
-          <button className="close-btn" onClick={onClose}>&times;</button>
-        </div>
-        
+    <>
+      <div className="modal-header">
+        <h2>Quên mật khẩu</h2>
+        <button className={styles.closeButton} onClick={onClose}>&times;</button>
+      </div>
+      
+      <div className="modal-body">
         {error && (
-          <div className="error-message">
+          <div className={styles.error}>
             <strong>Lỗi:</strong> {error}
           </div>
         )}
         
-        <div className="step-indicator">
-          <div className={`step ${currentStep >= 1 ? 'active' : ''} ${currentStep > 1 ? 'completed' : ''}`}>1</div>
-          <div className={`step ${currentStep >= 2 ? 'active' : ''} ${currentStep > 2 ? 'completed' : ''}`}>2</div>
-          <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>3</div>
+        <div className={styles.stepIndicator}>
+          <div className={`${styles.step} ${currentStep >= 1 ? styles.active : ''} ${currentStep > 1 ? styles.completed : ''}`}>1</div>
+          <div className={`${styles.step} ${currentStep >= 2 ? styles.active : ''} ${currentStep > 2 ? styles.completed : ''}`}>2</div>
+          <div className={`${styles.step} ${currentStep >= 3 ? styles.active : ''}`}>3</div>
         </div>
         
         {currentStep === 1 && (
-          <div className="forgot-password-step">
+          <div className={styles.forgotPasswordStep}>
             <p>Vui lòng nhập email của bạn để nhận mã xác nhận.</p>
             <Formik
               initialValues={{ email: '' }}
@@ -159,10 +159,10 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
             >
               {({ isSubmitting }) => (
                 <Form>
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="email">Email</label>
-                    <Field type="email" name="email" className="form-control" />
-                    <ErrorMessage name="email" component="div" className="error-text" />
+                    <Field type="email" name="email" />
+                    <ErrorMessage name="email" component="div" className={styles.errorText} />
                   </div>
   
                   <button 
@@ -179,7 +179,7 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
         )}
         
         {currentStep === 2 && (
-          <div className="forgot-password-step">
+          <div className={styles.forgotPasswordStep}>
             <p>Nhập mã xác nhận đã được gửi đến email của bạn.</p>
             <Formik
               initialValues={{ email, code: '' }}
@@ -188,21 +188,20 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
             >
               {({ isSubmitting }) => (
                 <Form>
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="email">Email</label>
-                    <Field type="email" name="email" className="form-control" disabled />
+                    <Field type="email" name="email" disabled />
                   </div>
                   
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="code">Mã xác nhận</label>
-                    <Field type="text" name="code" className="form-control" />
-                    <ErrorMessage name="code" component="div" className="error-text" />
+                    <Field type="text" name="code" />
+                    <ErrorMessage name="code" component="div" className={styles.errorText} />
                   </div>
                   
-                  <div className="resend-code">
+                  <div className={styles.resendCode}>
                     <button 
-                      type="button" 
-                      className="link-btn" 
+                      type="button"
                       onClick={handleResendCode}
                     >
                       Gửi lại mã xác nhận
@@ -223,7 +222,7 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
         )}
         
         {currentStep === 3 && (
-          <div className="forgot-password-step">
+          <div className={styles.forgotPasswordStep}>
             <p>Nhập mật khẩu mới của bạn.</p>
             <Formik
               initialValues={{ email, code, newPassword: '', confirmPassword: '' }}
@@ -232,16 +231,16 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
             >
               {({ isSubmitting }) => (
                 <Form>
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="newPassword">Mật khẩu mới</label>
-                    <Field type="password" name="newPassword" className="form-control" />
-                    <ErrorMessage name="newPassword" component="div" className="error-text" />
+                    <Field type="password" name="newPassword" />
+                    <ErrorMessage name="newPassword" component="div" className={styles.errorText} />
                   </div>
                   
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
-                    <Field type="password" name="confirmPassword" className="form-control" />
-                    <ErrorMessage name="confirmPassword" component="div" className="error-text" />
+                    <Field type="password" name="confirmPassword" />
+                    <ErrorMessage name="confirmPassword" component="div" className={styles.errorText} />
                   </div>
   
                   <button 
@@ -257,15 +256,15 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
           </div>
         )}
         
-        <div className="auth-links">
+        <div className="modal-footer">
           <p>
-            <button className="link-btn" onClick={onSwitchToLogin}>
+            <a onClick={onSwitchToLogin}>
               Quay lại đăng nhập
-            </button>
+            </a>
           </p>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

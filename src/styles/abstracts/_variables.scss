@@ -1,6 +1,4 @@
-@use "sass:color";
-
-// Color variables
+// Main colors
 $primary-color: #4f46e5;
 $primary-light: #6366f1;
 $primary-dark: #4338ca;
@@ -12,11 +10,13 @@ $danger-color: #ef4444;
 $warning-color: #f59e0b;
 $info-color: #3b82f6;
 
+// Text colors
 $text-color: #111827;
 $text-light: #4b5563;
 $text-muted: #9ca3af;
 $link-color: $primary-color;
 
+// Background colors
 $bg-light: #f9fafb;
 $bg-dark: #111827;
 $bg-card: #ffffff;
@@ -24,11 +24,11 @@ $bg-card: #ffffff;
 // Gradient colors
 $gradient-primary: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
 $gradient-secondary: linear-gradient(135deg, $secondary-color 0%, $secondary-light 100%);
-$gradient-success: linear-gradient(135deg, $success-color 0%, color.adjust($success-color, $lightness: 10%) 100%);
-$gradient-danger: linear-gradient(135deg, $danger-color 0%, color.adjust($danger-color, $lightness: 10%) 100%);
-$gradient-warning: linear-gradient(135deg, $warning-color 0%, color.adjust($warning-color, $lightness: 10%) 100%);
-$gradient-info: linear-gradient(135deg, $info-color, color.adjust($info-color, $lightness: 10%) 100%);
-$gradient-dark: linear-gradient(135deg, $bg-dark 0%, color.adjust($bg-dark, $lightness: 10%) 100%);
+$gradient-success: linear-gradient(135deg, $success-color 0%, adjust-color($success-color, $lightness: 10%) 100%);
+$gradient-danger: linear-gradient(135deg, $danger-color 0%, adjust-color($danger-color, $lightness: 10%) 100%);
+$gradient-warning: linear-gradient(135deg, $warning-color 0%, adjust-color($warning-color, $lightness: 10%) 100%);
+$gradient-info: linear-gradient(135deg, $info-color, adjust-color($info-color, $lightness: 10%) 100%);
+$gradient-dark: linear-gradient(135deg, $bg-dark 0%, adjust-color($bg-dark, $lightness: 10%) 100%);
 
 // Typography
 $font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

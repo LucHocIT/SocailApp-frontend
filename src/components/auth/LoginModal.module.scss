@@ -1,0 +1,76 @@
+@use '../../styles/abstracts/variables' as *;
+@use '../../styles/abstracts/mixins' as *;
+
+.formGroup {
+  margin-bottom: $spacing-4;
+  
+  label {
+    display: block;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    margin-bottom: $spacing-2;
+    color: $text-light;
+  }
+  
+  input {
+    @include form-input;
+  }
+  
+  .error {
+    color: $danger-color;
+    font-size: $font-size-xs;
+    margin-top: $spacing-1;
+  }
+  
+  .passwordField {
+    position: relative;
+    
+    .toggleVisibility {
+      position: absolute;
+      right: $spacing-3;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: $text-muted;
+      cursor: pointer;
+      
+      &:hover {
+        color: $text-light;
+      }
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  margin-top: $spacing-6;
+  
+  button {
+    width: 100%;
+  }
+  
+  .forgotPassword {
+    font-size: $font-size-sm;
+    color: $text-light;
+    text-align: center;
+    cursor: pointer;
+    transition: $transition-base;
+    
+    &:hover {
+      color: $primary-color;
+    }
+  }
+}
+
+.loginError {
+  background-color: rgba($danger-color, 0.1);
+  color: $danger-color;
+  padding: $spacing-3;
+  border-radius: $border-radius;
+  margin-bottom: $spacing-4;
+  text-align: center;
+  font-size: $font-size-sm;
+}

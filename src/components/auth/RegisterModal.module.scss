@@ -1,0 +1,119 @@
+@use '../../styles/abstracts/variables' as *;
+@use '../../styles/abstracts/mixins' as *;
+
+.registerForm {
+  margin-top: $spacing-4;
+}
+
+.formGroup {
+  margin-bottom: $spacing-4;
+  
+  label {
+    display: block;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    margin-bottom: $spacing-2;
+    color: $text-light;
+  }
+  
+  input {
+    @include form-input;
+  }
+  
+  select {
+    @include form-input;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234b5563' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right $spacing-3 center;
+    padding-right: $spacing-6;
+  }
+  
+  .errorText {
+    color: $danger-color;
+    font-size: $font-size-xs;
+    margin-top: $spacing-1;
+  }
+  
+  .passwordField {
+    position: relative;
+    
+    .toggleVisibility {
+      position: absolute;
+      right: $spacing-3;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: $text-muted;
+      cursor: pointer;
+      
+      &:hover {
+        color: $text-light;
+      }
+    }
+  }
+  
+  .formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-4;
+    
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+      gap: $spacing-2;
+    }
+  }
+}
+
+.formActions {
+  margin-top: $spacing-6;
+  
+  .submitButton {
+    width: 100%;
+    margin-bottom: $spacing-3;
+  }
+}
+
+.errorMessage {
+  background-color: rgba($danger-color, 0.1);
+  color: $danger-color;
+  padding: $spacing-3;
+  border-radius: $border-radius;
+  margin-bottom: $spacing-4;
+  text-align: center;
+  font-size: $font-size-sm;
+}
+
+.termsCheck {
+  margin: $spacing-4 0;
+  display: flex;
+  align-items: flex-start;
+  
+  input[type="checkbox"] {
+    margin-top: 0.25rem;
+    margin-right: $spacing-2;
+  }
+  
+  label {
+    font-size: $font-size-sm;
+    color: $text-light;
+    
+    a {
+      color: $primary-color;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
+  .errorText {
+    color: $danger-color;
+    font-size: $font-size-xs;
+    margin-top: $spacing-1;
+    display: block;
+    width: 100%;
+  }
+}

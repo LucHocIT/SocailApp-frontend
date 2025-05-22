@@ -1,0 +1,246 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Main navigation styles
+.nav {
+  display: flex;
+  align-items: center;
+  
+  &-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: $spacing-4;
+  }
+  
+  &-item {
+    position: relative;
+    
+    &.active {
+      .nav-link {
+        color: $primary-color;
+        
+        &::after {
+          width: 100%;
+          opacity: 1;
+        }
+      }
+    }
+  }
+  
+  &-link {
+    color: $text-color;
+    text-decoration: none;
+    font-weight: 500;
+    padding: $spacing-2 $spacing-1;
+    position: relative;
+    transition: $transition-base;
+    
+    &:hover {
+      color: $primary-color;
+      
+      &::after {
+        width: 100%;
+        opacity: 1;
+      }
+    }
+    
+    // Underline animation
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 0;
+      height: 2px;
+      background: $primary-color;
+      transition: $transition-base;
+      opacity: 0;
+    }
+  }
+  
+  // Dropdown menus
+  &-dropdown {
+    position: relative;
+    
+    &-toggle {
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      
+      &::after {
+        content: '▾';
+        font-size: 10px;
+        margin-left: $spacing-1;
+        transition: transform 0.2s ease;
+      }
+      
+      &.active::after {
+        transform: rotate(180deg);
+      }
+    }
+    
+    &-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 200px;
+      background: white;
+      border-radius: $border-radius;
+      box-shadow: $shadow-lg;
+      padding: $spacing-2 0;
+      z-index: $z-index-dropdown;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      
+      &.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      
+      .nav-item {
+        display: block;
+        width: 100%;
+        
+        .nav-link {
+          display: block;
+          padding: $spacing-2 $spacing-4;
+          
+          &:hover {
+            background: rgba($primary-color, 0.05);
+          }
+          
+          &::after {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Mobile navigation
+.mobile-nav {
+  display: none;
+  
+  &-toggle {
+    background: transparent;
+    border: none;
+    padding: $spacing-2;
+    cursor: pointer;
+    
+    .bar {
+      display: block;
+      width: 24px;
+      height: 2px;
+      margin: 5px 0;
+      background: $text-color;
+      transition: $transition-base;
+    }
+    
+    &.active {
+      .bar:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+      }
+      
+      .bar:nth-child(2) {
+        opacity: 0;
+      }
+      
+      .bar:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+    }
+  }
+  
+  &-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    max-width: 80vw;
+    background: white;
+    box-shadow: $shadow-xl;
+    z-index: $z-index-modal;
+    padding: $spacing-6 $spacing-4;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto;
+    
+    &.show {
+      transform: translateX(0);
+    }
+    
+    .nav-list {
+      flex-direction: column;
+      gap: $spacing-2;
+    }
+    
+    .nav-link {
+      display: block;
+      padding: $spacing-3 0;
+      font-size: $font-size-lg;
+    }
+    
+    .nav-dropdown {
+      &-toggle {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      &-menu {
+        position: static;
+        box-shadow: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        height: 0;
+        overflow: hidden;
+        transition: height 0.3s ease;
+        padding: 0;
+        
+        &.show {
+          height: auto;
+          padding: $spacing-2 0 $spacing-2 $spacing-4;
+        }
+      }
+    }
+  }
+  
+  &-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: $z-index-modal - 1;
+    opacity: 0;
+    visibility: hidden;
+    transition: $transition-base;
+    
+    &.show {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
+// Responsive behavior
+@media (max-width: $breakpoint-md) {
+  .nav {
+    display: none;
+  }
+  
+  .mobile-nav {
+    display: block;
+  }
+}
