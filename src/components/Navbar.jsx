@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context';
-import { FaHome, FaUser, FaBell, FaSignOutAlt } from 'react-icons/fa';
+import { FaChevronDown, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa';
 import AuthModals from './auth/AuthModals';
 import styles from './Navbar.module.scss';
 
@@ -51,7 +51,21 @@ const Navbar = () => {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
-  };  return (
+  };  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
       <div className={styles.container}>
         <div className={styles.logo}>
@@ -70,24 +84,40 @@ const Navbar = () => {
         </button>
         
         <div className={`${styles.links} ${mobileMenuOpen ? styles.active : ''}`}>
-          <Link to="/" className={`${styles.navLink} ${location.pathname === '/' ? styles.active : ''}`}>
-            <FaHome className="me-1" /> Trang chủ
-          </Link>
-          
           {user ? (
-            <>
-              <Link to="/profile" className={`${styles.navLink} ${location.pathname.includes('/profile') ? styles.active : ''}`}>
-                <FaUser className="me-1" /> Hồ sơ
-              </Link>
-              <div className={styles.auth}>
-                <span className={styles.userGreeting}>
-                  Xin chào, {user.firstName}
+            <div className={styles.userMenu} ref={dropdownRef}>              <div 
+                className={styles.profileButton}
+                role="button"
+                aria-haspopup="true"
+                aria-expanded={dropdownOpen}
+              >
+                {user.profilePictureUrl ? (
+                  <img 
+                    src={user.profilePictureUrl}
+                    alt={`${user.firstName}'s profile`}
+                    className={styles.profilePic}
+                  />
+                ) : (
+                  <div className={styles.profilePic}>
+                    {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                  </div>
+                )}
+                <span className={styles.userName}>
+                  {user.firstName} {user.lastName}
                 </span>
-                <button onClick={logout} className="btn btn-logout">
-                  <FaSignOutAlt className="me-1" /> Đăng xuất
+              </div>
+                <div className={styles.dropdown}>
+                <Link to="/profile" className={styles.dropdownItem}>
+                  <FaUser /> Hồ sơ
+                </Link>
+                <Link to="/settings" className={styles.dropdownItem}>
+                  <FaCog /> Cài đặt
+                </Link>
+                <button onClick={logout} className={styles.dropdownItem}>
+                  <FaSignOutAlt /> Đăng xuất
                 </button>
               </div>
-            </>
+            </div>
           ) : (
             <div className={styles.auth}>
               <button onClick={openLoginModal} className="btn btn-outline shadow-hover">Đăng nhập</button>
