@@ -1,118 +1,250 @@
 // FollowersList.module.scss
 @use '../../styles/abstracts/variables' as *;
 @use '../../styles/abstracts/color-aliases' as *;
-@use 'sass:color';
 @use '../../styles/abstracts/mixins' as *;
 
-.followersList {
-  padding: 1rem 0;
+// Container
+.container {
+  @include card-base;
+  padding: $spacing-6;
+  animation: fadeIn 0.3s ease;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-4;
+    margin: 0 (-$spacing-2);
+  }
 }
 
-.followersTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
+// Header
+.header {
+  @include flex-between;
+  margin-bottom: $spacing-4;
+  padding-bottom: $spacing-3;
   border-bottom: 1px solid $border-color;
+}
+
+.title {
+  @include heading-3;
+  margin: 0;
   color: $text-dark;
 }
 
-.followersGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
+.closeButton {
+  @include button-base;
+  color: $text-light;
+  padding: $spacing-2;
+  border-radius: $border-radius-full;
+
+  &:hover {
+    color: $text-dark;
+    background: rgba($text-dark, 0.05);
+    transform: rotate(90deg);
+  }
 }
 
-.followerCard {
-  background-color: white;  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: $shadow-sm;
+// Loading state
+.loadingSpinner {
+  @include flex-center;
+  flex-direction: column;
+  padding: $spacing-10;
+  color: $text-light;
+  gap: $spacing-4;
+
+  .spinner {
+    @include loading-spinner(40px, $primary-color);
+  }
+}
+
+// Error state
+.errorMessage {
+  text-align: center;
+  padding: $spacing-6;
+  color: $danger-color;
+  background: rgba($danger-color, 0.05);
+  border-radius: $border-radius;
+}
+
+// Empty state
+.emptyMessage {
+  @include flex-center;
+  padding: $spacing-8;
+  color: $text-light;
+  text-align: center;
+  background: $bg-light;
+  border-radius: $border-radius;
+}
+
+// Users list
+.usersList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.userItem {
   display: flex;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  justify-content: space-between;
+  gap: $spacing-4;
+  padding: $spacing-4;
+  background: white;
+  border-radius: $border-radius-lg;
+  transition: $transition-base;
   
   &:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     box-shadow: $shadow-md;
   }
 }
 
-.followerImage {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  flex: 1;
+  min-width: 0; // Fix text overflow
+}
+
+.profileImage {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-full;
   object-fit: cover;
-  border: 1px solid $border-color;
-  margin-right: 1rem;
+  border: 2px solid white;
+  box-shadow: $shadow-sm;
+  transition: $transition-base;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: $shadow-md;
+  }
 }
 
 .defaultAvatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: $gray-300;
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-full;
+  background: linear-gradient(135deg, $gray-100, $gray-200);
+  color: $gray-600;
+  font-weight: 600;
+  @include flex-center;
+  border: 2px solid white;
+  box-shadow: $shadow-sm;
+  transition: $transition-base;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: $shadow-md;
+  }
+}
+
+.userDetails {
+  min-width: 0; // Fix text overflow
+}
+
+.userName {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-dark;
+  margin: 0 0 $spacing-1;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: $transition-base;
+
+    &:hover {
+      color: $primary-color;
+    }
+  }
+}
+
+.verifiedBadge {
+  color: $primary-color;
+  font-size: $font-size-sm;
+}
+
+.userUsername {
+  font-size: $font-size-sm;
+  color: $text-light;
+  margin: 0;
+}
+
+// Follow/Unfollow buttons
+.followButton,
+.unfollowButton {
+  @include button-base;
+  min-width: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 1rem;
-  color: $gray-600;
-  font-weight: 500;
-  font-size: 1.25rem;
+  gap: $spacing-2;
+  font-size: $font-size-sm;
+  padding: $spacing-2 $spacing-3;
+
+  @media (max-width: $breakpoint-sm) {
+    min-width: auto;
+    padding: $spacing-2;
+
+    span {
+      display: none;
+    }
+  }
 }
 
-.followerInfo {
-  flex-grow: 1;
+.followButton {
+  background: $gradient-primary;
+  color: white;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: rotate(15deg);
+  }
 }
 
-.followerName {
-  font-weight: 500;
-  margin: 0;
+.unfollowButton {
+  background: white;
+  border: 1px solid $border-color;
   color: $text-dark;
-  font-size: 1rem;
-  
-  &:hover {
-    color: $primary-color;
-    text-decoration: none;
+
+  &:hover:not(:disabled) {
+    color: $danger-color;
+    border-color: $danger-color;
+    background: rgba($danger-color, 0.05);
+
+    svg {
+      color: $danger-color;
+    }
   }
 }
 
-.followerBio {
-  margin: 0.25rem 0 0;
-  font-size: 0.875rem;
-  color: $text-muted;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.viewMoreBtn {
-  display: block;
-  text-align: center;
-  margin-top: 1rem;
-  color: $primary-color;
-  font-weight: 500;
-  cursor: pointer;
-  
-  &:hover {
-    text-decoration: underline;
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.emptyFollowers {
-  text-align: center;
-  padding: 2rem 0;
-  color: $text-muted;
-  
-  p {
-    margin-bottom: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .followersGrid {
-    grid-template-columns: 1fr;
-  }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
