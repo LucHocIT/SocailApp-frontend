@@ -2,10 +2,11 @@ import { useAuth, useProfile } from '../context';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaEdit, FaCamera, FaCheckCircle, FaUser, FaLock } from 'react-icons/fa';
+import { FaEdit, FaCamera, FaCheckCircle, FaUser, FaLock, FaList } from 'react-icons/fa';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import styles from './ProfilePage.module.scss';
+import PostList from '../components/post/PostList';
 
 
 // Import the extracted components
@@ -181,13 +182,21 @@ const ProfilePage = () => {
           followers={followers}
           onClose={() => setShowFollowers(false)}
         />
-      )}
-
-      {showFollowing && (
+      )}      {showFollowing && (
         <FollowingModal 
           following={following}
           onClose={() => setShowFollowing(false)}
         />
+      )}
+
+      {!isEditing && !isChangingPassword && profileData && (
+        <div className={styles.userPostsSection}>
+          <h2 className={styles.sectionTitle}>
+            <FaList className={styles.sectionIcon} />
+            {isOwnProfile ? 'Bài viết của bạn' : `Bài viết của ${profileData.username}`}
+          </h2>
+          <PostList username={profileData.username} />
+        </div>
       )}
     </div>
   );

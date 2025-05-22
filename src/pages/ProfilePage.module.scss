@@ -131,13 +131,13 @@
 }
 
 .sectionTitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: $text-dark;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: $text-dark;
+  border-bottom: 1px solid $border-color;
+  padding-bottom: 0.75rem;
   
   svg {
     color: $primary-color;
@@ -159,4 +159,18 @@
   p {
     margin-bottom: 1rem;
   }
+}
+
+// User Posts Section
+.userPostsSection {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: $shadow-sm;
+}
+
+.sectionIcon {
+  margin-right: 0.75rem;
+  color: $primary-color;
 }

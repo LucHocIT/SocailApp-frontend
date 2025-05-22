@@ -1,0 +1,57 @@
+/* filepath: e:\SocialApp\frontend\src\pages\PostPage.module.scss */
+@use '../styles/abstracts/variables' as *;
+
+.postPageContainer {
+  padding: 2rem 0;
+  max-width: 800px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  
+  h1 {
+    margin: 0 auto;
+    font-size: 1.8rem;
+    color: $primary-color;
+    text-align: center;
+  }
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.errorContainer {
+  text-align: center;
+  padding: 3rem;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  
+  .errorMessage {
+    color: #dc3545;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.postContainer {
+  max-width: 700px;
+  margin: 0 auto;
+}

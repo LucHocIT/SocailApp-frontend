@@ -1,9 +1,11 @@
 import { useAuth } from '../context';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FaUsers, FaComments, FaHeart, FaShare } from 'react-icons/fa';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import styles from './HomePage.module.scss';
+import CreatePost from '../components/post/CreatePost';
+import PostList from '../components/post/PostList';
 
 const HomePage = () => {
   const { user, openLoginModal, openRegisterModal } = useAuth();
@@ -15,51 +17,66 @@ const HomePage = () => {
       offset: 100,
       once: true
     });
-  }, []);
+  }, []);  const [newPost, setNewPost] = useState(null);
+
+  const handlePostCreated = (post) => {
+    setNewPost(post);
+  };
+
   return (
     <div className={styles.homeContainer}>
       <main className={styles.content}>
         {user ? (
           <div className={styles.dashboard}>
-            <h2 data-aos="fade-right">Bảng điều khiển</h2>
-            <div className={styles.userProfile} data-aos="fade-up">
-              <h3>Thông tin người dùng</h3>
-              <div className={styles.profileInfo}>
-                <p><strong>Tên đăng nhập:</strong> {user.username}</p>
-                <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Họ và tên:</strong> {user.firstName} {user.lastName}</p>
-                <p><strong>Vai trò:</strong> {user.role}</p>
-                <p><strong>Hoạt động lần cuối:</strong> {new Date(user.lastActive).toLocaleString()}</p>
+            <h2 data-aos="fade-right">Bảng tin</h2>
+            
+            <div className={styles.feedContainer}>
+              <CreatePost onPostCreated={handlePostCreated} />
+              <PostList key={newPost?.id} username="" onlyFollowing={false} />
+            </div>
+            
+            <div className={styles.statsSection}>
+              <div className={styles.userProfile} data-aos="fade-up">
+                <h3>Thông tin người dùng</h3>
+                <div className={styles.profileInfo}>
+                  <p><strong>Tên đăng nhập:</strong> {user.username}</p>
+                  <p><strong>Email:</strong> {user.email}</p>
+                  <p><strong>Họ và tên:</strong> {user.firstName} {user.lastName}</p>
+                  <p><strong>Vai trò:</strong> {user.role}</p>
+                  <p><strong>Hoạt động lần cuối:</strong> {new Date(user.lastActive).toLocaleString()}</p>
+                </div>
               </div>
-            </div>            {/* Stats Grid */}
-            <div className={styles.featureGrid}>
-              <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="100">
-                <span className={styles.icon}>
-                  <FaUsers />
-                </span>
-                <h3>125</h3>
-                <p>Followers</p>
-              </div>
-              <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="200">
-                <span className={styles.icon}>
-                  <FaComments />
-                </span>
-                <h3>348</h3>
-                <p>Comments</p>
-              </div>
-              <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="300">
-                <span className={styles.icon}>
-                  <FaHeart />
-                </span>
-                <h3>523</h3>
-                <p>Likes</p>
-              </div>
-              <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="400">
-                <span className={styles.icon}>
-                  <FaShare />
-                </span>
-                <h3>42</h3>
-                <p>Shares</p>
+              
+              {/* Stats Grid */}
+              <div className={styles.featureGrid}>
+                <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="100">
+                  <span className={styles.icon}>
+                    <FaUsers />
+                  </span>
+                  <h3>125</h3>
+                  <p>Followers</p>
+                </div>
+                <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="200">
+                  <span className={styles.icon}>
+                    <FaComments />
+                  </span>
+                  <h3>348</h3>
+                  <p>Comments</p>
+                </div>
+                <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="300">
+                  <span className={styles.icon}>
+                    <FaHeart />
+                  </span>
+                  <h3>523</h3>
+                  <p>Likes</p>
+                </div>
+                <div className={styles.featureCard} data-aos="zoom-in" data-aos-delay="400">
+                  <span className={styles.icon}>
+                    <FaShare />
+                  </span>
+                  <h3>42</h3>
+                  <p>Shares</p>
+                </div>
               </div>
             </div>
           </div>

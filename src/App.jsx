@@ -19,6 +19,7 @@ import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import RequestVerificationPage from './pages/RequestVerificationPage';
+import PostPage from './pages/PostPage';
 
 function App() {
   // Initialize AOS animation library
@@ -46,10 +47,10 @@ function App() {
           theme="light"
         />
         <Navbar />
-        <div className="app-content">
-          <Routes>
+        <div className="app-content">          <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/request-verification" element={<RequestVerificationPage />} />
+            <Route path="/post/:postId" element={<PostPage />} />
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />

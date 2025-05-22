@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Spinner } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 import PostCard from './PostCard';
 import EditPostModal from './EditPostModal';
 import postService from '../../services/postService';
@@ -15,7 +14,7 @@ const PostList = ({ username, onlyFollowing }) => {
   const [editingPost, setEditingPost] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   
-  const loadPosts = async (currentPage = 1) => {
+  const loadPosts = useCallback(async (currentPage = 1) => {
     try {
       setLoading(true);
       
@@ -49,7 +48,7 @@ const PostList = ({ username, onlyFollowing }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [username, onlyFollowing]);
 
   useEffect(() => {
     // Reset states when filters change
@@ -57,12 +56,7 @@ const PostList = ({ username, onlyFollowing }) => {
     setPage(1);
     setHasMore(true);
     loadPosts(1);
-  }, [username, onlyFollowing]);
-
-  const handlePostCreated = (newPost) => {
-    setPosts(prevPosts => [newPost, ...prevPosts]);
-  };
-
+  }, [username, onlyFollowing, loadPosts]);
   const handlePostUpdated = (post) => {
     setEditingPost(post);
     setShowEditModal(true);
