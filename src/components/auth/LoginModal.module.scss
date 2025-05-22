@@ -8,25 +8,52 @@ $login-gradient: linear-gradient(135deg, $primary-color 0%, color.adjust($primar
 
 .formGroup {
   margin-bottom: $spacing-4;
-  transition: $transition-base;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
   
-  &:focus-within {
+  &:hover {
     transform: translateY(-2px);
   }
   
   label {
-    display: block;
+    display: flex;
+    align-items: center;
     font-size: $font-size-sm;
     font-weight: 500;
     margin-bottom: $spacing-2;
     color: $text-light;
+    transition: color 0.3s ease;
+    
+    .inputIcon {
+      margin-right: $spacing-2;
+      color: $primary-color;
+      font-size: 1.1em;
+    }
+  }
+  
+  .inputWithIcon {
+    position: relative;
+    
+    input {
+      padding-left: $spacing-8;
+    }
+    
+    .fieldIcon {
+      position: absolute;
+      left: $spacing-3;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $text-muted;
+      transition: all 0.3s ease;
+    }
   }
   
   input {
     @include form-input;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     &:focus {
+      border-color: $primary-color;
       box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
       transform: translateY(-1px);
     }
@@ -36,25 +63,50 @@ $login-gradient: linear-gradient(135deg, $primary-color 0%, color.adjust($primar
     color: $danger-color;
     font-size: $font-size-xs;
     margin-top: $spacing-1;
-  }
-    .passwordField {
-    position: relative;
+    display: flex;
+    align-items: center;
+    animation: errorShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
     
-    .toggleVisibility {
-      position: absolute;
-      right: $spacing-3;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: $text-muted;
-      cursor: pointer;
-      transition: $transition-fast;
-      
-      &:hover {
-        color: $primary-color;
-        transform: translateY(-50%) scale(1.1);
-      }
+    &::before {
+      content: '⚠️';
+      margin-right: $spacing-2;
+    }
+  }
+}
+
+@keyframes errorShake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-2px); }
+  40%, 60% { transform: translateX(2px); }
+}
+
+.passwordField {
+  position: relative;
+  
+  input {
+    padding-right: $spacing-10;
+  }
+  
+  .toggleVisibility {
+    position: absolute;
+    right: $spacing-3;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    padding: $spacing-1;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+      color: $primary-color;
+      background: rgba($primary-color, 0.1);
     }
   }
 }
@@ -71,7 +123,10 @@ $login-gradient: linear-gradient(135deg, $primary-color 0%, color.adjust($primar
     overflow: hidden;
     background: $login-gradient;
     border: none;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    padding: $spacing-3;
+    font-weight: 500;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     &:hover {
       transform: translateY(-2px);
@@ -82,40 +137,44 @@ $login-gradient: linear-gradient(135deg, $primary-color 0%, color.adjust($primar
       transform: translateY(-1px);
     }
     
-    // Create shine effect on hover
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        to right,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-      );
-      transition: left 0.7s ease;
-    }
-    
-    &:hover::before {
-      left: 100%;
+    &.btn-loading {
+      cursor: not-allowed;
+      opacity: 0.8;
     }
   }
+}
+
+.loadingSpinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.forgotPassword {
+  font-size: $font-size-sm;
+  color: $text-light;
+  text-align: center;
+  cursor: pointer;
+  padding: $spacing-2;
+  border-radius: $border-radius;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   
-  .forgotPassword {
-    font-size: $font-size-sm;
-    color: $text-light;
-    text-align: center;
-    cursor: pointer;
-    transition: $transition-base;
-    
-    &:hover {
-      color: $primary-color;
-      transform: translateY(-1px);
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+  &:hover {
+    color: $primary-color;
+    background: rgba($primary-color, 0.05);
+    transform: translateY(-1px);
+  }
+  
+  svg {
+    margin-right: $spacing-2;
+    transition: transform 0.3s ease;
   }
 }
 
@@ -130,9 +189,56 @@ $login-gradient: linear-gradient(135deg, $primary-color 0%, color.adjust($primar
   border-left: 3px solid $danger-color;
   box-shadow: 0 2px 10px rgba($danger-color, 0.1);
   animation: errorPulse 1s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
   
   @keyframes errorPulse {
     0% { opacity: 0; transform: translateY(-10px); }
     100% { opacity: 1; transform: translateY(0); }
+  }
+}
+
+// Social Login Buttons
+.socialLoginButtons {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-4;
+  margin-top: $spacing-4;
+  
+  button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    
+    &.googleButton {
+      color: #EA4335;
+      box-shadow: 0 2px 8px rgba(#EA4335, 0.2);
+      
+      &:hover {
+        background: rgba(#EA4335, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(#EA4335, 0.3);
+      }
+    }
+    
+    &.facebookButton {
+      color: #3B5998;
+      box-shadow: 0 2px 8px rgba(#3B5998, 0.2);
+      
+      &:hover {
+        background: rgba(#3B5998, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(#3B5998, 0.3);
+      }
+    }
   }
 }
