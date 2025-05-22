@@ -17,15 +17,14 @@ const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
   }, [initialMode, isOpen]);
 
   if (!isOpen) return null;
-  
-  const handleSwitchToLogin = () => setCurrentMode('login');
+    const handleSwitchToLogin = () => setCurrentMode('login');
   const handleSwitchToRegister = () => setCurrentMode('register');
-  const handleSwitchToForgotPassword = () => setCurrentMode('forgotPassword');    const handleBackdropClick = (e) => {
-    // Nếu click vào backdrop (bên ngoài modal), hiện thông báo xác nhận trước khi đóng
+  const handleSwitchToForgotPassword = () => setCurrentMode('forgotPassword');
+  
+  const handleBackdropClick = (e) => {
+    // Nếu click vào backdrop (bên ngoài modal), đóng modal ngay lập tức
     if (e.target === e.currentTarget) {
-      if (window.confirm('Bạn có chắc muốn đóng cửa sổ này?')) {
-        onClose();
-      }
+      onClose();
     }
   };
 
