@@ -78,7 +78,8 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
       setLoginError(error.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
     } finally {
       setIsProcessing(false);
-      setSubmitting(false);    }
+      setSubmitting(false);
+    }
   };
   
   const handleGoogleLogin = async () => {

@@ -27,12 +27,17 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized errors - clear storage and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      // Fix the redirect to avoid the '/loginlogin' issue
-      // Use a proper route that exists in your application (typically home page with login modal)
-      window.location.href = '/';
+      // Check if this is a token expiration case (user was previously logged in)
+      // We only want to redirect for expired tokens, not for failed login attempts
+      const token = localStorage.getItem('token');
+      if (token && !error.config.url.includes('/auth/login') && !error.config.url.includes('/auth/social-login')) {
+        // Only for authenticated requests with expired token, not login attempts
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Fix the redirect to avoid the '/loginlogin' issue
+        // Use a proper route that exists in your application (typically home page with login modal)
+        window.location.href = '/';
+      }
     }
     return Promise.reject(error);
   }

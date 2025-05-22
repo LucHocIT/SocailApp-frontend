@@ -1,7 +1,6 @@
 import api from './api';
 
-class AuthService {
-  // Regular login with username and password
+class AuthService {  // Regular login with username and password
   async login(username, password) {
     try {
       const response = await api.post('/auth/login', { username, password });
@@ -11,6 +10,7 @@ class AuthService {
       }
       return response.data;
     } catch (error) {
+      // handleError will throw the proper error with message
       throw this.handleError(error);
     }
   }
@@ -88,9 +88,7 @@ class AuthService {
     } catch (error) {
       throw this.handleError(error);
     }
-  }
-
-  // Social login with Google or Facebook
+  }  // Social login with Google or Facebook
   async socialLogin(provider, accessToken) {
     try {
       const response = await api.post('/auth/social-login', {
@@ -103,6 +101,7 @@ class AuthService {
       }
       return response.data;
     } catch (error) {
+      // handleError will throw the error with proper message
       throw this.handleError(error);
     }
   }
@@ -122,18 +121,19 @@ class AuthService {
   getCurrentUser() {
     return JSON.parse(localStorage.getItem('user'));
   }
-  
   // Helper method to handle errors
   handleError(error) {
     if (error.response) {
       // Server responded with an error status code
-      return error.response.data;
+      const errorMsg = error.response.data.message || 'Lỗi từ máy chủ';
+      // Create and return a proper error with the message from the server
+      return new Error(errorMsg);
     } else if (error.request) {
       // Request was made but no response received
-      return { message: 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.' };
+      return new Error('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
     } else {
       // Something else caused the error
-      return { message: error.message || 'Đã xảy ra lỗi không xác định.' };
+      return new Error(error.message || 'Đã xảy ra lỗi không xác định.');
     }
   }
 }
