@@ -107,7 +107,7 @@ const Navbar = () => {
         )}
         
         {/* Add User Search component */}
-        <div className={styles.searchArea}>
+      <div className={styles.searchArea}>
           <UserSearch />
         </div>
         
