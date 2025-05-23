@@ -5,7 +5,9 @@ import { useProfile, useAuth } from '../../../context/hooks';
 import { 
   FaCamera, FaShieldAlt, FaEdit, FaKey, 
   FaEnvelope, FaUserCheck, FaUserPlus, 
-  FaSpinner, FaUser, FaList
+  FaSpinner, FaUser, FaList, FaCalendarAlt,
+  FaBirthdayCake, FaMapMarkerAlt, FaGlobe,
+  FaChevronDown, FaChevronUp, FaInfoCircle
 } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import styles from './ProfileHeader.module.scss';
@@ -30,6 +32,7 @@ const ProfileHeader = ({
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [formattedDate, setFormattedDate] = useState('');
+  const [isExpandedInfo, setIsExpandedInfo] = useState(false);
 
   const fileInputRef = useRef(null);
   const coverFileRef = useRef(null);
@@ -197,11 +200,13 @@ const ProfileHeader = ({
         </div>
 
         {/* Profile Info */}
-        <div className={styles.profileInfo}>
-          <h1 className={styles.fullName}>
+        <div className={styles.profileInfo}>          <h1 className={styles.fullName}>
             {profileData.firstName} {profileData.lastName}
             {profileData.isVerified && (
-              <FaShieldAlt className={styles.verifiedIcon} title="Tài khoản đã xác thực" />
+              <span className={styles.verifiedIconWrapper} title="Tài khoản đã xác thực">
+                <FaShieldAlt className={styles.verifiedIcon} />
+                <span className={styles.verifiedTooltip}>Tài khoản đã xác thực</span>
+              </span>
             )}
           </h1>
 
@@ -214,11 +219,54 @@ const ProfileHeader = ({
 
           <p className={styles.bio}>
             {profileData.bio || 'Chưa có thông tin giới thiệu.'}
-          </p>
-
-          <p className={styles.joinDate}>
-            Thành viên từ {formattedDate}
-          </p>
+          </p>          <div className={styles.profileMeta}>
+            <p className={styles.joinDate}>
+              <FaCalendarAlt /> Thành viên từ {formattedDate}
+            </p>
+            
+            {profileData.location && (
+              <p className={styles.location}>
+                <FaMapMarkerAlt /> {profileData.location}
+              </p>
+            )}
+          </div>
+          
+          <button 
+            className={styles.toggleInfoBtn} 
+            onClick={() => setIsExpandedInfo(prev => !prev)}
+            aria-label={isExpandedInfo ? "Ẩn thông tin chi tiết" : "Hiển thị thông tin chi tiết"}
+          >
+            <FaInfoCircle />
+            <span>{isExpandedInfo ? "Ẩn thông tin chi tiết" : "Hiển thị thêm thông tin"}</span>
+            {isExpandedInfo ? <FaChevronUp /> : <FaChevronDown />}
+          </button>
+          
+          {isExpandedInfo && (
+            <div className={styles.expandedInfo}>
+              {profileData.birthday && (
+                <div className={styles.infoItem}>
+                  <FaBirthdayCake />
+                  <span>Sinh nhật: {new Date(profileData.birthday).toLocaleDateString('vi-VN')}</span>
+                </div>
+              )}
+              
+              {profileData.website && (
+                <div className={styles.infoItem}>
+                  <FaGlobe />
+                  <a href={profileData.website} target="_blank" rel="noopener noreferrer">
+                    {profileData.website.replace(/^https?:\/\/(www\.)?/, '')}
+                  </a>
+                </div>
+              )}
+              
+              {profileData.email && isOwnProfile && (
+                <div className={styles.infoItem}>
+                  <FaEnvelope />
+                  <span>{profileData.email}</span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Stats */}
           <div className={styles.stats}>
