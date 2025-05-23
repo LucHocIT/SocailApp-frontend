@@ -4,17 +4,26 @@
 @use '../styles/abstracts/mixins' as *;
 
 .navbar {
-  background: white;
-  box-shadow: $shadow;
+  background: rgba(255, 255, 255, 0.98);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   padding: $spacing-3 0;
   position: sticky;
   top: 0;
   z-index: $z-index-fixed;
-  transition: $transition-base;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid rgba($border-color, 0.1);
   
   &.scrolled {
     padding: $spacing-2 0;
-    box-shadow: $shadow-md;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08), 0 1px 3px rgba($primary-color, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba($primary-color, 0.08);
+    
+    .logo a {
+      transform: scale(0.95);
+    }
   }
 }
 
@@ -22,23 +31,46 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 $spacing-4;
+  position: relative;
 }
 
 .searchArea {
   flex: 1;
-  max-width: 500px;
+  max-width: 400px;
   margin: 0 $spacing-4;
   display: none;
   
   @include media-breakpoint-up(md) {
     display: block;
   }
+    input[type="text"] {
+    width: 100%;
+    padding: $spacing-2 $spacing-4;
+    border-radius: 30px;
+    border: 2px solid rgba($border-color, 0.2);
+    background-color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: $font-size-base;
+    
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 4px rgba($primary-color, 0.15);
+      outline: none;
+      background-color: white;
+    }
+    
+    &::placeholder {
+      color: rgba($text-muted, 0.8);
+    }
+  }
 }
 
 .logo {
+  position: relative;
+  
   a {
     font-family: $font-family-heading;
     font-size: $font-size-xl;
@@ -47,15 +79,121 @@
     text-decoration: none;
     display: flex;
     align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: $spacing-2 $spacing-3;
+    position: relative;
     
     &:hover {
       color: $primary-dark;
+      transform: translateY(-2px);
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to right, rgba($primary-color, 0.7), rgba($primary-color, 1));
+      border-radius: 3px;
+      transform: scaleX(0);
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+      transform-origin: center;
+    }
+    
+    &.active, &:hover {
+      color: $primary-color;
+      
+      &::after {
+        transform: scaleX(1);
+        opacity: 1;
+      }
     }
     
     img {
-      height: 30px;
+      height: 32px;
       margin-right: $spacing-2;
+      transition: transform 0.3s ease;
+      filter: drop-shadow(0 2px 4px rgba($primary-color, 0.2));
+      
+      &:hover {
+        transform: rotate(5deg) scale(1.05);
+      }
     }
+  }
+}
+
+// Navigation Icons
+.navIcons {
+  display: none;
+  align-items: center;
+  gap: $spacing-4;
+  margin: 0 auto;
+  
+  @include media-breakpoint-up(md) {
+    display: flex;
+  }
+}
+
+.navIcon {
+  position: relative;
+  color: $text-color;
+  font-size: $font-size-xl;
+  padding: $spacing-2;
+  border-radius: $border-radius;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  
+  &:hover, &.active {
+    color: $primary-color;
+    transform: translateY(-2px);
+    
+    &::after {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to right, rgba($primary-color, 0.7), rgba($primary-color, 1));
+    border-radius: 3px;
+    transform: scaleX(0);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    transform-origin: center;
+  }
+  
+  &.active {
+    color: $primary-color;
+    font-weight: 600;
+    
+    &::after {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+  
+  .iconLabel {
+    font-size: $font-size-xs;
+    margin-top: 2px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+  }
+  
+  &:hover .iconLabel {
+    opacity: 1;
   }
 }
 
@@ -69,7 +207,7 @@
     font-weight: 500;
     padding: $spacing-2 $spacing-3;
     border-radius: $border-radius;
-    transition: $transition-base;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     
     &:hover, &.active {
@@ -99,22 +237,205 @@
   display: flex;
   align-items: center;
   gap: $spacing-3;
+  
+  button {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Notifications
+.notificationsContainer {
+  position: relative;
+}
+
+.notificationButton {
+  position: relative;
+  background: transparent;
+  border: none;
+  font-size: $font-size-lg;
+  color: $text-color;
+  padding: $spacing-3;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover, &.active {
+    color: $primary-color;
+    background-color: rgba($primary-color, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.notificationBadge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: $danger-color;
+  border-radius: 50%;
+  border: 2px solid white;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba($danger-color, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba($danger-color, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba($danger-color, 0);
+  }
+}
+
+.notificationsDropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.2);
+  z-index: $z-index-dropdown;
+  overflow: hidden;
+  animation: dropdownEnter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba($border-color, 0.1);
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.notificationsHeader {
+  padding: $spacing-3 $spacing-4;
+  border-bottom: 1px solid rgba($border-color, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  h3 {
+    font-size: $font-size-base;
+    font-weight: 600;
+    margin: 0;
+    color: $text-color;
+  }
+  
+  .markAllRead {
+    background: transparent;
+    border: none;
+    color: $primary-color;
+    font-size: $font-size-sm;
+    cursor: pointer;
+    padding: 0;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.notificationsList {
+  overflow-y: auto;
+  max-height: 300px;
+  padding: $spacing-2 0;
+}
+
+.notificationItem {
+  padding: $spacing-3 $spacing-4;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba($border-color, 0.05);
+  cursor: pointer;
+  
+  &:hover {
+    background-color: rgba($primary-color, 0.05);
+  }
+  
+  &.unread {
+    background-color: rgba($primary-color, 0.08);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: $primary-color;
+    }
+    
+    .notificationContent p {
+      font-weight: 500;
+    }
+  }
+}
+
+.notificationAvatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  
+  .avatarPlaceholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba($primary-color, 0.7), rgba($primary-color, 0.9));
+    border-radius: 50%;
+  }
+}
+
+.notificationContent {
+  flex: 1;
+  
+  p {
+    margin: 0 0 4px 0;
+    font-size: $font-size-sm;
+    color: $text-color;
+    line-height: 1.4;
+  }
+  
+  .notificationTime {
+    color: $text-muted;
+    font-size: $font-size-xs;
+  }
+}
+
+.notificationsFooter {
+  padding: $spacing-3 $spacing-4;
+  border-top: 1px solid rgba($border-color, 0.1);
+  text-align: center;
+  
+  a {
+    color: $primary-color;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .userMenu {
   position: relative;
-  margin-left: auto; // Đẩy sang phải
+  margin-left: auto;
   
-  &:hover, &:focus-within {
-    .dropdown {
-      visibility: visible;
-      opacity: 1;
-      transform: scale(1) translateY(0);
-      pointer-events: auto;
-    }
-  }
-  
-  // Thêm vùng an toàn để di chuột
+  // Vùng an toàn để di chuột từ button đến dropdown
   &::after {
     content: '';
     position: absolute;
@@ -123,6 +444,7 @@
     right: 0;
     height: 20px;
     background: transparent;
+    pointer-events: auto;
   }
   
   .profileButton {
@@ -146,7 +468,7 @@
       }
       
       .dropdownIcon {
-        transform: translateY(2px);
+        transform: translateY(2px) rotate(180deg);
         color: $primary-color;
       }
     }
@@ -162,7 +484,8 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    justify-content: center;    background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 20%));
+    justify-content: center;
+    background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 20%));
     color: white;
     font-weight: 500;
     font-size: $font-size-base;
@@ -187,6 +510,18 @@
     margin: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
+  
+  .dropdownIcon {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin-left: $spacing-1;
+    
+    &.open {
+      transform: rotate(180deg);
+      color: $primary-color;
+    }
+  }
 
   .profileButton:hover {
     background: linear-gradient(to right, rgba($primary-color, 0.1), rgba($primary-color, 0.15));
@@ -202,7 +537,7 @@
       color: $primary-color;
     }
   }
-  .dropdown {
+    .dropdown {
     position: absolute;
     top: calc(100% - 5px); // Giảm khoảng cách với button
     right: 0;
@@ -210,12 +545,7 @@
     background: rgba(255, 255, 255, 0.98);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    visibility: hidden;
-    opacity: 0;
-    transform: scale(0.95) translateY(-10px);
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    pointer-events: none;
-    border-radius: 20px;
+    border-radius: 16px;
     min-width: 240px;
     box-shadow: 
       0 4px 20px rgba(0, 0, 0, 0.08),
@@ -223,9 +553,11 @@
       inset 0 0 0 1px rgba(255, 255, 255, 0.5);
     overflow: hidden;
     transform-origin: top right;
-    animation: dropdownEnter 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: dropdownEnter 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     z-index: $z-index-dropdown;
-      .dropdownItem {
+    border: 1px solid rgba($border-color, 0.1);
+    
+    .dropdownItem {
       position: relative;
       display: flex;
       align-items: center;
@@ -245,7 +577,7 @@
       font-size: $font-size-base;
       overflow: hidden;
       
-    &:hover {
+      &:hover {
         background: linear-gradient(
           135deg,
           rgba($primary-color, 0.08),
@@ -289,7 +621,8 @@
       &:not(:last-child) {
         border-bottom: 1px solid rgba($border-color, 0.1);
       }
-        svg {
+      
+      svg {
         font-size: $font-size-lg;
         transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         filter: drop-shadow(0 2px 4px rgba($primary-color, 0.2));
@@ -320,13 +653,14 @@
   border: none;
   cursor: pointer;
   padding: $spacing-2;
+  z-index: 100;
   
   .hamburger {
     width: 24px;
     height: 2px;
     background: $text-color;
     position: relative;
-    transition: $transition-base;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     
     &::before, &::after {
       content: '';
@@ -334,7 +668,7 @@
       width: 24px;
       height: 2px;
       background: $text-color;
-      transition: $transition-base;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
     
     &::before {
@@ -380,7 +714,7 @@
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
-    transition: $transition-base;
+    transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
     
     &.active {
       transform: translateY(0);
@@ -400,6 +734,60 @@
       :global(.btn) {
         width: 100%;
       }
+    }
+  }
+    .navIcons {
+    display: flex;
+    margin-top: $spacing-4;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .logo {
+    a {
+      justify-content: center;
+      margin: 0 auto $spacing-3;
+      
+      &::after {
+        bottom: -5px;
+      }
+    }
+  }
+    .userMenu {
+    width: 100%;
+    margin-top: $spacing-3;
+    
+    .profileButton {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    // Điều chỉnh dropdown cho thiết bị di động để hoạt động với hover
+    .dropdown {
+      width: 100%;
+      position: relative;
+      top: $spacing-3;
+      right: auto;
+      animation-duration: 0.3s;
+    }
+  }
+  
+  .notificationsContainer {
+    width: 100%;
+    margin-top: $spacing-3;
+    
+    .notificationButton {
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .notificationsDropdown {
+      width: 100%;
+      position: relative;
+      right: auto;
+      margin-top: $spacing-3;
     }
   }
 }
