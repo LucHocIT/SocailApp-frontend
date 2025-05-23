@@ -73,21 +73,24 @@ const UserSearch = () => {
             if (searchResults.length > 0) setShowResults(true);
           }}
           className={styles.searchInput}
+          autoComplete="off"
         />
-        {isSearching && <span className={styles.searchingIndicator}></span>}
+        {isSearching && (
+          <span className={styles.searchingIndicator} title="Đang tìm kiếm..."></span>
+        )}
       </div>
       
       {showResults && (
         <div className={styles.resultsContainer}>
           {error && (
             <div className={styles.searchError}>
-              {error}
+              <FaUser style={{marginRight: 6, opacity: 0.7}} /> {error}
             </div>
           )}
           
           {!error && searchResults.length === 0 && !isSearching && (
             <div className={styles.noResults}>
-              Không tìm thấy người dùng nào
+              <FaUser style={{marginRight: 6, opacity: 0.7}} /> Không tìm thấy người dùng nào
             </div>
           )}
           
@@ -96,12 +99,14 @@ const UserSearch = () => {
               key={user.id}
               className={styles.userResult}
               onClick={() => handleUserSelect(user.id)}
+              tabIndex={0}
+              onKeyDown={e => { if (e.key === 'Enter') handleUserSelect(user.id); }}
             >
               <div className={styles.userAvatar}>
                 {user.profilePictureUrl ? (
                   <img src={user.profilePictureUrl} alt={user.username} />
                 ) : (
-                  <FaUser />
+                  <FaUser style={{fontSize: '1.5rem'}} />
                 )}
               </div>
               <div className={styles.userInfo}>
