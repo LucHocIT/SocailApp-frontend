@@ -112,12 +112,23 @@ const ProfileHeader = ({
       coverFileRef.current.value = '';
     }
   };
-
   const handleKeyPress = (handler) => (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       handler(e);
     }
   };
+
+  // Hiển thị trạng thái loading khi đang tải thông tin profile
+  if (loading && !showCropper) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}>
+          <FaSpinner />
+        </div>
+        <p>Đang tải thông tin hồ sơ...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.profileHeader}>
