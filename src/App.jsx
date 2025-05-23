@@ -49,8 +49,7 @@ function App() {
         <Navbar />
         <div className="app-content">          <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/request-verification" element={<RequestVerificationPage />} />
-            <Route path="/post/:postId" element={<PostPage />} />
+            <Route path="/request-verification" element={<RequestVerificationPage />} />            <Route path="/post/:postId" element={<PostPage />} />
             {/* Public profile route - anyone can view profiles */}
             <Route path="/profile/:userId" element={<ProfilePage />} />
             {/* Protected routes - require authentication */}

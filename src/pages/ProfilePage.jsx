@@ -24,9 +24,9 @@ const ProfilePage = () => {
     unfollowUser,
     getFollowers,
     getFollowing,
-    getUserProfile
+    getUserProfile,
+    getUserProfileByUsername
   } = useProfile();
-  
   const { userId } = useParams();
   const navigate = useNavigate();
   
@@ -49,41 +49,56 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
 
   // Use ref to prevent multiple simultaneous fetches
-  const isFetchingRef = useRef(false);
-  // Use ref for profile actions to prevent infinite loops
+  const isFetchingRef = useRef(false);  // Use ref for profile actions to prevent infinite loops
   const profileActionsRef = useRef({ getFollowers, getFollowing, getUserProfile });
-
   // Update profile actions ref when they change
   useEffect(() => {
-    profileActionsRef.current = { getFollowers, getFollowing, getUserProfile };
-  }, [getFollowers, getFollowing, getUserProfile]);
-
+    profileActionsRef.current = { getFollowers, getFollowing, getUserProfile, getUserProfileByUsername };
+  }, [getFollowers, getFollowing, getUserProfile, getUserProfileByUsername]);
+  
   // Fetch profile data with useCallback to prevent unnecessary recreation
   const fetchProfileData = useCallback(async () => {
     // If already fetching, don't start another fetch
     if (isFetchingRef.current) return;
-
+    
+    setLoading(true);
+    isFetchingRef.current = true;
+    
     try {
-      setLoading(true);
-      isFetchingRef.current = true;
-
       // If we're on /profile with no userId parameter, we need to be logged in
       if (!userId && !user) {
         navigate('/');
         return;
       }
 
-      // Determine if viewing own profile or another user's profile
-      const targetUserId = userId ? parseInt(userId, 10) : user?.id;
+      let data;
+      let targetUserId;
+
+      // Check if userId is a number (ID) or string (username)
+      const isNumericId = /^\d+$/.test(userId);
+      
+      if (!userId) {
+        // Viewing own profile
+        targetUserId = user?.id;
+        data = await profileActionsRef.current.getUserProfile(targetUserId);
+      } else if (isNumericId) {
+        // userId is a numeric ID
+        targetUserId = parseInt(userId, 10);
+        data = await profileActionsRef.current.getUserProfile(targetUserId);
+      } else {
+        // userId is a username
+        data = await profileActionsRef.current.getUserProfileByUsername(userId);
+        targetUserId = data.id;
+      }
+
+      // Check if viewing own profile
       setIsOwnProfile(!userId || (user && targetUserId === user.id));
 
-      if (!targetUserId) {
+      if (!data) {
         navigate('/');
         return;
       }
-
-      // Fetch profile data
-      const data = await profileActionsRef.current.getUserProfile(targetUserId);
+      
       setProfileData(data);
 
       // Initialize form if it's own profile

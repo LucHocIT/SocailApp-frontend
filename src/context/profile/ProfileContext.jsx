@@ -6,7 +6,7 @@ import { useAuth } from '../hooks';
 const ProfileContext = createContext();
 
 // Provider component
-export function ProfileProvider({ children }) {
+export const ProfileProvider = ({ children }) => {
   const { setUser } = useAuth(); // Only using setUser for now
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -165,6 +165,20 @@ export function ProfileProvider({ children }) {
     }
   };
 
+  // Get user profile by username
+  const getUserProfileByUsername = async (username) => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await userService.getUserProfileByUsername(username);
+    } catch (err) {
+      setError(err.message || 'Không thể lấy thông tin hồ sơ người dùng');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Context value
   const contextValue = {
     profileLoading: loading,
@@ -177,15 +191,15 @@ export function ProfileProvider({ children }) {
     unfollowUser,
     getFollowers,
     getFollowing,
-    getUserProfile
+    getUserProfile,
+    getUserProfileByUsername
   };
-
   return (
     <ProfileContext.Provider value={contextValue}>
       {children}
     </ProfileContext.Provider>
   );
-}
+};
 
 // Note: useProfile hook is now exported from context/hooks.js
 export default ProfileContext;

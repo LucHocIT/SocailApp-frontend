@@ -11,6 +11,16 @@ class UserService {
     }
   }
 
+  // Lấy thông tin profile người dùng theo username
+  async getUserProfileByUsername(username) {
+    try {
+      const response = await api.get(`/profile/username/${username}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   // Lấy thông tin profile người dùng hiện tại
   async getCurrentUserProfile() {
     try {
