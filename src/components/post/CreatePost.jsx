@@ -4,7 +4,6 @@ import { FaImage, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context';
 import postService from '../../services/postService';
-import styles from './Post.module.scss';
 
 const CreatePost = ({ onPostCreated }) => {
   const { user } = useAuth();
@@ -106,47 +105,45 @@ const CreatePost = ({ onPostCreated }) => {
     return null;
   }
 
-  return (
-    <Card className={styles.createPostCard} data-aos="fade-in">
+  return (    <Card className="create-post-card" data-aos="fade-in">
       <Card.Body>
-        <div className={styles.createPostHeader}>
+        <div className="create-post-header">
           <Image 
             src={user.profilePictureUrl || '/images/default-avatar.png'} 
-            className={styles.avatar} 
+            className="avatar" 
             roundedCircle 
           />
-          <Form className={styles.createPostForm} onSubmit={handleSubmit}>
+          <Form className="create-post-form" onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Control
                 as="textarea"
                 placeholder={`Bạn đang nghĩ gì, ${user.firstName || user.username}?`}
                 value={content}
                 onChange={handleContentChange}
-                className={styles.postInput}
+                className="post-input"
                 rows={3}
                 disabled={isSubmitting}
               />
             </Form.Group>
 
-            {mediaPreview && (
-              <div className={styles.mediaPreviewContainer}>
+            {mediaPreview && (              <div className="media-preview-container">
                 {mediaFile.type.startsWith('image/') ? (
-                  <Image src={mediaPreview} alt="Preview" className={styles.mediaPreview} />
+                  <Image src={mediaPreview} alt="Preview" className="media-preview" />
                 ) : mediaFile.type.startsWith('video/') ? (
-                  <video className={styles.mediaPreview} controls>
+                  <video className="media-preview" controls>
                     <source src={mediaPreview} type={mediaFile.type} />
                     Your browser does not support the video tag.
                   </video>
                 ) : null}
-                <Button variant="danger" size="sm" className={styles.removeMediaButton} onClick={removeMedia}>
+                <Button variant="danger" size="sm" className="remove-media-button" onClick={removeMedia}>
                   <FaTimes />
                 </Button>
               </div>
             )}
 
-            <div className={styles.createPostFooter}>
-              <div className={styles.mediaUpload}>
-                <label htmlFor="media-upload" className={styles.mediaUploadLabel}>
+            <div className="create-post-footer">
+              <div className="media-upload">
+                <label htmlFor="media-upload" className="media-upload-label">
                   <FaImage /> Hình ảnh/Video
                 </label>
                 <Form.Control
@@ -154,7 +151,7 @@ const CreatePost = ({ onPostCreated }) => {
                   type="file"
                   accept="image/*,video/*"
                   onChange={handleMediaChange}
-                  className={styles.mediaUploadInput}
+                  className="media-upload-input"
                   disabled={isSubmitting}
                 />
               </div>
@@ -162,7 +159,7 @@ const CreatePost = ({ onPostCreated }) => {
               <Button 
                 type="submit" 
                 variant="primary" 
-                className={styles.postButton}
+                className="post-button"
                 disabled={isSubmitting || (!content.trim() && !mediaFile)}
               >
                 {isSubmitting ? (

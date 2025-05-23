@@ -3,7 +3,6 @@ import { Modal, Button, Form, Spinner, Image } from 'react-bootstrap';
 import { FaImage, FaTimes, FaFile } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
-import styles from './Post.module.scss';
 
 const EditPostModal = ({ show, post, onHide, onSave }) => {
   const [content, setContent] = useState('');
@@ -20,9 +19,14 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
       setMediaFile(null);
       setMediaPreview('');
       setRemoveExistingMedia(false);
-    }  }, [post]);
+    }
+  }, [post]);
 
-  const handleMediaChange = async (e) => {
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+  };
+
+  const handleMediaChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -33,89 +37,86 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
     }
 
     setMediaFile(file);
-    const previewUrl = URL.createObjectURL(file);
-    setMediaPreview(previewUrl);    setRemoveExistingMedia(false);
+    setRemoveExistingMedia(true);
+
+    // Create preview URL
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMediaPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setMediaPreview('');
+    }
+  };
+
+  const handleRemoveMedia = () => {
+    setMediaFile(null);
+    setMediaPreview('');
+    setRemoveExistingMedia(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (!content.trim() && !mediaFile && !existingMediaUrl) {
+      toast.error('Vui lòng thêm nội dung hoặc phương tiện cho bài viết của bạn');
+      return;
+    }
 
     try {
       setIsSubmitting(true);
-
-      let mediaUrl = removeExistingMedia ? null : existingMediaUrl;
-      let mediaType = null;
-      let mediaPublicId = null;
-
+      const formData = new FormData();
+      formData.append('content', content);
+      
       if (mediaFile) {
-        // Determine media type for upload
-        let uploadMediaType = "file";
-        if (mediaFile.type.startsWith('image/')) {
-          uploadMediaType = "image";
-        } else if (mediaFile.type.startsWith('video/')) {
-          uploadMediaType = "video";
-        }
-        
-        const uploadResult = await postService.uploadMedia(mediaFile, uploadMediaType);
-        if (uploadResult.success) {
-          mediaUrl = uploadResult.mediaUrl;
-          mediaType = uploadMediaType;  // Use the same mediaType we determined for upload
-          mediaPublicId = uploadResult.publicId;
-        }
+        formData.append('media', mediaFile);
       }
+      
+      formData.append('removeExistingMedia', removeExistingMedia);
 
-      const updatedPost = await postService.updatePost(post.id, {
-        content,
-        mediaUrl,
-        mediaType,
-        mediaPublicId
-      });
-
-      if (onSave) {
-        onSave(updatedPost);
-      }
-
+      const updatedPost = await postService.updatePost(post.id, formData);
+      onSave(updatedPost);
       toast.success('Bài viết đã được cập nhật thành công!');
     } catch (error) {
-      console.error('Failed to update post:', error);
-      toast.error(error.message || 'Không thể cập nhật bài viết. Vui lòng thử lại sau.');    } finally {
+      console.error('Lỗi khi cập nhật bài viết:', error);
+      toast.error(error.message || 'Lỗi khi cập nhật bài viết');
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered backdrop="static">
-      <Modal.Header closeButton>
+    <Modal show={show} onHide={onHide} centered>
+      <Modal.Header closeButton className="modal-header">
         <Modal.Title>Chỉnh sửa bài viết</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
+      <Modal.Body className="modal-body">
+        <Form onSubmit={handleSubmit} className="edit-form">
+          <Form.Group>
             <Form.Control
               as="textarea"
               value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={3}
-              disabled={isSubmitting}
+              onChange={handleContentChange}
+              className="textarea-field"
+              placeholder="Bạn đang nghĩ gì?"
             />
           </Form.Group>
 
-          {/* Show existing media or preview */}
-          {(existingMediaUrl && !removeExistingMedia) || mediaPreview ? (
-            <div className={styles.mediaPreviewContainer}>
-              {mediaPreview ? (
+          {(mediaFile || existingMediaUrl) && (
+            <div className="media-preview-container">
+              {mediaFile ? (
                 <>
-                  {mediaFile?.type.startsWith('image/') ? (
-                    <Image src={mediaPreview} alt="Preview" className={styles.mediaPreview} />
-                  ) : mediaFile?.type.startsWith('video/') ? (
-                    <video className={styles.mediaPreview} controls>
+                  {mediaFile.type.startsWith('image/') ? (
+                    <Image src={mediaPreview} alt="Preview" className="media-preview" />
+                  ) : mediaFile.type.startsWith('video/') ? (
+                    <video className="media-preview" controls>
                       <source src={mediaPreview} type={mediaFile.type} />
-                      Your browser does not support the video tag.
+                      Trình duyệt của bạn không hỗ trợ thẻ video.
                     </video>
                   ) : (
-                    <div className={styles.fileContainer}>
-                      <span className={styles.filePreview}>
+                    <div className="file-container">
+                      <span className="file-preview">
                         <FaFile /> {mediaFile.name}
                       </span>
                     </div>
@@ -124,78 +125,84 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
               ) : existingMediaUrl && !removeExistingMedia ? (
                 <>
                   {post.mediaType === 'image' ? (
-                    <Image src={existingMediaUrl} alt="Current media" className={styles.mediaPreview} />
+                    <Image src={existingMediaUrl} alt="Current media" className="media-preview" />
                   ) : post.mediaType === 'video' ? (
-                    <video className={styles.mediaPreview} controls>
+                    <video className="media-preview" controls>
                       <source src={existingMediaUrl} type={post.mediaMimeType || 'video/mp4'} />
-                      Your browser does not support the video tag.
+                      Trình duyệt của bạn không hỗ trợ thẻ video.
                     </video>
                   ) : (
-                    <div className={styles.fileContainer}>
+                    <div className="file-container">
                       <a 
                         href={existingMediaUrl} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className={styles.fileDownload}
+                        className="file-download"
                       >
-                        <FaFile /> Tập tin đính kèm
+                        <FaFile /> {post.mediaFilename || 'Tải tập tin'}
                       </a>
                     </div>
                   )}
                 </>
               ) : null}
-              <Button 
-                variant="danger" 
-                size="sm" 
-                className={styles.removeMediaButton} 
-                onClick={() => {
-                  if (mediaPreview) {
-                    setMediaFile(null);
-                    setMediaPreview('');
-                  } else {
-                    setRemoveExistingMedia(true);
-                  }
-                }}
-              >
-                <FaTimes />
-              </Button>
-            </div>
-          ) : null}
-
-          <div className={styles.createPostFooter}>
-            {(!existingMediaUrl || removeExistingMedia) && !mediaFile && (
-              <div className={styles.mediaUpload}>
-                <label htmlFor="edit-media-upload" className={styles.mediaUploadLabel}>
-                  <FaImage /> Thêm hình ảnh/video
-                </label>
-                <Form.Control
-                  id="edit-media-upload"
-                  type="file"
-                  accept="image/*,video/*"
-                  onChange={handleMediaChange}
-                  className={styles.mediaUploadInput}
-                  disabled={isSubmitting}
+              {(mediaFile || (existingMediaUrl && !removeExistingMedia)) && (
+                <Button
+                  variant="link"
+                  className="btn-close position-absolute top-0 end-0 m-2 bg-white"
+                  onClick={handleRemoveMedia}
+                  title="Xóa phương tiện"
                 />
-              </div>
-            )}
+              )}
+            </div>
+          )}
+
+          <div className="d-flex align-items-center justify-content-between mt-3">
+            <div>
+              <Form.Label htmlFor="edit-media-upload" className="btn btn-outline-primary mb-0">
+                <FaImage className="me-2" />
+                Thêm phương tiện
+              </Form.Label>
+              <Form.Control
+                type="file"
+                id="edit-media-upload"
+                onChange={handleMediaChange}
+                className="d-none"
+                accept="image/*,video/*,.pdf,.doc,.docx"
+              />
+            </div>
           </div>
         </Form>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide} disabled={isSubmitting}>
+      <Modal.Footer className="modal-footer">
+        <Button
+          variant="light"
+          onClick={onHide}
+          className="cancel-button"
+          disabled={isSubmitting}
+        >
           Hủy bỏ
         </Button>
-        <Button 
-          variant="primary" 
+        <Button
+          variant="primary"
           onClick={handleSubmit}
-          disabled={isSubmitting || (!content.trim() && !mediaFile && !existingMediaUrl)}
+          className="save-button"
+          disabled={isSubmitting}
         >
           {isSubmitting ? (
             <>
-              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-              <span className="ms-2">Đang lưu...</span>
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+                className="me-2"
+              />
+              Đang lưu...
             </>
-          ) : 'Lưu thay đổi'}
+          ) : (
+            'Lưu thay đổi'
+          )}
         </Button>
       </Modal.Footer>
     </Modal>

@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, Image, Badge } from 'react-bootstrap';
+import { Card, Button, Image, Badge, Dropdown } from 'react-bootstrap';
 import { FaHeart, FaRegHeart, FaComment, FaEllipsisV, FaTrash, FaPencilAlt, FaFile } from 'react-icons/fa';
 import { useAuth } from '../../context';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
 import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
-import styles from './Post.module.scss';
 
 const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(post.isLikedByCurrentUser);
   const [likesCount, setLikesCount] = useState(post.likesCount);
-  const [showMenu, setShowMenu] = useState(false);
 
   const handleLike = async () => {
     try {
@@ -42,110 +40,106 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
         toast.error('Không thể xóa bài viết. Vui lòng thử lại sau.');
       }
     }
-    setShowMenu(false);
   };
-
-  const toggleMenu = () => setShowMenu(!showMenu);
 
   const isOwner = user && post.userId === user.id;
 
   return (
-    <Card className={styles.postCard} data-aos="fade-up">
-      <Card.Header className={styles.postHeader}>
-        <div className={styles.userInfo}>
-          <Image 
-            src={post.profilePictureUrl || '/images/default-avatar.png'} 
-            className={styles.avatar} 
-            roundedCircle
-          />
+    <Card className="mb-4 shadow-sm border-0 rounded-3" data-aos="fade-up">
+      <Card.Header className="d-flex justify-content-between align-items-center bg-white border-bottom">
+        <div className="d-flex align-items-center gap-3">
+          <Link to={`/profile/${post.username}`}>
+            <Image
+              src={post.profilePictureUrl || '/images/default-avatar.png'}
+              alt={post.username}
+              style={{ width: '48px', height: '48px', objectFit: 'cover' }}
+              className="border border-2 border-primary-subtle"
+              roundedCircle
+            />
+          </Link>
           <div>
-            <Link to={`/profile/${post.username}`} className={styles.username}>
+            <Link to={`/profile/${post.username}`} className="text-decoration-none fw-semibold text-body d-block mb-1">
               {post.username}
             </Link>
-            <div className={styles.postTime}>              <TimeAgo date={convertUtcToLocal(post.createdAt)} />
+            <div className="text-muted small d-flex align-items-center gap-1">
+              <TimeAgo date={convertUtcToLocal(post.createdAt)} title={new Date(post.createdAt).toLocaleString()} />
               {post.updatedAt && post.updatedAt !== post.createdAt && (
-                <span className={styles.editedLabel}> (đã chỉnh sửa)</span>
+                <Badge bg="light" text="dark" className="ms-2 fst-italic">đã chỉnh sửa</Badge>
               )}
             </div>
           </div>
         </div>
-        
         {isOwner && (
-          <div className={styles.menuContainer}>
-            <Button variant="link" onClick={toggleMenu} className={styles.menuButton}>
+          <Dropdown align="end">
+            <Dropdown.Toggle variant="link" className="text-secondary p-0 border-0">
               <FaEllipsisV />
-            </Button>
-            {showMenu && (
-              <div className={styles.menuDropdown}>
-                <Button 
-                  variant="link" 
-                  className={styles.menuItem} 
-                  onClick={() => {
-                    setShowMenu(false);
-                    if (onPostUpdated) onPostUpdated(post);
-                  }}
-                >
-                  <FaPencilAlt /> Chỉnh sửa
-                </Button>
-                <Button 
-                  variant="link" 
-                  className={styles.menuItem} 
-                  onClick={handleDelete}
-                >
-                  <FaTrash /> Xóa
-                </Button>
-              </div>
-            )}
-          </div>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item 
+                onClick={() => {
+                  if (onPostUpdated) onPostUpdated(post);
+                }}
+              >
+                <FaPencilAlt className="me-2" /> Chỉnh sửa
+              </Dropdown.Item>
+              <Dropdown.Item 
+                onClick={handleDelete}
+                className="text-danger"
+              >
+                <FaTrash className="me-2" /> Xóa
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         )}
-      </Card.Header>      <Card.Body>
-        <Card.Text className={styles.postContent}>{post.content}</Card.Text>
+      </Card.Header>
+      <Card.Body>
+        <Card.Text className="white-space-pre-line mb-3">{post.content}</Card.Text>
         {post.mediaUrl && (
-          <div className={`${styles.mediaContainer} ${styles[post.mediaType]}`}>
+          <div className="rounded overflow-hidden bg-light">
             {post.mediaType === 'image' ? (
               <Image 
                 src={post.mediaUrl} 
                 alt="Post media" 
-                className={styles.postMedia}
+                className="w-100"
+                style={{ maxHeight: '500px', objectFit: 'contain' }}
                 fluid 
               />
             ) : post.mediaType === 'video' ? (
               <video 
-                controls 
-                className={styles.postMedia}
-                preload="metadata"
+                className="w-100"
+                style={{ maxHeight: '500px' }}
+                controls
               >
                 <source src={post.mediaUrl} type={post.mediaMimeType || 'video/mp4'} />
                 Your browser does not support the video tag.
               </video>
             ) : post.mediaType === 'file' ? (
-              <div className={styles.fileContainer}>
+              <div className="p-3 bg-light">
                 <a 
-                  href={post.mediaUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className={styles.fileDownload}
+                  href={post.mediaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="d-flex align-items-center gap-2 text-decoration-none text-primary p-2 rounded hover-bg-primary-subtle"
                 >
-                  <FaFile /> Tải xuống tập tin
+                  <FaFile /> {post.mediaFilename}
                 </a>
               </div>
             ) : null}
           </div>
         )}
       </Card.Body>
-
-      <Card.Footer className={styles.postFooter}>
-        <div className={styles.postStats}>
+      <Card.Footer className="bg-white border-top">
+        <div className="d-flex gap-4">
           <Button 
             variant="link" 
-            className={`${styles.actionButton} ${isLiked ? styles.liked : ''}`} 
+            className={`d-flex align-items-center gap-2 text-decoration-none p-2 ${isLiked ? 'text-danger' : 'text-body'}`}
             onClick={handleLike}
           >
             {isLiked ? <FaHeart /> : <FaRegHeart />}
             <span>{likesCount}</span>
           </Button>
 
-          <Link to={`/post/${post.id}`} className={styles.actionButton}>
+          <Link to={`/post/${post.id}`} className="d-flex align-items-center gap-2 text-decoration-none text-body p-2">
             <FaComment />
             <span>{post.commentsCount}</span>
           </Link>

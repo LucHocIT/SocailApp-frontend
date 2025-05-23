@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Spinner } from 'react-bootstrap';
+import { Button, Spinner, Alert } from 'react-bootstrap';
 import PostCard from './PostCard';
 import EditPostModal from './EditPostModal';
 import postService from '../../services/postService';
-import styles from './Post.module.scss';
 
 const PostList = ({ username, onlyFollowing }) => {
   const [posts, setPosts] = useState([]);
@@ -82,14 +81,13 @@ const PostList = ({ username, onlyFollowing }) => {
     }
   };
 
-  if (error) {
-    return <div className={styles.errorMessage}>{error}</div>;
+  if (error) {    return <Alert variant="danger">{error}</Alert>;
   }
 
   return (
-    <div className={styles.postList}>
+    <div className="w-100" style={{ maxWidth: '700px', margin: '0 auto' }}>
       {posts.length === 0 && !loading ? (
-        <div className={styles.noPostsMessage}>Không có bài viết nào để hiển thị.</div>
+        <Alert variant="info" className="text-center py-4">Không có bài viết nào để hiển thị.</Alert>
       ) : (
         <>
           {posts.map(post => (
@@ -102,12 +100,12 @@ const PostList = ({ username, onlyFollowing }) => {
           ))}
 
           {hasMore && (
-            <div className="text-center mt-3 mb-4">
+            <div className="text-center my-4">
               <Button
                 variant="outline-primary"
                 onClick={handleLoadMore}
                 disabled={loading}
-                className={styles.loadMoreButton}
+                className="rounded-pill px-4"
               >
                 {loading ? (
                   <>
@@ -117,12 +115,10 @@ const PostList = ({ username, onlyFollowing }) => {
                 ) : 'Tải thêm bài viết'}
               </Button>
             </div>
-          )}
-
-          {loading && page === 1 && (
-            <div className="text-center my-4">
-              <Spinner animation="border" role="status">
-                <span className="visually-hidden">Đang tải...</span>
+          )}          {loading && page === 1 && (
+            <div className="text-center my-5">
+              <Spinner animation="border" role="status" variant="primary">
+                <span className="visually-hidden">Đang tải bài viết...</span>
               </Spinner>
             </div>
           )}

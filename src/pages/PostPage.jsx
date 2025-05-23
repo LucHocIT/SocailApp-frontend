@@ -5,7 +5,6 @@ import { FaArrowLeft } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import PostCard from '../components/post/PostCard';
 import postService from '../services/postService';
-import styles from './PostPage.module.scss';
 
 const PostPage = () => {
   const { postId } = useParams();
@@ -42,43 +41,52 @@ const PostPage = () => {
     navigate('/');
   };
 
-  return (
-    <Container className={styles.postPageContainer}>
-      <div className={styles.header}>
-        <Button 
-          variant="outline-secondary" 
-          className={styles.backButton} 
-          onClick={() => navigate(-1)}
-        >
-          <FaArrowLeft /> Quay lại
-        </Button>
-        <h1>Chi tiết bài viết</h1>
-      </div>
-
-      {loading ? (
-        <div className={styles.loadingContainer}>
+  if (loading) {
+    return (
+      <Container className="post-page-container">
+        <div className="loading-container">
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Đang tải...</span>
           </Spinner>
         </div>
-      ) : error ? (
-        <div className={styles.errorContainer}>
-          <p className={styles.errorMessage}>{error}</p>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="post-page-container">
+        <div className="error-container">
+          <p>{error}</p>
           <Button variant="primary" as={Link} to="/">
             Trở về Trang chủ
           </Button>
         </div>
-      ) : (
-        <div className={styles.postContainer}>
-          {post && (
-            <PostCard 
-              post={post} 
-              onPostUpdated={handlePostUpdated}
-              onPostDeleted={handlePostDeleted}
-            />
-          )}
-        </div>
-      )}
+      </Container>
+    );
+  }
+
+  return (
+    <Container className="post-page-container">
+      <div className="header">
+        <Button 
+          variant="link"
+          onClick={() => navigate(-1)} 
+          className="back-button"
+        >
+          <FaArrowLeft /> Quay lại
+        </Button>
+      </div>
+
+      <div className="post-container">
+        {post && (
+          <PostCard 
+            post={post} 
+            onPostUpdated={handlePostUpdated}
+            onPostDeleted={handlePostDeleted}
+          />
+        )}
+      </div>
     </Container>
   );
 };
