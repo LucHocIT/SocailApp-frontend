@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Spinner, Image } from 'react-bootstrap';
-import { FaImage, FaTimes } from 'react-icons/fa';
+import { FaImage, FaTimes, FaFile } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
 import styles from './Post.module.scss';
@@ -20,90 +20,68 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
       setMediaFile(null);
       setMediaPreview('');
       setRemoveExistingMedia(false);
-    }
-  }, [post]);
+    }  }, [post]);
 
-  const handleContentChange = (e) => {
-    setContent(e.target.value);
-  };
-
-  const handleMediaChange = (e) => {
+  const handleMediaChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('Kích thước tập tin không được vượt quá 10MB');
+      toast.error('File quá lớn. Kích thước tối đa là 10MB');
       return;
     }
 
-    // Create a preview
-    const preview = URL.createObjectURL(file);
-    setMediaPreview(preview);
     setMediaFile(file);
-    setRemoveExistingMedia(true);
-  };
-
-  const removeMedia = () => {
-    if (mediaPreview) {
-      setMediaFile(null);
-      setMediaPreview('');
-    }
-    
-    if (existingMediaUrl) {
-      setRemoveExistingMedia(true);
-    }
+    const previewUrl = URL.createObjectURL(file);
+    setMediaPreview(previewUrl);    setRemoveExistingMedia(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!content.trim() && !mediaFile && !existingMediaUrl) {
-      toast.error('Vui lòng nhập nội dung hoặc thêm hình ảnh cho bài viết');
-      return;
-    }
+    if (isSubmitting) return;
 
     try {
       setIsSubmitting(true);
-      
-      // Handle media file
-      let mediaUrl = existingMediaUrl;
+
+      let mediaUrl = removeExistingMedia ? null : existingMediaUrl;
+      let mediaType = null;
+      let mediaPublicId = null;
+
       if (mediaFile) {
-        const uploadResult = await postService.uploadMedia(mediaFile);
-        if (uploadResult && uploadResult.mediaUrl) {
-          mediaUrl = uploadResult.mediaUrl;
+        // Determine media type for upload
+        let uploadMediaType = "file";
+        if (mediaFile.type.startsWith('image/')) {
+          uploadMediaType = "image";
+        } else if (mediaFile.type.startsWith('video/')) {
+          uploadMediaType = "video";
         }
-      } else if (removeExistingMedia) {
-        mediaUrl = null;
+        
+        const uploadResult = await postService.uploadMedia(mediaFile, uploadMediaType);
+        if (uploadResult.success) {
+          mediaUrl = uploadResult.mediaUrl;
+          mediaType = uploadMediaType;  // Use the same mediaType we determined for upload
+          mediaPublicId = uploadResult.publicId;
+        }
       }
 
-      // Update the post
-      const postData = {
-        content: content.trim(),
-        mediaUrl
-      };
-      
-      const updatedPost = await postService.updatePost(post.id, postData);
-      
+      const updatedPost = await postService.updatePost(post.id, {
+        content,
+        mediaUrl,
+        mediaType,
+        mediaPublicId
+      });
+
       if (onSave) {
         onSave(updatedPost);
       }
-      
+
       toast.success('Bài viết đã được cập nhật thành công!');
     } catch (error) {
       console.error('Failed to update post:', error);
-      toast.error('Không thể cập nhật bài viết. Vui lòng thử lại sau.');
-    } finally {
+      toast.error(error.message || 'Không thể cập nhật bài viết. Vui lòng thử lại sau.');    } finally {
       setIsSubmitting(false);
     }
-  };
-  
-  const isMediaImage = (url) => {
-    return url && url.match(/\.(jpeg|jpg|gif|png)$/i);
-  };
-  
-  const isMediaVideo = (url) => {
-    return url && url.match(/\.(mp4|webm|ogg)$/i);
   };
 
   return (
@@ -116,48 +94,73 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
           <Form.Group className="mb-3">
             <Form.Control
               as="textarea"
-              placeholder="Nội dung bài viết..."
               value={content}
-              onChange={handleContentChange}
-              className={styles.postInput}
-              rows={5}
+              onChange={(e) => setContent(e.target.value)}
+              rows={3}
               disabled={isSubmitting}
             />
           </Form.Group>
 
-          {/* Existing media preview */}
-          {existingMediaUrl && !removeExistingMedia && (
+          {/* Show existing media or preview */}
+          {(existingMediaUrl && !removeExistingMedia) || mediaPreview ? (
             <div className={styles.mediaPreviewContainer}>
-              {isMediaImage(existingMediaUrl) ? (
-                <Image src={existingMediaUrl} alt="Current media" className={styles.mediaPreview} />
-              ) : isMediaVideo(existingMediaUrl) ? (
-                <video className={styles.mediaPreview} controls>
-                  <source src={existingMediaUrl} type={`video/${existingMediaUrl.split('.').pop()}`} />
-                  Your browser does not support the video tag.
-                </video>
+              {mediaPreview ? (
+                <>
+                  {mediaFile?.type.startsWith('image/') ? (
+                    <Image src={mediaPreview} alt="Preview" className={styles.mediaPreview} />
+                  ) : mediaFile?.type.startsWith('video/') ? (
+                    <video className={styles.mediaPreview} controls>
+                      <source src={mediaPreview} type={mediaFile.type} />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <div className={styles.fileContainer}>
+                      <span className={styles.filePreview}>
+                        <FaFile /> {mediaFile.name}
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : existingMediaUrl && !removeExistingMedia ? (
+                <>
+                  {post.mediaType === 'image' ? (
+                    <Image src={existingMediaUrl} alt="Current media" className={styles.mediaPreview} />
+                  ) : post.mediaType === 'video' ? (
+                    <video className={styles.mediaPreview} controls>
+                      <source src={existingMediaUrl} type={post.mediaMimeType || 'video/mp4'} />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <div className={styles.fileContainer}>
+                      <a 
+                        href={existingMediaUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className={styles.fileDownload}
+                      >
+                        <FaFile /> Tập tin đính kèm
+                      </a>
+                    </div>
+                  )}
+                </>
               ) : null}
-              <Button variant="danger" size="sm" className={styles.removeMediaButton} onClick={removeMedia}>
+              <Button 
+                variant="danger" 
+                size="sm" 
+                className={styles.removeMediaButton} 
+                onClick={() => {
+                  if (mediaPreview) {
+                    setMediaFile(null);
+                    setMediaPreview('');
+                  } else {
+                    setRemoveExistingMedia(true);
+                  }
+                }}
+              >
                 <FaTimes />
               </Button>
             </div>
-          )}
-
-          {/* New media preview */}
-          {mediaPreview && (
-            <div className={styles.mediaPreviewContainer}>
-              {mediaFile.type.startsWith('image/') ? (
-                <Image src={mediaPreview} alt="Preview" className={styles.mediaPreview} />
-              ) : mediaFile.type.startsWith('video/') ? (
-                <video className={styles.mediaPreview} controls>
-                  <source src={mediaPreview} type={mediaFile.type} />
-                  Your browser does not support the video tag.
-                </video>
-              ) : null}
-              <Button variant="danger" size="sm" className={styles.removeMediaButton} onClick={removeMedia}>
-                <FaTimes />
-              </Button>
-            </div>
-          )}
+          ) : null}
 
           <div className={styles.createPostFooter}>
             {(!existingMediaUrl || removeExistingMedia) && !mediaFile && (

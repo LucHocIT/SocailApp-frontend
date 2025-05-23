@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Button, Image, Badge } from 'react-bootstrap';
-import { FaHeart, FaRegHeart, FaComment, FaEllipsisV, FaTrash, FaPencilAlt } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaComment, FaEllipsisV, FaTrash, FaPencilAlt, FaFile } from 'react-icons/fa';
 import { useAuth } from '../../context';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
@@ -98,24 +98,37 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
             )}
           </div>
         )}
-      </Card.Header>
-
-      <Card.Body>
+      </Card.Header>      <Card.Body>
         <Card.Text className={styles.postContent}>{post.content}</Card.Text>
         {post.mediaUrl && (
-          <div className={styles.mediaContainer}>
-            {post.mediaUrl.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+          <div className={`${styles.mediaContainer} ${styles[post.mediaType]}`}>
+            {post.mediaType === 'image' ? (
               <Image 
                 src={post.mediaUrl} 
                 alt="Post media" 
-                className={styles.postMedia} 
-                fluid
+                className={styles.postMedia}
+                fluid 
               />
-            ) : post.mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
-              <video controls className={styles.postMedia}>
-                <source src={post.mediaUrl} type={`video/${post.mediaUrl.split('.').pop()}`} />
+            ) : post.mediaType === 'video' ? (
+              <video 
+                controls 
+                className={styles.postMedia}
+                preload="metadata"
+              >
+                <source src={post.mediaUrl} type={post.mediaMimeType || 'video/mp4'} />
                 Your browser does not support the video tag.
               </video>
+            ) : post.mediaType === 'file' ? (
+              <div className={styles.fileContainer}>
+                <a 
+                  href={post.mediaUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className={styles.fileDownload}
+                >
+                  <FaFile /> Tải xuống tập tin
+                </a>
+              </div>
             ) : null}
           </div>
         )}

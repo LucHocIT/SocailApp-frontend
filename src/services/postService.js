@@ -67,10 +67,11 @@ const postService = {
     }
   },
     // Upload media for a post
-  uploadMedia: async (mediaFile) => {
+  uploadMedia: async (mediaFile, mediaType = "image") => {
     try {
       const formData = new FormData();
       formData.append('media', mediaFile);
+      formData.append('mediaType', mediaType);
       
       const response = await api.post('/posts/upload-media', formData, {
         headers: {

@@ -19,49 +19,58 @@ const CreatePost = ({ onPostCreated }) => {
 
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file size (max 10MB)
+    if (!file) return;    // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('Kích thước tập tin không được vượt quá 10MB');
+      toast.error('File quá lớn. Kích thước tối đa là 10MB');
       return;
     }
 
-    // Create a preview
-    const preview = URL.createObjectURL(file);
-    setMediaPreview(preview);
     setMediaFile(file);
+
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setMediaPreview(previewUrl);
   };
 
   const removeMedia = () => {
     setMediaFile(null);
     setMediaPreview('');
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!content.trim() && !mediaFile) {
-      toast.error('Vui lòng nhập nội dung hoặc thêm hình ảnh cho bài viết');
+    if (isSubmitting) return;
+
+    // Validate content
+    if (!content.trim()) {
+      toast.error('Nội dung bài viết không được để trống');
       return;
     }
 
     try {
       setIsSubmitting(true);
-      
-      // If there's a media file, upload it first
+
       let mediaUrl = null;
-      if (mediaFile) {
-        const uploadResult = await postService.uploadMedia(mediaFile);
-        if (uploadResult && uploadResult.mediaUrl) {
+      let mediaType = null;
+      let mediaPublicId = null;if (mediaFile) {
+        // Determine media type for upload
+        let uploadMediaType = "file";
+        if (mediaFile.type.startsWith('image/')) {
+          uploadMediaType = "image";
+        } else if (mediaFile.type.startsWith('video/')) {
+          uploadMediaType = "video";
+        }        const uploadResult = await postService.uploadMedia(mediaFile, uploadMediaType);
+        if (uploadResult.success) {
           mediaUrl = uploadResult.mediaUrl;
+          mediaType = uploadMediaType;  // Use the same mediaType we determined for upload
+          mediaPublicId = uploadResult.publicId;
         }
       }
 
-      // Create the post
       const postData = {
-        content: content.trim(),
-        mediaUrl
+        content,
+        mediaUrl,
+        mediaType,
+        mediaPublicId
       };
       
       const newPost = await postService.createPost(postData);
@@ -76,10 +85,13 @@ const CreatePost = ({ onPostCreated }) => {
         onPostCreated(newPost);
       }
       
-      toast.success('Bài viết đã được tạo thành công!');
-    } catch (error) {
+      toast.success('Bài viết đã được tạo thành công!');    } catch (error) {
       console.error('Failed to create post:', error);
-      toast.error('Không thể tạo bài viết. Vui lòng thử lại sau.');
+      // Log more detailed error information
+      if (error.response?.data?.errors) {
+        console.error('Validation errors:', error.response.data.errors);
+      }
+      toast.error(error.response?.data?.message || error.message || 'Không thể tạo bài viết. Vui lòng thử lại sau.');
     } finally {
       setIsSubmitting(false);
     }
