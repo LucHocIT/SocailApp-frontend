@@ -1,6 +1,15 @@
 // CreatePost.module.scss
-@use '../../../styles/abstracts/variables' as *;
-@use '../../../styles/abstracts/mixins' as *;
+@use 'sass:color';
+@use '../../../styles/abstracts/variables' as vars;
+@use '../../../styles/abstracts/color-aliases' as colors;
+
+$primary-color: vars.$primary-color;
+$success-color: vars.$success-color;
+$info-color: vars.$info-color;
+$danger-color: vars.$danger-color;
+$gray-100: vars.$gray-100;
+$gray-200: vars.$gray-200;
+$gray-600: vars.$gray-600;
 
 .createPostCard {
   border: none !important;
@@ -94,8 +103,7 @@
           font-size: 0.875rem;
         }
       }
-      
-      .removeButton {
+        .removeButton {
         position: absolute;
         top: 0.5rem;
         right: 0.5rem;
@@ -109,10 +117,20 @@
         justify-content: center;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         transition: all 0.2s ease;
-          &:hover {
+        
+        .closeIcon {
+          color: $gray-600;
+          font-size: 1rem;
+          display: inline-block;
+        }
+        
+        &:hover {
           transform: scale(1.1);
           background-color: rgba($danger-color, 0.1);
-          color: $danger-color;
+          
+          .closeIcon {
+            color: $danger-color;
+          }
         }
       }
     }
@@ -125,38 +143,32 @@
       
       .mediaButtons {
         display: flex;
-        gap: 0.5rem;
-        
-        .mediaButton {
+        gap: 0.5rem;          .mediaButton {
           background-color: white;
           border: none;
           border-radius: 50%;
-          width: 2.5rem;
-          height: 2.5rem;
+          width: 3rem;
+          height: 3rem;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-          
-          &:hover {
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);            &:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);          }          .mediaIcon {
+            font-size: 2.8rem;
+            color: $primary-color !important;
+          }
+            &.imageBtn .mediaIcon {
+              color: $primary-color !important;
+            }
+          
+          &.videoBtn .mediaIcon {
+              color: $success-color !important;
           }
           
-          .mediaIcon {
-            font-size: 1rem;
-          }
-            &.imageButton .mediaIcon {
-            color: $primary-color;
-          }
-          
-          &.videoButton .mediaIcon {
-            color: $success-color;
-          }
-          
-          &.fileButton .mediaIcon {
-            color: $info-color;
+          &.fileBtn .mediaIcon {
+              color: $info-color !important;
           }
         }
       }
@@ -181,9 +193,9 @@
         &:disabled {
           opacity: 0.6;
         }
-        
-        .icon {
+          .icon {
           font-size: 0.875rem;
+          display: inline-block;
         }
         
         .spinner {

@@ -1,6 +1,30 @@
 // EditPostModal.module.scss
 @use '../../../styles/abstracts/variables' as *;
 @use '../../../styles/abstracts/mixins' as *;
+@use 'sass:color';
+
+// Animation keyframes
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba($primary-color, 0.3); }
+  50% { box-shadow: 0 0 20px rgba($primary-color, 0.5); }
+  100% { box-shadow: 0 0 5px rgba($primary-color, 0.3); }
+}
 
 .editModal {
   :global(.modal-content) {
@@ -8,24 +32,56 @@
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-    transform: translate3d(0, 0, 0);
+    animation: modalEnter 0.5s ease-out forwards;
+    background: linear-gradient(to bottom right, white, color.adjust(white, $lightness: -2%));
   }
-    :global(.modal-header) {
-    padding: 1rem 1.5rem;
-    background-color: white;
-    border-bottom: 1px solid $gray-200;
+
+  :global(.modal-header) {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 15%));
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
     
-    :global(.modal-title) {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, 
+        rgba(255,255,255,0.1) 0%, 
+        rgba(255,255,255,0.2) 50%, 
+        rgba(255,255,255,0.1) 100%
+      );
+      transform: skewX(-30deg) translateX(-100%);
+      animation: shimmer 3s infinite;
+    }
+      :global(.modal-title) {
       font-weight: 700;
       font-size: 1.25rem;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .titleIcon {
+        font-size: 1.2rem;
+        animation: float 2s ease-in-out infinite;
+      }
     }
     
     :global(.btn-close) {
-      background-size: 0.8rem;
-      transition: transform 0.3s;
+      background-color: rgba(255,255,255,0.2);
+      padding: 0.75rem;
+      border-radius: 50%;
+      transition: all 0.3s;
       
       &:hover {
         transform: rotate(90deg);
+        background-color: rgba(255,255,255,0.3);
       }
     }
   }
@@ -35,76 +91,114 @@
     
     .editorContainer {
       .textareaWrapper {
-        padding: 1rem 1.25rem;
-        
-    .textarea {
-      border: none;
-      box-shadow: none !important;
-      font-size: 1.1rem;
-      resize: none;
-      min-height: 100px;
-      
-      &:focus {
-        box-shadow: none;
-      }
-    }
-      }
-        .mediaPreviewContainer {
+        padding: 1.25rem;
+        background: linear-gradient(135deg, 
+          rgba($primary-color, 0.12) 0%,
+          rgba($primary-color, 0.08) 50%,
+          rgba(white, 0.9) 100%
+        );
         position: relative;
-        border-top: 1px solid $gray-200;
-        border-bottom: 1px solid $gray-200;
-        background-color: $gray-100;
+        overflow: hidden;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(
+            circle at center,
+            rgba($primary-color, 0.02) 0%,
+            transparent 70%
+          );
+          animation: pulse 3s ease-in-out infinite;
+        }
+        
+        .textarea {
+          border: none;
+          box-shadow: none !important;
+          font-size: 1.1rem;
+          resize: none;
+          min-height: 120px;
+          background: transparent;
+          transition: all 0.3s;
+          position: relative;
+          z-index: 1;
+          
+          &:focus {
+            transform: translateY(-2px);
+          }
+        }
+      }
+      
+      .mediaPreviewContainer {
+        position: relative;
+        border-top: 1px solid rgba($primary-color, 0.1);
+        border-bottom: 1px solid rgba($primary-color, 0.1);
+        background: linear-gradient(to bottom, $gray-100, white);
+        padding: 1rem;
         
         .mediaItem {
           max-height: 350px;
           width: 100%;
           object-fit: contain;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          transition: all 0.3s;
+          
+          &:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+          }
         }
         
         .videoItem {
           max-height: 350px;
           width: 100%;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         
         .filePreview {
-          padding: 2.5rem;
+          padding: 2rem;
+          background: linear-gradient(135deg, rgba($primary-color, 0.05), rgba($primary-color, 0.02));
+          border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
           text-align: center;
-            .fileIcon {
+          transition: all 0.3s;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+          }
+          
+          .fileIcon {
             font-size: 2.5rem;
-            margin-bottom: 0.75rem;
             color: $primary-color;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
           }
           
           .fileName {
             font-weight: 500;
-            margin-bottom: 0.25rem;
+            color: $text-dark;
+            margin: 0.5rem 0;
           }
           
           .fileSize {
             color: $text-muted;
-          }
-            .fileLink {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.2s;
-            
-            &:hover {
-              background-color: rgba($primary-color, 0.1);
-            }
+            font-size: 0.875rem;
           }
         }
-          .removeButton {
+        
+        .removeButton {
           position: absolute;
-          top: 0.5rem;
-          right: 0.5rem;
-          background-color: white;
+          top: 1rem;
+          right: 1rem;
+          background: white;
           border: none;
           border-radius: 50%;
           width: 2rem;
@@ -112,152 +206,203 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          transition: all 0.2s ease;
+          color: $text-muted;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          transition: all 0.2s;
           
           &:hover {
-            transform: scale(1.1);
-            background-color: rgba($danger-color, 0.1);
-            color: $danger-color;
+            transform: rotate(90deg) scale(1.1);
+            background-color: $danger-color;
+            color: white;
           }
         }
       }
-    }
-      .mediaToolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.75rem 1.25rem;
-      background-color: $gray-100;
-      
-      .mediaButtons {
-        display: flex;
-        gap: 0.5rem;
+        .mediaToolbar {
+        padding: 1rem;
+        background: linear-gradient(to bottom, white, $gray-100);
+        border-top: 1px solid rgba($primary-color, 0.1);
         
-        .mediaButton {
-          background-color: white;
-          border: none;
-          border-radius: 50%;
-          width: 2.5rem;
-          height: 2.5rem;
+        input[type="file"] {
+          display: none;
+        }
+        
+        .mediaButtons {
           display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-          
-          &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          }
-          
-          .mediaIcon {
-            font-size: 1rem;
-          }
-            &.imageButton .mediaIcon {
-            color: $primary-color;
-          }
-          
-          &.videoButton .mediaIcon {
-            color: $success-color;
-          }
-          
-          &.fileButton .mediaIcon {
-            color: $info-color;
+          gap: 0.75rem;            .mediaButton {
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 3.25rem;
+            height: 3.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+              &:hover {
+              transform: translateY(-3px) rotate(5deg);
+              box-shadow: 0 8px 16px rgba($primary-color, 0.25);
+              background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 15%));
+              
+              .mediaIcon {
+                animation: float 1s ease-in-out infinite;
+                color: white !important;
+              }
+
+              &::after {
+                opacity: 1;
+                transform: scale(1.2);
+              }
+            }
+            
+            &::after {
+              content: '';
+              position: absolute;
+              top: -2px;
+              left: -2px;
+              right: -2px;
+              bottom: -2px;
+              background: linear-gradient(135deg, 
+                rgba($primary-color, 0.5),
+                rgba($primary-color, 0.2)
+              );
+              border-radius: 50%;
+              z-index: -1;
+              opacity: 0;
+              transform: scale(0.8);
+              transition: all 0.3s;
+            }              .mediaIcon {
+              font-size: 1.5rem;
+              transition: all 0.3s;
+              filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+            }
+            
+            &.imageButton {
+              .mediaIcon {
+                color: $primary-color !important;
+              }
+            }
+            
+            &.videoButton {
+              .mediaIcon {
+                color: $success-color !important;
+              }
+            }
+            
+            &.fileButton {
+              .mediaIcon {
+                color: $info-color !important;
+              }
+            }
           }
         }
-      }
-      
-      .hiddenInput {
-        display: none;
       }
     }
   }
-    .footer {
+  
+  .footer {
     display: flex;
     justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1rem 1.5rem;
-    background-color: white;
-    border-top: 1px solid $gray-200;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(to bottom, $gray-100, white);
+    border-top: 1px solid rgba($primary-color, 0.1);
     
     .cancelButton {
       border-radius: 50rem;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
+      padding: 0.75rem 1.5rem;
       font-weight: 500;
-      transition: all 0.2s;
-        &:hover {
-        background-color: $gray-200;
+      transition: all 0.3s;
+      border: 1px solid rgba($primary-color, 0.2);
+      
+      &:hover {
+        background-color: rgba($danger-color, 0.1);
+        color: $danger-color;
+        border-color: rgba($danger-color, 0.3);
       }
     }
     
     .saveButton {
       border-radius: 50rem;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
+      padding: 0.75rem 2rem;
       font-weight: 500;
+      background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 15%));
+      border: none;
+      color: white;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      transition: all 0.2s;
-        &:hover {
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to right,
+          transparent 0%,
+          rgba(255,255,255,0.2) 50%,
+          transparent 100%
+        );
+        transform: translateX(-100%);
+        transition: transform 0.6s;
+      }
+      
+      &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba($primary-color, 0.3);
+        box-shadow: 0 8px 16px rgba($primary-color, 0.25);
+        
+        &::before {
+          transform: translateX(100%);
+        }
+      }
+      
+      &:active {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba($primary-color, 0.2);
+      }
+      
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
       }
       
       .icon {
-        font-size: 0.875rem;
+        font-size: 1rem;
+        animation: float 2s ease-in-out infinite;
       }
       
       .spinner {
         width: 1rem;
         height: 1rem;
         border-width: 2px;
+        animation: spin 1s linear infinite;
       }
     }
   }
 }
 
-// Animation for modal
-:global(.modal-dialog) {
-  transform: translateY(-20px);
-  opacity: 0;
-  transition: transform 0.3s ease-out, opacity 0.3s ease;
-  
-  @media (prefers-reduced-motion: no-preference) {
-    will-change: transform, opacity;
-  }
-}
-
-:global(.modal.show .modal-dialog) {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-// Button animation
-@keyframes pulse {  0% {
-    box-shadow: 0 0 0 0 rgba($primary-color, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba($primary-color, 0);
+@keyframes shimmer {
+  0% {
+    transform: skewX(-30deg) translateX(-100%);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba($primary-color, 0);
+    transform: skewX(-30deg) translateX(200%);
   }
 }
 
-.saveButton {  &:not(:disabled):active {
-    animation: pulse 0.4s 1;
-  }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-// Input animation
-.textarea {
-  transition: all 0.3s;
-  
-  &:focus {
-    transform: translateY(-1px);
-    border-color: $primary-color !important;
-  }
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; }
 }

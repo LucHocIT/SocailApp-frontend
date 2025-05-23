@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Card, Form, Button, Image, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane } from 'react-icons/fa';
+import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaPaypal } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context';
 import postService from '../../services/postService';
@@ -167,25 +167,22 @@ const CreatePost = ({ onPostCreated }) => {
                     <small className={styles.fileSize}>({Math.round(mediaFile.size / 1024)} KB)</small>
                   </div>
                 </div>
-              ) : null}
-              <Button 
+              ) : null}              <Button 
                 variant="light"
                 className={styles.removeButton}
                 onClick={removeMedia}
               >
-                <FaTimes />
+                <FaTimes className={styles.closeIcon} />
               </Button>
             </div>
           )}          <div className={styles.formFooter}>
             <div className={styles.mediaButtons}>
-              {/* Image upload button */}
-              <OverlayTrigger
+              {/* Image upload button */}              <OverlayTrigger
                 placement="top"
                 overlay={<Tooltip>Tải lên hình ảnh</Tooltip>}
-              >
-                <Button 
+              >                <Button 
                   variant="light" 
-                  className={`${styles.mediaButton} ${styles.imageButton}`}
+                  className={`${styles.mediaButton} ${styles.imageBtn}`}
                   onClick={() => triggerMediaUpload('image/*')}
                   disabled={isSubmitting}
                 >
@@ -197,10 +194,9 @@ const CreatePost = ({ onPostCreated }) => {
               <OverlayTrigger
                 placement="top"
                 overlay={<Tooltip>Tải lên video</Tooltip>}
-              >
-                <Button 
+              >                <Button 
                   variant="light" 
-                  className={`${styles.mediaButton} ${styles.videoButton}`}
+                  className={`${styles.mediaButton} ${styles.videoBtn}`}
                   onClick={() => triggerMediaUpload('video/*')}
                   disabled={isSubmitting}
                 >
@@ -212,10 +208,9 @@ const CreatePost = ({ onPostCreated }) => {
               <OverlayTrigger
                 placement="top"
                 overlay={<Tooltip>Tải lên tập tin</Tooltip>}
-              >
-                <Button 
+              >                <Button 
                   variant="light" 
-                  className={`${styles.mediaButton} ${styles.fileButton}`}
+                  className={`${styles.mediaButton} ${styles.fileBtn}`}
                   onClick={() => triggerMediaUpload('.pdf,.doc,.docx,.xls,.xlsx,.txt')}
                   disabled={isSubmitting}
                 >
@@ -246,8 +241,7 @@ const CreatePost = ({ onPostCreated }) => {
                   <span>Đang đăng...</span>
                 </>
               ) : (
-                <>
-                  <FaPaperPlane className={styles.icon} />
+                <>                  <FaPaperPlane className={`${styles.icon} ${styles.mediaIcon}`} />
                   <span>Đăng bài</span>
                 </>
               )}

@@ -1,5 +1,5 @@
-@use '../abstracts/variables' as *;
 @use "sass:color";
+@use '../abstracts/variables' as *;
 
 h1, h2, h3, h4, h5, h6 {
   font-family: $font-family-heading;
@@ -7,11 +7,54 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
   margin-bottom: $spacing-4;
   color: $text-color;
+  transition: all 0.3s ease;
 }
 
 h1 {
   font-size: $font-size-5xl;
   font-weight: 700;
+  position: relative;
+  
+  &.gradient-text {
+    background: linear-gradient(135deg, 
+      $primary-color,      color.adjust($primary-color, $lightness: 15%),
+      color.adjust($primary-color, $lightness: -10%)
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientMove 8s ease infinite;
+    
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  }
+  
+  &.with-highlight {
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0.2em;
+      background: linear-gradient(90deg,
+        rgba($primary-color, 0.3),
+        rgba($primary-color, 0.1)
+      );
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
 }
 
 h2 {
@@ -44,8 +87,7 @@ a {
   color: $link-color;
   text-decoration: none;
   transition: $transition-base;
-  
-  &:hover {
+    &:hover {
     color: color.adjust($link-color, $lightness: -10%);
   }
 }
@@ -64,6 +106,28 @@ small {
 
 .text-primary {
   color: $primary-color;
+  position: relative;
+  transition: all 0.3s ease;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: $primary-color;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover {
+    color: color.adjust($primary-color, $lightness: -10%);
+    
+    &::after {
+      transform: scaleX(1);
+    }
+  }
 }
 
 .text-success {
@@ -103,8 +167,19 @@ small {
 }
 
 .text-gradient-primary {
-  background: $gradient-primary;
+  background: linear-gradient(135deg, 
+    $primary-color,    color.adjust($primary-color, $lightness: 15%),
+    color.adjust($secondary-color, $lightness: 5%)
+  );
+  background-size: 200% 200%;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 8s ease infinite;
+  
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 }

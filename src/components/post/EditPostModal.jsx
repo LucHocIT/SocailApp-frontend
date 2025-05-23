@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Spinner, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaImage, FaTimes, FaFile, FaVideo, FaSave } from 'react-icons/fa';
+import { FaImage, FaTimes, FaFile, FaVideo, FaSave, FaEdit } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
 import styles from './styles/EditPostModal.module.scss';
@@ -97,7 +97,9 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
   };  return (
     <Modal show={show} onHide={onHide} centered size="lg" className={styles.editModal}>
       <Modal.Header closeButton>
-        <Modal.Title>Chỉnh sửa bài viết</Modal.Title>
+        <Modal.Title>
+          <FaEdit className={styles.titleIcon} /> Chỉnh sửa bài viết
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body className={styles.content}>
         <Form onSubmit={handleSubmit} className={styles.editorContainer}>
