@@ -51,18 +51,26 @@ const CreatePost = ({ onPostCreated }) => {
 
       let mediaUrl = null;
       let mediaType = null;
-      let mediaPublicId = null;if (mediaFile) {
+      let mediaPublicId = null;
+
+      if (mediaFile) {
         // Determine media type for upload
         let uploadMediaType = "file";
         if (mediaFile.type.startsWith('image/')) {
           uploadMediaType = "image";
         } else if (mediaFile.type.startsWith('video/')) {
           uploadMediaType = "video";
-        }        const uploadResult = await postService.uploadMedia(mediaFile, uploadMediaType);
-        if (uploadResult.success) {
+        }
+        
+        const uploadResult = await postService.uploadMedia(mediaFile, uploadMediaType);
+        
+        // Check if we got a successful upload with a mediaUrl
+        if (uploadResult && uploadResult.mediaUrl) {
           mediaUrl = uploadResult.mediaUrl;
-          mediaType = uploadMediaType;  // Use the same mediaType we determined for upload
+          mediaType = uploadMediaType; // Use the determined media type
           mediaPublicId = uploadResult.publicId;
+        } else {
+          throw new Error(uploadResult.message || 'Không thể tải lên media');
         }
       }
 
@@ -85,13 +93,10 @@ const CreatePost = ({ onPostCreated }) => {
         onPostCreated(newPost);
       }
       
-      toast.success('Bài viết đã được tạo thành công!');    } catch (error) {
+      toast.success('Bài viết đã được tạo thành công!');
+    } catch (error) {
       console.error('Failed to create post:', error);
-      // Log more detailed error information
-      if (error.response?.data?.errors) {
-        console.error('Validation errors:', error.response.data.errors);
-      }
-      toast.error(error.response?.data?.message || error.message || 'Không thể tạo bài viết. Vui lòng thử lại sau.');
+      toast.error(error.message || 'Không thể tạo bài viết. Vui lòng thử lại sau.');
     } finally {
       setIsSubmitting(false);
     }

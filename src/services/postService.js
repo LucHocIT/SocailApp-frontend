@@ -66,20 +66,24 @@ const postService = {
       throw error.response?.data || { message: 'Error toggling like' };
     }
   },
-    // Upload media for a post
+
+  // Upload media for a post
   uploadMedia: async (mediaFile, mediaType = "image") => {
     try {
       const formData = new FormData();
-      formData.append('media', mediaFile);
-      formData.append('mediaType', mediaType);
+      formData.append('Media', mediaFile);
+      formData.append('MediaType', mediaType);
       
       const response = await api.post('/posts/upload-media', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      
+      // Return the response data directly from the server
       return response.data;
     } catch (error) {
+      // If we have a response with data, throw that, otherwise throw a generic error
       throw error.response?.data || { message: 'Error uploading media' };
     }
   }
