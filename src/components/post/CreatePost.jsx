@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Card, Form, Button, Image, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaPaypal } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../context';
+import { useAuth } from '../../context/hooks';
 import postService from '../../services/postService';
 import styles from './styles/CreatePost.module.scss';
 

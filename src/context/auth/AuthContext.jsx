@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import authService from '../../services/authService';
 
 // Create auth context
@@ -186,21 +186,11 @@ export function AuthProvider({ children }) {
     logout,
     isAuthenticated: !!user,
   };
-
   return (
     <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-// Custom hook to use the auth context
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }
 
 export default AuthContext;

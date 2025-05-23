@@ -1,0 +1,383 @@
+// ProfileHeader Module Styles
+// Define variables locally since imports are not working
+$primary-color: #4389f5;
+$primary-hover: #3672d8;
+$secondary-color: #e4e6eb;
+$secondary-hover: #d8dadf;
+$success-color: #42b72a;
+$success-hover: #36a420;
+$text-primary: #1c1e21;
+$text-secondary: #65676b;
+$background-light: #f0f2f5;
+$white: #fff;
+$black: #050505;
+$border-light: #e4e6eb;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin button-reset {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.profileHeader {
+  background-color: $white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+// Cover Photo
+.coverPhoto {
+  background-position: center;
+  background-size: cover;
+  height: 200px;
+  position: relative;
+  width: 100%;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    .editCoverBtn {
+      opacity: 1;
+    }
+  }
+}
+
+.editCoverBtn {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 20px;
+  color: $white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  padding: 8px 12px;
+  transition: opacity 0.3s, background 0.3s;
+  @include button-reset;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  &.loading {
+    opacity: 1;
+    cursor: not-allowed;
+  }
+}
+
+// Profile Content
+.profileContent {
+  padding: 0 24px 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+}
+
+// Avatar
+.avatarContainer {
+  margin-top: -50px;
+  position: relative;
+  z-index: 2;
+  
+  @media (min-width: 768px) {
+    flex-shrink: 0;
+    width: 150px;
+  }
+}
+
+.avatarWrapper {
+  border: 4px solid $white;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 150px;
+  overflow: hidden;
+  position: relative;
+  width: 150px;
+  background-color: $background-light;
+  transition: all 0.3s ease;
+  
+  &:hover .avatarEditOverlay {
+    opacity: 1;
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px $primary-color;
+  }
+  
+  &.loading {
+    cursor: not-allowed;
+  }
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.defaultAvatar {
+  align-items: center;
+  background: linear-gradient(135deg, $primary-color 0%, #5c42f5 100%);
+  color: $white;
+  display: flex;
+  font-size: 48px;
+  font-weight: bold;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+  @include flex-center;
+}
+
+.avatarEditOverlay {
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  transition: opacity 0.3s;
+  width: 100%;
+  
+  span {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+}
+
+.fileInput {
+  display: none;
+}
+
+// Profile Info
+.profileInfo {
+  flex: 1;
+  padding-top: 16px;
+  
+  @media (min-width: 768px) {
+    padding-left: 24px;
+    padding-top: 0;
+  }
+}
+
+.fullName {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.verifiedIcon {
+  color: $primary-color;
+  margin-left: 8px;
+}
+
+.username {
+  color: $text-secondary;
+  font-size: 16px;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+}
+
+.roleTag {
+  background-color: $primary-color;
+  border-radius: 12px;
+  color: $white;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+  padding: 2px 8px;
+}
+
+.bio {
+  color: $text-primary;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.joinDate {
+  color: $text-secondary;
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+
+// Stats
+.stats {
+  border-top: 1px solid $border-light;
+  border-bottom: 1px solid $border-light;
+  display: flex;
+  margin-bottom: 16px;
+  padding: 12px 0;
+}
+
+.stat {
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  
+  &:hover {
+    background-color: $background-light;
+    border-radius: 8px;
+  }
+}
+
+.statValue {
+  color: $text-primary;
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.statLabel {
+  color: $text-secondary;
+  font-size: 13px;
+}
+
+// Action Buttons
+.actionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btnPrimary, .btnFollow {
+  align-items: center;
+  background-color: $primary-color;
+  border: none;
+  border-radius: 20px;
+  color: $white;
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  font-weight: 600;
+  gap: 6px;
+  padding: 8px 16px;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: $primary-hover;
+  }
+}
+
+.btnSecondary, .btnFollowing {
+  align-items: center;
+  background-color: $secondary-color;
+  border: none;
+  border-radius: 20px;
+  color: $black;
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  font-weight: 600;
+  gap: 6px;
+  padding: 8px 16px;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: $secondary-hover;
+  }
+}
+
+.btnFollowing {
+  background-color: $success-color;
+  color: $white;
+  
+  &:hover {
+    background-color: $success-hover;
+  }
+}
+
+// Loading States
+.spinner {
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingContainer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 0;
+  @include flex-center;
+  flex-direction: column;
+  
+  .spinner {
+    color: $primary-color;
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+}
+
+// Error State
+.errorContainer {
+  background-color: $white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  text-align: center;
+  
+  h2 {
+    color: $text-primary;
+    font-size: 24px;
+    margin: 0 0 16px;
+  }
+  
+  p {
+    color: $text-secondary;
+    font-size: 16px;
+    margin: 0 0 24px;
+  }
+}
+
+.returnHomeLink {
+  background-color: $primary-color;
+  border-radius: 20px;
+  color: $white;
+  display: inline-block;
+  font-weight: 600;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: $primary-hover;
+  }
+}

@@ -137,11 +137,11 @@ class UserService {
     } catch (error) {
       throw this.handleError(error);
     }
-  }
-  // Tìm kiếm người dùng
+  }  // Tìm kiếm người dùng
   async searchUsers(searchTerm, page = 1, pageSize = 10) {
     try {
-      const response = await api.get(`/profile/search?term=${searchTerm}&page=${page}&pageSize=${pageSize}`);
+      const encodedSearchTerm = encodeURIComponent(searchTerm);
+      const response = await api.get(`/profile/search?SearchTerm=${encodedSearchTerm}&PageNumber=${page}&PageSize=${pageSize}`);
       return response.data;
     } catch (error) {
       throw this.handleError(error);

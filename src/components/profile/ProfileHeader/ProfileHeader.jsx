@@ -1,30 +1,66 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useProfile } from '../../context';
-import { FaCamera, FaShieldAlt, FaEdit, FaKey, FaEnvelope, FaUserCheck, FaUserPlus, FaSpinner } from 'react-icons/fa';
+import { useProfile, useAuth } from '../../../context/hooks';
+import { 
+  FaCamera, FaShieldAlt, FaEdit, FaKey, 
+  FaEnvelope, FaUserCheck, FaUserPlus, 
+  FaSpinner, FaUser, FaList
+} from 'react-icons/fa';
+import PropTypes from 'prop-types';
 import styles from './ProfileHeader.module.scss';
 
 const ProfileHeader = ({ 
   profileData, 
-  isOwnProfile, 
-  handleFollow, 
-  handleUnfollow,
+  isOwnProfile,
+  loading,
+  onFollowUser,
+  onUnfollowUser,
   onShowFollowers,
   onShowFollowing,
   onTogglePosts,
   onToggleEditing,
   onTogglePasswordChange,
-  isEditing,
   onProfileUpdated
 }) => {
+  const { user } = useAuth();
   const { uploadProfilePicture } = useProfile();
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const [isCoverHovered, setIsCoverHovered] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [formattedDate, setFormattedDate] = useState('');
+
   const fileInputRef = useRef(null);
   const coverFileRef = useRef(null);
-  
+
+  useEffect(() => {
+    if (profileData && profileData.createdAt) {
+      const date = new Date(profileData.createdAt);
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      setFormattedDate(date.toLocaleDateString('vi-VN', options));
+    }
+  }, [profileData]);
+
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner} />
+        <p>Đang tải thông tin hồ sơ...</p>
+      </div>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <div className={styles.errorContainer}>
+        <h2>Không tìm thấy hồ sơ người dùng</h2>
+        <p>Người dùng này có thể không tồn tại hoặc đã bị xóa.</p>
+        <Link to="/" className={styles.returnHomeLink}>Quay về trang chủ</Link>
+      </div>
+    );
+  }
+
   const handleProfilePictureClick = () => {
     if (isOwnProfile && !isUploadingAvatar) {
       fileInputRef.current.click();
@@ -36,7 +72,7 @@ const ProfileHeader = ({
       coverFileRef.current.click();
     }
   };
-  
+
   const handleFileChange = async (e, type = 'avatar') => {
     const file = e.target.files[0];
     if (!file) return;
@@ -70,30 +106,23 @@ const ProfileHeader = ({
   };
 
   return (
-    <div className={styles.header}>
-      {/* Cover Photo Section */}
+    <div className={styles.profileHeader}>
+      {/* Cover Photo */}
       <div 
         className={styles.coverPhoto}
         onMouseEnter={() => setIsCoverHovered(true)}
         onMouseLeave={() => setIsCoverHovered(false)}
+        style={{ 
+          backgroundImage: profileData.coverPhotoUrl 
+            ? `url(${profileData.coverPhotoUrl})` 
+            : 'linear-gradient(135deg, #4389f5 0%, #5c42f5 100%)' 
+        }}
       >
-        <div className={styles.coverContent}>
-          {profileData.coverPhotoUrl ? (
-            <img src={profileData.coverPhotoUrl} alt="Cover" />
-          ) : (
-            <div className={styles.defaultCover}>
-              <div className={styles.coverPattern} />
-            </div>
-          )}
-          <div className={styles.coverOverlay} />
-        </div>
-
         {isOwnProfile && (isCoverHovered || isUploadingCover) && (
           <button 
             className={`${styles.editCoverBtn} ${isUploadingCover ? styles.loading : ''}`}
             onClick={handleCoverClick}
             disabled={isUploadingCover}
-            aria-label="Thay đổi ảnh bìa"
           >
             {isUploadingCover ? (
               <FaSpinner className={styles.spinner} />
@@ -116,8 +145,8 @@ const ProfileHeader = ({
         />
       </div>
 
-      <div className={styles.profileInfo}>
-        {/* Avatar Section */}
+      <div className={styles.profileContent}>
+        {/* Avatar */}
         <div className={styles.avatarContainer}>
           <div
             className={`${styles.avatarWrapper} ${isUploadingAvatar ? styles.loading : ''}`}
@@ -127,13 +156,12 @@ const ProfileHeader = ({
             onKeyPress={handleKeyPress(handleProfilePictureClick)}
             tabIndex={isOwnProfile ? 0 : -1}
             role={isOwnProfile ? 'button' : undefined}
-            aria-label={isOwnProfile ? 'Thay đổi ảnh đại diện' : undefined}
           >
             {profileData.profilePictureUrl ? (
               <img 
                 src={profileData.profilePictureUrl} 
                 alt={`${profileData.firstName} ${profileData.lastName}`}
-                className={styles.profileAvatar}
+                className={styles.avatar}
               />
             ) : (
               <div className={styles.defaultAvatar}>
@@ -150,16 +178,10 @@ const ProfileHeader = ({
                   <FaSpinner className={styles.spinner} />
                 ) : (
                   <>
-                    <FaCamera size={24} />
+                    <FaCamera />
                     <span>Thay đổi ảnh</span>
                   </>
                 )}
-              </div>
-            )}
-
-            {profileData.isVerified && (
-              <div className={styles.verifiedBadge} title="Tài khoản đã xác thực">
-                <FaShieldAlt />
               </div>
             )}
           </div>
@@ -174,9 +196,9 @@ const ProfileHeader = ({
           />
         </div>
 
-        {/* Profile Meta Information */}
-        <div className={styles.profileMeta}>
-          <h1 className={styles.profileName}>
+        {/* Profile Info */}
+        <div className={styles.profileInfo}>
+          <h1 className={styles.fullName}>
             {profileData.firstName} {profileData.lastName}
             {profileData.isVerified && (
               <FaShieldAlt className={styles.verifiedIcon} title="Tài khoản đã xác thực" />
@@ -189,107 +211,84 @@ const ProfileHeader = ({
               <span className={styles.roleTag}>Admin</span>
             )}
           </p>
-          
-          {!isEditing && (
-            <p className={styles.bio}>
-              {profileData.bio || 'Chưa có thông tin giới thiệu.'}
-            </p>
-          )}
-        </div>
-        
-        {/* Profile Statistics */}
-        <div className={styles.profileStats}>
-          <button 
-            className={styles.statItem} 
-            onClick={onShowFollowers}
-            aria-label={`${profileData.followersCount} người theo dõi`}
-          >
-            <span className={styles.statValue}>
-              {new Intl.NumberFormat('vi-VN').format(profileData.followersCount)}
-            </span>
-            <span className={styles.statLabel}>Người theo dõi</span>
-          </button>
 
-          <button 
-            className={styles.statItem} 
-            onClick={onShowFollowing}
-            aria-label={`Đang theo dõi ${profileData.followingCount} người`}
-          >  
-            <span className={styles.statValue}>
-              {new Intl.NumberFormat('vi-VN').format(profileData.followingCount)}
-            </span>
-            <span className={styles.statLabel}>Đang theo dõi</span>
-          </button>
+          <p className={styles.bio}>
+            {profileData.bio || 'Chưa có thông tin giới thiệu.'}
+          </p>
 
-          <button 
-            className={styles.statItem}
-            onClick={onTogglePosts}
-            aria-label={`${profileData.postCount} bài viết`}
-          >
-            <span className={styles.statValue}>
-              {new Intl.NumberFormat('vi-VN').format(profileData.postCount)}
-            </span>
-            <span className={styles.statLabel}>Bài viết</span>
-          </button>
-        </div>
+          <p className={styles.joinDate}>
+            Thành viên từ {formattedDate}
+          </p>
 
-        {/* Profile Actions */}
-        <div className={styles.profileActions}>
-          {isOwnProfile ? (
-            <>
-              <button 
-                className={`${styles.actionButton} ${styles.primaryButton}`}
-                onClick={onToggleEditing}
-                aria-label="Chỉnh sửa thông tin cá nhân"
-              >
-                <FaEdit />
-                <span>{isEditing ? 'Hủy' : 'Chỉnh sửa thông tin'}</span>
-              </button>
+          {/* Stats */}
+          <div className={styles.stats}>
+            <div className={styles.stat} onClick={onShowFollowers}>
+              <span className={styles.statValue}>{profileData.followersCount}</span>
+              <span className={styles.statLabel}>Người theo dõi</span>
+            </div>
+            
+            <div className={styles.stat} onClick={onShowFollowing}>
+              <span className={styles.statValue}>{profileData.followingCount}</span>
+              <span className={styles.statLabel}>Đang theo dõi</span>
+            </div>
+            
+            <div className={styles.stat} onClick={onTogglePosts}>
+              <span className={styles.statValue}>{profileData.postCount}</span>
+              <span className={styles.statLabel}>Bài viết</span>
+            </div>
+          </div>
 
-              <button 
-                className={`${styles.actionButton} ${styles.secondaryButton}`}
-                onClick={onTogglePasswordChange}
-                aria-label="Thay đổi mật khẩu"
-              >
-                <FaKey />
-                <span>Đổi mật khẩu</span>
-              </button>
-            </>
-          ) : (
-            <>
-              <button 
-                className={`${styles.actionButton} ${
-                  profileData.isFollowing ? styles.outlineButton : styles.primaryButton
-                }`}
-                onClick={profileData.isFollowing ? handleUnfollow : handleFollow}
-                aria-label={profileData.isFollowing ? 'Bỏ theo dõi' : 'Theo dõi'}
-              >
-                {profileData.isFollowing ? (
-                  <>
-                    <FaUserCheck />
-                    <span>Đang theo dõi</span>
-                  </>
-                ) : (
-                  <>
-                    <FaUserPlus />
-                    <span>Theo dõi</span>
-                  </>
-                )}
-              </button>
-
-              <button 
-                className={`${styles.actionButton} ${styles.secondaryButton}`}
-                aria-label="Gửi tin nhắn"
-              >
-                <FaEnvelope />
-                <span>Nhắn tin</span>
-              </button>
-            </>
-          )}
+          {/* Action Buttons */}
+          <div className={styles.actionButtons}>
+            {isOwnProfile ? (
+              <>
+                <button className={styles.btnPrimary} onClick={onToggleEditing}>
+                  <FaEdit /> Chỉnh sửa hồ sơ
+                </button>
+                <button className={styles.btnSecondary} onClick={onTogglePasswordChange}>
+                  <FaKey /> Đổi mật khẩu
+                </button>
+              </>
+            ) : user && (
+              <>
+                <button
+                  className={profileData.isFollowing ? styles.btnFollowing : styles.btnFollow}
+                  onClick={profileData.isFollowing ? onUnfollowUser : onFollowUser}
+                >
+                  {profileData.isFollowing ? (
+                    <>
+                      <FaUserCheck /> Đang theo dõi
+                    </>
+                  ) : (
+                    <>
+                      <FaUserPlus /> Theo dõi
+                    </>
+                  )}
+                </button>
+                <button className={styles.btnSecondary}>
+                  <FaEnvelope /> Nhắn tin
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
+};
+
+ProfileHeader.propTypes = {
+  profileData: PropTypes.object,
+  isOwnProfile: PropTypes.bool.isRequired,
+  loading: PropTypes.bool.isRequired,
+  onFollowUser: PropTypes.func.isRequired,
+  onUnfollowUser: PropTypes.func.isRequired,
+  onShowFollowers: PropTypes.func.isRequired,
+  onShowFollowing: PropTypes.func.isRequired,
+  onTogglePosts: PropTypes.func.isRequired,
+  onToggleEditing: PropTypes.func.isRequired,
+  onTogglePasswordChange: PropTypes.func.isRequired,
+  onProfileUpdated: PropTypes.func.isRequired
 };
 
 export default ProfileHeader;

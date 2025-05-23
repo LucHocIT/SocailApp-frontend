@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { useProfile } from '../../../context';
+import { useProfile } from '../../../context/hooks';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEye, FaEyeSlash, FaLock, FaTimes, FaCheck } from 'react-icons/fa';
 import styles from './PasswordChangeForm.module.scss';

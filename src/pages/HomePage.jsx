@@ -1,4 +1,4 @@
-import { useAuth } from '../context';
+import { useAuth } from '../context/hooks';
 import { useEffect, useState } from 'react';
 import { FaUsers, FaComments, FaHeart, FaShare, FaBell, FaGlobe, FaRegLightbulb } from 'react-icons/fa';
 import AOS from 'aos';

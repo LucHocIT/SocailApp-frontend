@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../../../context';
+import { useAuth } from '../../../context/hooks';
 import { toast } from 'react-toastify';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';

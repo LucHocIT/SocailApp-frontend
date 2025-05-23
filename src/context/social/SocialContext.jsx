@@ -1,7 +1,4 @@
-import { createContext, useContext } from 'react';
-// Trong tương lai sẽ import useState và service liên quan đến tính năng xã hội
-// import { useState } from 'react';
-// import socialService from '../../services/socialService';
+import { createContext } from 'react';
 
 // Create social context
 const SocialContext = createContext();
@@ -32,15 +29,6 @@ export function SocialProvider({ children }) {
       {children}
     </SocialContext.Provider>
   );
-}
-
-// Custom hook to use the social context
-export function useSocial() {
-  const context = useContext(SocialContext);
-  if (!context) {
-    throw new Error('useSocial must be used within a SocialProvider');
-  }
-  return context;
 }
 
 export default SocialContext;

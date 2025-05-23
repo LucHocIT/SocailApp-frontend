@@ -27,6 +27,17 @@
   padding: 0 $spacing-4;
 }
 
+.searchArea {
+  flex: 1;
+  max-width: 500px;
+  margin: 0 $spacing-4;
+  display: none;
+  
+  @include media-breakpoint-up(md) {
+    display: block;
+  }
+}
+
 .logo {
   a {
     font-family: $font-family-heading;

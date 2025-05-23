@@ -1,6 +1,6 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useState } from 'react';
 import userService from '../../services/userService';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../hooks';
 
 // Create profile context
 const ProfileContext = createContext();
@@ -187,13 +187,5 @@ export function ProfileProvider({ children }) {
   );
 }
 
-// Custom hook to use the profile context
-export function useProfile() {
-  const context = useContext(ProfileContext);
-  if (!context) {
-    throw new Error('useProfile must be used within a ProfileProvider');
-  }
-  return context;
-}
-
+// Note: useProfile hook is now exported from context/hooks.js
 export default ProfileContext;

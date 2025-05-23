@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useProfile } from '../../context';
+import { useProfile } from '../../context/hooks';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { FaUserCheck, FaUserPlus, FaTimes } from 'react-icons/fa';

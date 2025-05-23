@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Button, Image, Badge, Dropdown } from 'react-bootstrap';
 import { FaHeart, FaRegHeart, FaComment, FaEllipsisV, FaTrash, FaPencilAlt, FaFile } from 'react-icons/fa';
-import { useAuth } from '../../context';
+import { useAuth } from '../../context/hooks';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
 import TimeAgo from 'react-timeago';

@@ -51,10 +51,11 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/request-verification" element={<RequestVerificationPage />} />
             <Route path="/post/:postId" element={<PostPage />} />
-            {/* Protected routes */}
+            {/* Public profile route - anyone can view profiles */}
+            <Route path="/profile/:userId" element={<ProfilePage />} />
+            {/* Protected routes - require authentication */}
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/profile/:userId" element={<ProfilePage />} />
             </Route>
           </Routes>
         </div>

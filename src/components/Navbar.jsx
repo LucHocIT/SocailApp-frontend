@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../context';
+import { useAuth } from '../context/hooks';
 import { FaChevronDown, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa';
 import AuthModals from './auth/AuthModals';
 import UserSearch from './user/UserSearch';

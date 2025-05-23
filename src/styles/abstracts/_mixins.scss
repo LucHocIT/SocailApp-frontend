@@ -207,3 +207,19 @@
     }
   }
 }
+
+// Loading spinner mixin
+@mixin loading-spinner($size: 40px, $color: $primary-color) {
+  width: $size;
+  height: $size;
+  border: 3px solid rgba($color, 0.1);
+  border-radius: 50%;
+  border-top-color: $color;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
