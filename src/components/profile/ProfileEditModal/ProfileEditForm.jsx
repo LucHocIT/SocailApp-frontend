@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { useProfile } from '../../context';
+import { useProfile } from '../../../context';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUser, FaTimes, FaInfoCircle } from 'react-icons/fa';
 import styles from './ProfileEditForm.module.scss';

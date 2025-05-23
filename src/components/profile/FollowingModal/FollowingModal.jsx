@@ -1,8 +1,8 @@
-import UserList from './UserList';
+import UserList from '../UserList';
 import { motion, AnimatePresence } from 'framer-motion';
-import styles from './FollowersModal.module.scss';
+import styles from './FollowingModal.module.scss';
 
-const FollowersModal = ({ followers, onClose }) => {
+const FollowingModal = ({ following, onClose }) => {
   // Use motion explicitly to satisfy linter
   const MotionDiv = motion.div;
   
@@ -29,13 +29,13 @@ const FollowersModal = ({ followers, onClose }) => {
           onClick={e => e.stopPropagation()}
         >
           <div className={styles.modalHeader}>
-            <h2>Người theo dõi</h2>
+            <h2>Đang theo dõi</h2>
             <button className={styles.closeButton} onClick={onClose}>×</button>
           </div>
           <div className={styles.modalBody}>
             <UserList 
-              users={followers} 
-              emptyMessage="Chưa có người theo dõi nào."
+              users={following} 
+              emptyMessage="Chưa theo dõi ai."
             />
           </div>
         </MotionDiv>
@@ -44,4 +44,4 @@ const FollowersModal = ({ followers, onClose }) => {
   );
 };
 
-export default FollowersModal;
+export default FollowingModal;
