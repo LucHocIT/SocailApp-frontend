@@ -91,6 +91,39 @@ class UserService {
     }
   }
 
+  // Tải lên và cắt ảnh đại diện
+  async uploadCroppedProfilePicture(imageFile, cropData) {
+    try {
+      const formData = new FormData();
+      formData.append('profilePicture', imageFile);
+      
+      // Thêm dữ liệu cắt hình nếu có
+      if (cropData) {
+        formData.append('cropData', JSON.stringify(cropData));
+      }
+
+      const response = await api.post('/profile/picture/crop', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // Cập nhật thông tin user trong localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        const updatedUser = { 
+          ...user, 
+          profilePictureUrl: response.data.profilePictureUrl 
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   // Xóa ảnh đại diện
   async removeProfilePicture() {
     try {

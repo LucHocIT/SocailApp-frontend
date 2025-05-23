@@ -57,6 +57,28 @@ export const ProfileProvider = ({ children }) => {
     }
   };
 
+  // Upload cropped profile picture
+  const uploadCroppedProfilePicture = async (imageFile, cropData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await userService.uploadCroppedProfilePicture(imageFile, cropData);
+      
+      // Update user state with new profile picture URL
+      setUser(prevUser => ({
+        ...prevUser,
+        profilePictureUrl: response.profilePictureUrl
+      }));
+      
+      return response;
+    } catch (err) {
+      setError(err.message || 'Tải lên ảnh đại diện đã cắt thất bại');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Remove profile picture
   const removeProfilePicture = async () => {
     setLoading(true);
@@ -185,6 +207,7 @@ export const ProfileProvider = ({ children }) => {
     profileError: error,
     updateProfile,
     uploadProfilePicture,
+    uploadCroppedProfilePicture,
     removeProfilePicture,
     changePassword,
     followUser,

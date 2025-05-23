@@ -153,108 +153,99 @@ $gradient-success: linear-gradient(135deg, #42b72a 0%, #3ac01b 100%);
 }
 
 .avatarWrapper {
-  border: 5px solid $white;
-  border-radius: 50%;
-  cursor: pointer;
-  height: 170px;
-  width: 170px;
-  overflow: hidden;
   position: relative;
-  background-color: $background-light;
+  border-radius: 50%;
+  height: 140px;
+  width: 140px;
+  overflow: hidden;
+  cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: $white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border: 4px solid $white;
+  margin-top: -70px;
   
   &:hover {
-    transform: scale(1.03);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
     
     .avatarEditOverlay {
       opacity: 1;
     }
   }
   
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px $primary-color, 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-  
   &.loading {
-    cursor: not-allowed;
+    pointer-events: none;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+  }
+  
+  .avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+  }
+  
+  .defaultAvatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: $gradient-blue;
+    color: $white;
+    font-size: 2.5rem;
+    font-weight: 600;
   }
 }
 
-.avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-  
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-.defaultAvatar {
-  align-items: center;
-  background: linear-gradient(135deg, $primary-color 0%, #5c42f5 100%);
-  color: $white;
-  display: flex;
-  font-size: 58px;
-  font-weight: bold;
-  height: 100%;
-  justify-content: center;
-  width: 100%;
-  @include flex-center;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
-    opacity: 0.6;
-  }
-  
-  span {
-    position: relative;
-    z-index: 1;
-  }
-}
-
+// Cải thiện overlay khi hover avatar
 .avatarEditOverlay {
-  align-items: center;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.8) 100%);
-  border-radius: 50%;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: center;
-  left: 0;
-  opacity: 0;
   position: absolute;
   top: 0;
-  transition: all 0.3s ease;
+  left: 0;
   width: 100%;
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+  color: $white;
   
   svg {
-    font-size: 24px;
-    margin-bottom: 6px;
-    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+    font-size: 1.8rem;
+    margin-bottom: 8px;
   }
   
   span {
-    font-size: 14px;
+    font-size: 0.85rem;
     font-weight: 500;
-    margin-top: 4px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    padding: 0 10px;
+  }
+  
+  .spinner {
+    font-size: 2rem;
+    animation: spin 1s linear infinite;
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
   }
 }
 

@@ -1,0 +1,251 @@
+// ImageCropper.module.scss
+$primary-color: #4389f5;
+$primary-hover: #3672d8;
+$primary-light: rgba(67, 137, 245, 0.1);
+$danger-color: #f44336;
+$danger-hover: #d32f2f;
+$success-color: #42b72a;
+$success-hover: #36a420;
+$gray-bg: #f0f2f5;
+$dark-gray: #65676b;
+$white: #fff;
+$black: #050505;
+$overlay-bg: rgba(0, 0, 0, 0.75);
+$shadow-subtle: 0 2px 12px rgba(0, 0, 0, 0.08);
+$shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+$border-radius: 8px;
+
+.imageCropper {
+  background-color: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-medium;
+  display: flex;
+  flex-direction: column;
+  max-width: 90vw;
+  width: 600px;
+  position: relative;
+  z-index: 999;
+  
+  // Animation
+  animation: fadeIn 0.3s ease-in-out;
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+.cropperHeader {
+  border-bottom: 1px solid $gray-bg;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  
+  h3 {
+    font-size: 18px;
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: $dark-gray;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 5px;
+  
+  &:hover {
+    color: $black;
+  }
+}
+
+.cropContainer {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  min-height: 300px;
+  max-height: 400px;
+  overflow: hidden;
+  
+  img {
+    max-width: 100%;
+    max-height: 350px;
+    object-fit: contain;
+  }
+}
+
+.controlsContainer {
+  padding: 16px;
+  background-color: $gray-bg;
+  border-top: 1px solid darken($gray-bg, 5%);
+  border-bottom: 1px solid darken($gray-bg, 5%);
+}
+
+.controlGroup {
+  margin-bottom: 12px;
+  
+  label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: $dark-gray;
+    margin-bottom: 6px;
+    
+    svg {
+      margin-right: 8px;
+    }
+  }
+  
+  input[type="range"] {
+    flex: 1;
+    margin-left: 10px;
+    appearance: none;
+    height: 6px;
+    background: lighten($primary-color, 30%);
+    border-radius: 3px;
+    outline: none;
+    
+    &::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: $primary-color;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+        background: $primary-hover;
+      }
+    }
+    
+    &::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: $primary-color;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+        background: $primary-hover;
+      }
+    }
+  }
+}
+
+.previewContainer {
+  padding: 16px;
+  text-align: center;
+  
+  h4 {
+    font-size: 16px;
+    margin: 0 0 12px;
+    color: $dark-gray;
+  }
+}
+
+.canvasWrapper {
+  display: inline-flex;
+  justify-content: center;
+  background-color: lighten($gray-bg, 3%);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px dashed darken($gray-bg, 10%);
+  
+  canvas {
+    max-width: 150px;
+    max-height: 150px;
+  }
+}
+
+.circularCanvas {
+  border-radius: 50%;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+  gap: 12px;
+  border-top: 1px solid $gray-bg;
+}
+
+// Button styles
+@mixin button-style($bg-color, $hover-color, $text-color: $white) {
+  background-color: $bg-color;
+  color: $text-color;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: $hover-color;
+  }
+  
+  svg {
+    font-size: 14px;
+  }
+}
+
+.resetButton {
+  @include button-style(transparent, $gray-bg, $dark-gray);
+  border: 1px solid $dark-gray;
+}
+
+.cancelButton {
+  @include button-style($gray-bg, darken($gray-bg, 8%), $black);
+}
+
+.applyButton {
+  @include button-style($primary-color, $primary-hover);
+}
+
+// Overlay for modal
+:global(.cropperOverlay) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: $overlay-bg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .imageCropper {
+    width: 95%;
+    max-width: 500px;
+  }
+  
+  .cropContainer {
+    min-height: auto;
+  }
+  
+  .buttonContainer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .resetButton, .cancelButton, .applyButton {
+    flex-grow: 1;
+    justify-content: center;
+  }
+}

@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import styles from './ProfileHeader.module.scss';
+import ImageCropperModal from '../ImageCropper';
 
 const ProfileHeader = ({ 
   profileData, 
@@ -24,15 +25,18 @@ const ProfileHeader = ({
   onToggleEditing,
   onTogglePasswordChange,
   onProfileUpdated
-}) => {
-  const { user } = useAuth();
-  const { uploadProfilePicture } = useProfile();
+}) => {  const { user } = useAuth();
+  const { uploadCroppedProfilePicture } = useProfile();
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const [isCoverHovered, setIsCoverHovered] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [formattedDate, setFormattedDate] = useState('');
   const [isExpandedInfo, setIsExpandedInfo] = useState(false);
+  // State mới cho tính năng cắt ảnh
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+  const [isCropperForAvatar, setIsCropperForAvatar] = useState(true);
 
   const fileInputRef = useRef(null);
   const coverFileRef = useRef(null);
@@ -44,25 +48,6 @@ const ProfileHeader = ({
       setFormattedDate(date.toLocaleDateString('vi-VN', options));
     }
   }, [profileData]);
-
-  if (loading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.spinner} />
-        <p>Đang tải thông tin hồ sơ...</p>
-      </div>
-    );
-  }
-
-  if (!profileData) {
-    return (
-      <div className={styles.errorContainer}>
-        <h2>Không tìm thấy hồ sơ người dùng</h2>
-        <p>Người dùng này có thể không tồn tại hoặc đã bị xóa.</p>
-        <Link to="/" className={styles.returnHomeLink}>Quay về trang chủ</Link>
-      </div>
-    );
-  }
 
   const handleProfilePictureClick = () => {
     if (isOwnProfile && !isUploadingAvatar) {
@@ -86,19 +71,45 @@ const ProfileHeader = ({
       return;
     }
 
+    // Tạo URL ảnh từ file và hiển thị cropper
+    const imageUrl = URL.createObjectURL(file);
+    setCropImageSrc(imageUrl);
+    setIsCropperForAvatar(type === 'avatar');
+    setShowCropper(true);
+  };
+
+  // Hàm xử lý khi hoàn thành cắt ảnh
+  const handleCropComplete = async (croppedFile, cropData) => {
+    const type = isCropperForAvatar ? 'avatar' : 'cover';
     const uploadStateSetter = type === 'avatar' ? setIsUploadingAvatar : setIsUploadingCover;
     
     try {
       uploadStateSetter(true);
-      const response = await uploadProfilePicture(file);
+      const response = await uploadCroppedProfilePicture(croppedFile, cropData);
       toast.success('Cập nhật ảnh thành công!');
       onProfileUpdated({
-        [type === 'avatar' ? 'profilePictureUrl' : 'coverPhotoUrl']: response.url
+        [type === 'avatar' ? 'profilePictureUrl' : 'coverPhotoUrl']: response.profilePictureUrl
       });
     } catch (error) {
       toast.error(error.message || 'Tải lên ảnh thất bại!');
     } finally {
+      // Đóng cropper và xóa URL tạm thời
+      setShowCropper(false);
+      setCropImageSrc(null);
       uploadStateSetter(false);
+    }
+  };
+
+  // Hàm xử lý khi hủy cắt ảnh
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setCropImageSrc(null);
+    
+    // Reset giá trị input file
+    if (isCropperForAvatar) {
+      fileInputRef.current.value = '';
+    } else {
+      coverFileRef.current.value = '';
     }
   };
 
@@ -110,6 +121,17 @@ const ProfileHeader = ({
 
   return (
     <div className={styles.profileHeader}>
+      {/* Image Cropper Modal */}
+      {showCropper && cropImageSrc && (
+        <ImageCropperModal
+          image={cropImageSrc}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          aspectRatio={isCropperForAvatar ? 1 : 16/9}
+          circularCrop={isCropperForAvatar}
+        />
+      )}
+
       {/* Cover Photo */}
       <div 
         className={styles.coverPhoto}
