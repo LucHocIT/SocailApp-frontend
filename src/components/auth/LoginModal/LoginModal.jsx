@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../../context';
+import { useAuth } from '../../../context';
 import { toast } from 'react-toastify';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
@@ -88,12 +88,10 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
     try {
       setLoginError(''); // Clear any previous errors
       setIsProcessing(true);
-      
-      // Import dynamically to avoid loading the SDK until needed
-      const { signInWithGoogle } = await import('../../services/social-auth');
-      signInWithGoogle((provider, accessToken) => {
-        handleSocialLoginCallback(provider, accessToken);
-      });
+        const { signInWithGoogle } = await import("../../../services/social-auth");
+        signInWithGoogle((provider, accessToken) => {
+          handleSocialLoginCallback(provider, accessToken);
+        });
     } catch (error) {
       console.error('Google login error:', error);
       setLoginError(`Không thể kết nối với Google: ${error.message || 'Vui lòng thử lại sau.'}`);
@@ -107,7 +105,7 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
       setLoginError(''); // Clear any previous errors
       setIsProcessing(true);
         // Import dynamically to avoid loading the SDK until needed
-      const { signInWithFacebook } = await import('../../services/social-auth');
+      const { signInWithFacebook } = await import("../../../services/social-auth");
       signInWithFacebook((provider, accessToken) => {
         handleSocialLoginCallback(provider, accessToken);
       });

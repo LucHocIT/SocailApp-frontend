@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '../../context';
+import { useAuth } from '../../../context';
 import { toast } from 'react-toastify';
 import {
   FaUser,

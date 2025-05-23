@@ -6,6 +6,7 @@ import { useAuth } from '../../context';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
 import TimeAgo from 'react-timeago';
+import { convertUtcToLocal } from '../../utils/dateUtils';
 import styles from './Post.module.scss';
 
 const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
@@ -61,8 +62,7 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
             <Link to={`/profile/${post.username}`} className={styles.username}>
               {post.username}
             </Link>
-            <div className={styles.postTime}>
-              <TimeAgo date={post.createdAt} />
+            <div className={styles.postTime}>              <TimeAgo date={convertUtcToLocal(post.createdAt)} />
               {post.updatedAt && post.updatedAt !== post.createdAt && (
                 <span className={styles.editedLabel}> (đã chỉnh sửa)</span>
               )}

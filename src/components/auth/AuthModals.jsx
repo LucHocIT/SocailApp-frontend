@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import LoginModal from './LoginModal';
-import RegisterModal from './RegisterModal';
-import ForgotPasswordModal from './ForgotPasswordModal';
+import LoginModal from './LoginModal/LoginModal';
+import RegisterModal from './RegisterModal/RegisterModal';
+import ForgotPasswordModal from './ForgotPasswordModal/ForgotPasswordModal';
 import styles from './AuthModals.module.scss';
 
 
