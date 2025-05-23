@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import postService from '../../services/postService';
 import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
+import styles from './styles/PostCard.module.scss';
 
 const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
   const { user } = useAuth();
@@ -42,26 +43,23 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
     }
   };
 
-  const isOwner = user && post.userId === user.id;
-
-  return (
-    <Card className="mb-4 shadow-sm border-0 rounded-3" data-aos="fade-up">
-      <Card.Header className="d-flex justify-content-between align-items-center bg-white border-bottom">
-        <div className="d-flex align-items-center gap-3">
+  const isOwner = user && post.userId === user.id;  return (
+    <Card className={`${styles.postCard} ${post.isNew ? styles.newPost : ''}`} data-aos="fade-up">
+      <Card.Header className={styles.cardHeader}>
+        <div className={styles.userInfo}>
           <Link to={`/profile/${post.username}`}>
             <Image
               src={post.profilePictureUrl || '/images/default-avatar.png'}
               alt={post.username}
-              style={{ width: '48px', height: '48px', objectFit: 'cover' }}
-              className="border border-2 border-primary-subtle"
+              className={styles.avatar}
               roundedCircle
             />
           </Link>
           <div>
-            <Link to={`/profile/${post.username}`} className="text-decoration-none fw-semibold text-body d-block mb-1">
+            <Link to={`/profile/${post.username}`} className={styles.username}>
               {post.username}
             </Link>
-            <div className="text-muted small d-flex align-items-center gap-1">
+            <div className={styles.timeInfo}>
               <TimeAgo date={convertUtcToLocal(post.createdAt)} title={new Date(post.createdAt).toLocaleString()} />
               {post.updatedAt && post.updatedAt !== post.createdAt && (
                 <Badge bg="light" text="dark" className="ms-2 fst-italic">đã chỉnh sửa</Badge>
@@ -71,7 +69,7 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
         </div>
         {isOwner && (
           <Dropdown align="end">
-            <Dropdown.Toggle variant="link" className="text-secondary p-0 border-0">
+            <Dropdown.Toggle variant="link" className={styles.menuButton}>
               <FaEllipsisV />
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -91,57 +89,53 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
             </Dropdown.Menu>
           </Dropdown>
         )}
-      </Card.Header>
-      <Card.Body>
-        <Card.Text className="white-space-pre-line mb-3">{post.content}</Card.Text>
+      </Card.Header>      <Card.Body className={styles.cardBody}>
+        <Card.Text className={styles.postContent}>{post.content}</Card.Text>
         {post.mediaUrl && (
-          <div className="rounded overflow-hidden bg-light">
+          <div className={styles.mediaContainer}>
             {post.mediaType === 'image' ? (
               <Image 
                 src={post.mediaUrl} 
                 alt="Post media" 
-                className="w-100"
-                style={{ maxHeight: '500px', objectFit: 'contain' }}
+                className={styles.image}
                 fluid 
               />
             ) : post.mediaType === 'video' ? (
               <video 
-                className="w-100"
-                style={{ maxHeight: '500px' }}
+                className={styles.video}
                 controls
               >
                 <source src={post.mediaUrl} type={post.mediaMimeType || 'video/mp4'} />
                 Your browser does not support the video tag.
               </video>
             ) : post.mediaType === 'file' ? (
-              <div className="p-3 bg-light">
+              <div className="p-3">
                 <a 
                   href={post.mediaUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="d-flex align-items-center gap-2 text-decoration-none text-primary p-2 rounded hover-bg-primary-subtle"
+                  className={styles.file}
                 >
-                  <FaFile /> {post.mediaFilename}
+                  <FaFile className={styles.fileIcon} /> {post.mediaFilename}
                 </a>
               </div>
             ) : null}
           </div>
         )}
-      </Card.Body>
-      <Card.Footer className="bg-white border-top">
-        <div className="d-flex gap-4">
+      </Card.Body>      <Card.Footer className={styles.cardFooter}>
+        <div className={styles.actionButtons}>
           <Button 
             variant="link" 
-            className={`d-flex align-items-center gap-2 text-decoration-none p-2 ${isLiked ? 'text-danger' : 'text-body'}`}
+            className={`${styles.actionButton} ${isLiked ? styles.liked : ''}`}
             onClick={handleLike}
           >
-            {isLiked ? <FaHeart /> : <FaRegHeart />}
-            <span>{likesCount}</span>
+            {isLiked ? <FaHeart className={styles.actionIcon} /> : <FaRegHeart className={styles.actionIcon} />}
+            <span className={styles.actionCount}>{likesCount}</span>
           </Button>
 
-          <Link to={`/post/${post.id}`} className="d-flex align-items-center gap-2 text-decoration-none text-body p-2">
-            <FaComment />
-            <span>{post.commentsCount}</span>
+          <Link to={`/post/${post.id}`} className={styles.actionButton}>
+            <FaComment className={styles.actionIcon} />
+            <span className={styles.actionCount}>{post.commentsCount}</span>
           </Link>
         </div>
       </Card.Footer>

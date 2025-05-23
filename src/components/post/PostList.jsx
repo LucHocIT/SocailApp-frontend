@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Spinner, Alert } from 'react-bootstrap';
+import { Button, Spinner, Alert, Card } from 'react-bootstrap';
+import { FaSync } from 'react-icons/fa';
 import PostCard from './PostCard';
 import EditPostModal from './EditPostModal';
 import postService from '../../services/postService';
@@ -74,18 +75,39 @@ const PostList = ({ username, onlyFollowing }) => {
     setShowEditModal(false);
     setEditingPost(null);
   };
-
   const handleLoadMore = () => {
     if (!loading && hasMore) {
       loadPosts(page + 1);
     }
   };
 
-  if (error) {    return <Alert variant="danger">{error}</Alert>;
-  }
+  const handleRefresh = () => {
+    // Reset states when refreshing
+    setPosts([]);
+    setPage(1);
+    setHasMore(true);
+    loadPosts(1);
+  };
 
-  return (
+  if (error) {    return <Alert variant="danger">{error}</Alert>;
+  }  return (
     <div className="w-100" style={{ maxWidth: '700px', margin: '0 auto' }}>
+      <Card className="mb-4 shadow-sm border-0 rounded-3">
+        <Card.Body className="p-2 d-flex justify-content-between align-items-center">
+          <h6 className="mb-0 fw-semibold text-primary">Bài viết</h6>
+          <Button 
+            variant="light" 
+            size="sm" 
+            className="rounded-circle p-2" 
+            onClick={handleRefresh} 
+            disabled={loading && page === 1}
+            title="Làm mới bài viết"
+          >
+            <FaSync className={loading && page === 1 ? 'spin' : ''} />
+          </Button>
+        </Card.Body>
+      </Card>
+      
       {posts.length === 0 && !loading ? (
         <Alert variant="info" className="text-center py-4">Không có bài viết nào để hiển thị.</Alert>
       ) : (

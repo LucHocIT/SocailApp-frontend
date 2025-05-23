@@ -1,0 +1,245 @@
+// CreatePost.module.scss
+@use '../../../styles/abstracts/variables' as *;
+@use '../../../styles/abstracts/mixins' as *;
+
+.createPostCard {
+  border: none !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05) !important;
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.3s;
+    &:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+    transform: translateY(-2px);
+  }
+
+  .postForm {
+    .userSection {
+      display: flex;
+      padding: 1rem;
+      border-bottom: 1px solid $gray-200;
+        .avatar {
+        width: 45px;
+        height: 45px;
+        object-fit: cover;
+        margin-right: 1rem;
+        border: 2px solid rgba($primary-color, 0.2);
+        transition: transform 0.2s;
+        
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+      
+      .textareaWrapper {
+        flex-grow: 1;
+        margin: 0;
+        
+        .textarea {
+          border: none;
+          box-shadow: none !important;
+          font-size: 1.05rem;
+          resize: none;
+          min-height: 60px;
+          background-color: transparent;
+            &::placeholder {
+            color: $gray-600;
+          }
+          
+          &:focus {
+            box-shadow: none;
+            border-color: transparent;
+          }
+        }
+      }
+    }
+    
+    .mediaPreviewContainer {
+      position: relative;
+        .mediaPreview {
+        max-height: 350px;
+        width: 100%;
+        object-fit: contain;
+        background-color: $gray-100;
+      }
+      
+      .videoPreview {
+        max-height: 350px;
+        width: 100%;
+        background-color: $gray-100;
+      }
+      
+      .filePreview {
+        padding: 2rem;
+        text-align: center;        background-color: $gray-100;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        .fileIcon {
+          font-size: 2.5rem;
+          margin-bottom: 0.75rem;
+          color: $primary-color;
+        }
+        
+        .fileName {
+          font-weight: 500;
+          margin-bottom: 0.25rem;
+        }
+        
+        .fileSize {
+          color: $gray-600;
+          font-size: 0.875rem;
+        }
+      }
+      
+      .removeButton {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background-color: white;
+        border: none;
+        border-radius: 50%;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        transition: all 0.2s ease;
+          &:hover {
+          transform: scale(1.1);
+          background-color: rgba($danger-color, 0.1);
+          color: $danger-color;
+        }
+      }
+    }
+      .formFooter {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background-color: $gray-100;
+      
+      .mediaButtons {
+        display: flex;
+        gap: 0.5rem;
+        
+        .mediaButton {
+          background-color: white;
+          border: none;
+          border-radius: 50%;
+          width: 2.5rem;
+          height: 2.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          }
+          
+          .mediaIcon {
+            font-size: 1rem;
+          }
+            &.imageButton .mediaIcon {
+            color: $primary-color;
+          }
+          
+          &.videoButton .mediaIcon {
+            color: $success-color;
+          }
+          
+          &.fileButton .mediaIcon {
+            color: $info-color;
+          }
+        }
+      }
+      
+      .hiddenInput {
+        display: none;
+      }
+      
+      .postButton {
+        border-radius: 50rem;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+            &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba($primary-color, 0.3);
+      }
+        
+        &:disabled {
+          opacity: 0.6;
+        }
+        
+        .icon {
+          font-size: 0.875rem;
+        }
+        
+        .spinner {
+          width: 1rem;
+          height: 1rem;
+          border-width: 2px;
+        }
+      }
+    }
+  }
+}
+
+// Animation for create post appearance
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+// Enhanced hover effect for buttons
+.mediaButton {
+  &:hover .mediaIcon {
+    animation: bounce 0.5s ease infinite;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+// Enhanced input focus
+.textarea {
+  transition: all 0.3s ease;
+    &:focus {
+    transform: scale(1.01);
+    background-color: rgba($primary-color, 0.02) !important;
+  }
+}
+
+// Button press effect
+.postButton {
+  &:active:not(:disabled) {
+    transform: scale(0.95) !important;
+  }
+}

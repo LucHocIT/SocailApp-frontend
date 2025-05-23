@@ -1,0 +1,405 @@
+@use '../styles/abstracts/variables' as *;
+@use '../styles/abstracts/color-aliases' as *;
+@use '../styles/abstracts/mixins' as *;
+
+.homeContainer {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.content {
+  padding: $spacing-6 0;
+  
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-4 0;
+  }
+}
+
+.postOnlyContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 $spacing-4;
+}
+
+.feedHeading {
+  font-family: $font-family-heading;
+  font-size: $font-size-2xl;
+  font-weight: 700;
+  color: $text-dark;
+  margin-bottom: $spacing-6;
+  position: relative;
+  padding-left: $spacing-4;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 70%;
+    width: 4px;
+    background: $gradient-primary;
+    border-radius: $border-radius;
+  }
+}
+
+.feedContainer {
+  position: relative;
+}
+
+// Hero Section
+.heroSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-12 $spacing-4;
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  @media (max-width: $breakpoint-lg) {
+    flex-direction: column-reverse;
+    text-align: center;
+    padding: $spacing-6 $spacing-4;
+  }
+}
+
+.heroText {
+  max-width: 600px;
+  
+  @media (max-width: $breakpoint-lg) {
+    max-width: 100%;
+    margin-top: $spacing-6;
+  }
+  
+  h1 {
+    font-size: $font-size-5xl;
+    font-weight: 800;
+    margin-bottom: $spacing-4;
+    background: $gradient-primary;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+    
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-4xl;
+    }
+    
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-size-3xl;
+    }
+  }
+}
+
+.heroSubtitle {
+  font-size: $font-size-xl;
+  line-height: 1.6;
+  color: $text-light;
+  margin-bottom: $spacing-6;
+  
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-lg;
+  }
+}
+
+.heroImage {
+  flex: 1;
+  max-width: 500px;
+  
+  img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 10px 15px rgba($primary-color, 0.3));
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @media (max-width: $breakpoint-lg) {
+    max-width: 400px;
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: $spacing-4;
+  
+  @media (max-width: $breakpoint-lg) {
+    justify-content: center;
+  }
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+}
+
+.loginButton, .registerButton {
+  padding: $spacing-3 $spacing-6;
+  border-radius: $border-radius-full;
+  font-weight: 600;
+  transition: $transition-base;
+  border: none;
+  cursor: pointer;
+  min-width: 160px;
+  
+  &:hover {
+    transform: translateY(-3px);
+  }
+}
+
+.loginButton {
+  background: transparent;
+  border: 2px solid $primary-color;
+  color: $primary-color;
+  
+  &:hover {
+    background-color: rgba($primary-color, 0.1);
+  }
+}
+
+.registerButton {
+  background: $gradient-primary;
+  color: white;
+  box-shadow: 0 4px 10px rgba($primary-color, 0.3);
+}
+
+// Features Section
+.ctaSection {
+  background-color: white;
+  padding: $spacing-16 0;
+  text-align: center;
+  
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-10 $spacing-4;
+  }
+}
+
+.sectionSubtitle {
+  font-size: $font-size-xl;
+  color: $text-light;
+  max-width: 700px;
+  margin: 0 auto $spacing-10;
+  
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-lg;
+    margin-bottom: $spacing-6;
+  }
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: $spacing-6;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-4;
+}
+
+.featureCard {
+  background: white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-6;
+  transition: $transition-base;
+  border: 1px solid $border-color-light;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+  
+  .icon {
+    font-size: 2.5rem;
+    margin-bottom: $spacing-4;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto $spacing-4;
+  }
+  
+  h3 {
+    font-weight: 600;
+    margin-bottom: $spacing-3;
+    font-size: $font-size-xl;
+  }
+  
+  p {
+    color: $text-light;
+    line-height: 1.6;
+  }
+}
+
+.iconPrimary {
+  background: rgba($primary-color, 0.1);
+  color: $primary-color;
+}
+
+.iconSuccess {
+  background: rgba($success-color, 0.1);
+  color: $success-color;
+}
+
+.iconWarning {
+  background: rgba($warning-color, 0.1);
+  color: $warning-color;
+}
+
+.iconInfo {
+  background: rgba($info-color, 0.1);
+  color: $info-color;
+}
+
+// Divider
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba($primary-color, 0.5), transparent);
+  margin: $spacing-6 auto;
+  max-width: 800px;
+}
+
+// Testimonials Section
+.testimonialsSection {
+  padding: $spacing-16 $spacing-4;
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-10 $spacing-4;
+  }
+}
+
+.testimonialCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-6;
+}
+
+.testimonialCard {
+  background: white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-6;
+  transition: $transition-base;
+  text-align: left;
+  border: 1px solid $border-color-light;
+  
+  .quote {
+    font-style: italic;
+    color: $text-dark;
+    line-height: 1.7;
+    font-size: $font-size-lg;
+    margin-bottom: $spacing-4;
+    position: relative;
+    padding-left: $spacing-4;
+    
+    &::before {
+      content: '"';
+      position: absolute;
+      left: -$spacing-1;
+      top: -$spacing-4;
+      font-size: 4rem;
+      color: rgba($primary-color, 0.2);
+      font-family: serif;
+      line-height: 1;
+    }
+  }
+  
+  .author {
+    font-weight: 600;
+    color: $primary-color;
+  }
+}
+
+// CTA Banner
+.ctaBanner {
+  background: $gradient-primary;
+  padding: $spacing-10 $spacing-4;
+  border-radius: $border-radius-xl;
+  color: white;
+  max-width: 1000px;
+  margin: $spacing-16 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  
+  @media (max-width: $breakpoint-md) {
+    margin: $spacing-10 auto;
+    padding: $spacing-6 $spacing-4;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  h2 {
+    font-size: $font-size-3xl;
+    font-weight: 700;
+    margin-bottom: $spacing-3;
+    
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-2xl;
+    }
+  }
+  
+  p {
+    font-size: $font-size-lg;
+    opacity: 0.9;
+    margin-bottom: $spacing-6;
+    max-width: 500px;
+  }
+}
+
+.ctaButton {
+  background: white;
+  color: $primary-color;
+  padding: $spacing-3 $spacing-6;
+  border-radius: $border-radius-full;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: $transition-base;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.ctaDecoration {
+  position: relative;
+  
+  .decorationIcon {
+    font-size: 8rem;
+    opacity: 0.2;
+    position: absolute;
+    
+    &:first-child {
+      top: -4rem;
+      right: 1rem;
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    &:last-child {
+      bottom: -3rem;
+      right: 6rem;
+      animation: float 6s ease-in-out infinite 1s;
+    }
+  }
+  
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+// Animations
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}

@@ -1,0 +1,226 @@
+@use '../styles/abstracts/variables' as *;
+@use '../styles/abstracts/color-aliases' as *;
+@use '../styles/abstracts/mixins' as *;
+
+.pageWrapper {
+  background-color: $bg-light;
+  min-height: calc(100vh - 60px);
+  padding: $spacing-6 0;
+  
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-4 0;
+  }
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: $spacing-6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  @media (max-width: $breakpoint-md) {
+    margin-bottom: $spacing-4;
+  }
+}
+
+.backButton {
+  color: $primary-color;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-4;
+  border-radius: $border-radius-full;
+  transition: $transition-base;
+  
+  &:hover {
+    background: rgba($primary-color, 0.1);
+    transform: translateX(-5px);
+  }
+  
+  svg {
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover svg {
+    transform: translateX(-3px);
+  }
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  
+  p {
+    margin-top: $spacing-4;
+    color: $text-light;
+    font-weight: 500;
+  }
+}
+
+.pulseLoader {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba($primary-color, 0.2);
+  animation: pulse 1.5s infinite ease-in-out;
+  position: relative;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: $primary-color;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba($primary-color, 0.7);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 20px rgba($primary-color, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba($primary-color, 0);
+  }
+}
+
+.errorContainer {
+  text-align: center;
+  padding: $spacing-8;
+  max-width: 600px;
+  margin: 0 auto;
+  
+  .alert {
+    margin-bottom: $spacing-6;
+    font-size: $font-size-lg;
+    border-radius: $border-radius-lg;
+    padding: $spacing-4;
+  }
+}
+
+.returnButton {
+  @include button-primary;
+  padding: $spacing-3 $spacing-6;
+  border-radius: $border-radius-full;
+  font-weight: 600;
+  font-size: $font-size-base;
+  
+  &:hover {
+    transform: translateY(-3px);
+  }
+}
+
+.mainContent {
+  position: relative;
+}
+
+.postContainer {
+  margin-bottom: $spacing-8;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.relatedPosts {
+  margin-top: $spacing-12;
+  padding-top: $spacing-8;
+  border-top: 1px solid $border-color;
+  
+  @media (max-width: $breakpoint-md) {
+    margin-top: $spacing-8;
+    padding-top: $spacing-6;
+  }
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-xl;
+  margin-bottom: $spacing-6;
+  color: $text-dark;
+  font-weight: 700;
+  gap: $spacing-2;
+  
+  .sectionIcon {
+    color: $primary-color;
+  }
+}
+
+.relatedPostsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: $spacing-4;
+}
+
+.relatedPostCard {
+  background: white;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow;
+  transition: $transition-base;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.relatedPostLink {
+  display: block;
+  padding: $spacing-4;
+  color: $text-dark;
+  text-decoration: none;
+  height: 100%;
+  
+  &:hover {
+    color: $text-dark;
+  }
+  
+  h4 {
+    font-size: $font-size-lg;
+    margin-bottom: $spacing-4;
+    font-weight: 600;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 80px;
+  }
+}
+
+.postMeta {
+  display: flex;
+  gap: $spacing-4;
+  color: $text-light;
+  font-size: $font-size-sm;
+  
+  span {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+  }
+  
+  svg {
+    color: $primary-color;
+  }
+}

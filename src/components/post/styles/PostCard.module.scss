@@ -1,0 +1,226 @@
+// PostCard.module.scss
+@use '../../../styles/abstracts/variables' as *;
+@use '../../../styles/abstracts/mixins' as *;
+
+.postCard {
+  @include card-base;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  padding: 0;
+  
+  @include card-hover;
+  
+  .cardHeader {
+    background: white;
+    border-bottom: 1px solid var(--bs-border-color);
+    padding: 1rem;
+      .userInfo {
+      @include flex-center;
+      justify-content: flex-start;
+      gap: 0.75rem;
+        .avatar {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border: 2px solid rgba($primary-color, 0.2);
+        transition: all 0.3s;
+        
+        &:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 0 2px $primary-color;
+        }
+      }        .username {
+        color: $text-dark;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+        display: block;
+        margin-bottom: 0.25rem;
+        
+        &:hover {
+          color: $primary-color;
+        }
+      }
+        .timeInfo {
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        color: $text-muted;
+      }
+    }
+      .menuButton {
+      background: transparent;
+      color: $gray-600;
+      border: none;
+      transition: transform 0.2s, color 0.2s;
+      padding: 0.5rem;
+      border-radius: 50%;
+      
+      &:hover {
+        background-color: $gray-100;
+        color: $primary-color;
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  .cardBody {
+    padding: 1.25rem;
+    
+    .postContent {
+      margin-bottom: 1rem;
+      white-space: pre-line;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+      .mediaContainer {
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: $gray-100;
+      
+      .image {
+        width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+        background-color: rgba(0,0,0,0.02);
+      }
+      
+      .video {
+        width: 100%;
+        max-height: 500px;
+        background-color: rgba(0,0,0,0.02);
+      }
+      
+      .file {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: $primary-color;
+        padding: 0.75rem;
+        transition: background-color 0.2s;
+        border-radius: 8px;
+        
+        &:hover {
+          background-color: rgba($primary-color, 0.1);
+        }
+        
+        .fileIcon {
+          font-size: 1.25rem;
+        }
+      }
+    }
+  }
+  
+  .cardFooter {
+    background-color: white;
+    padding: 0.75rem 1rem;
+    
+    .actionButtons {
+      display: flex;
+      gap: 1rem;
+      
+      .actionButton {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: none;
+        color: inherit;
+        border: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        transition: background-color 0.2s, color 0.2s;
+        
+        &:hover {
+          background-color: rgba(0,0,0,0.04);
+        }
+          &.liked {
+          color: $danger-color;
+        }
+        
+        .actionIcon {
+          transition: transform 0.2s;
+        }
+        
+        &:hover .actionIcon {
+          transform: scale(1.2);
+        }
+        
+        .actionCount {
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Animation for new posts
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.newPost {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+// Like animation
+@keyframes likeAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.actionButton {
+  &.liked .actionIcon {
+    animation: likeAnimation 0.4s ease-in-out;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Enhanced user interaction
+.avatar {
+  transition: transform 0.3s, filter 0.3s, box-shadow 0.3s;
+  
+  &:hover {
+    transform: scale(1.05);
+    filter: brightness(1.05);
+    box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.3);
+  }
+}
+
+.username {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--bs-primary);
+    transition: width 0.3s ease;
+  }
+  
+  &:hover::after {
+    width: 100%;
+  }
+}
