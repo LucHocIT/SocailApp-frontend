@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context';
 import { FaChevronDown, FaSignOutAlt, FaUser, FaCog } from 'react-icons/fa';
 import AuthModals from './auth/AuthModals';
+import UserSearch from './user/UserSearch';
 import styles from './Navbar.module.scss';
 
 
@@ -67,12 +68,16 @@ const Navbar = () => {
 
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
-      <div className={styles.container}>
-        <div className={styles.logo}>
+      <div className={styles.container}>        <div className={styles.logo}>
           <Link to="/" className="fade-in">
             <img src="/logo.svg" alt="SocialApp" />
             SocialApp
           </Link>
+        </div>
+        
+        {/* Add User Search component */}
+        <div className={styles.searchArea}>
+          <UserSearch />
         </div>
         
         <button 

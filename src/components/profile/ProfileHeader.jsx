@@ -11,6 +11,7 @@ const ProfileHeader = ({
   handleUnfollow,
   onShowFollowers,
   onShowFollowing,
+  onTogglePosts,
   onToggleEditing,
   onTogglePasswordChange,
   isEditing,
@@ -222,8 +223,10 @@ const ProfileHeader = ({
 
           <button 
             className={styles.statItem}
+            onClick={onTogglePosts}
             aria-label={`${profileData.postCount} bài viết`}
-          >            <span className={styles.statValue}>
+          >
+            <span className={styles.statValue}>
               {new Intl.NumberFormat('vi-VN').format(profileData.postCount)}
             </span>
             <span className={styles.statLabel}>Bài viết</span>

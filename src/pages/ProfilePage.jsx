@@ -28,26 +28,25 @@ const ProfilePage = () => {
     getUserProfile
   } = useProfile();
   
-  const { userId } = useParams(); // For viewing other user's profile
+  const { userId } = useParams();
   const navigate = useNavigate();
   
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [isOwnProfile, setIsOwnProfile] = useState(true);
-  const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [followers, setFollowers] = useState([]);
-  const [following, setFollowing] = useState([]);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
-    const [profile, setProfile] = useState({
+  const [showPosts, setShowPosts] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [profile, setProfile] = useState({
     username: '',
     email: '',
     firstName: '',
     lastName: '',
     bio: ''
-  });
-  
+  });  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -62,10 +61,14 @@ const ProfilePage = () => {
           return;
         }
         
+        console.log('Fetching profile for user ID:', targetUserId);
+        
         // Fetch profile data
         const data = await getUserProfile(targetUserId);
+        console.log('Profile data received:', data);
         setProfileData(data);
-          // Initialize form if it's own profile
+        
+        // Initialize form if it's own profile
         if (!userId || (user && targetUserId === user.id)) {
           setProfile({
             username: data.username || '',
@@ -149,14 +152,14 @@ const ProfilePage = () => {
     return <div className="error">Không thể tải thông tin hồ sơ người dùng này</div>;
   }
   return (
-    <div className={styles.profileContainer}>
-      <ProfileHeader 
+    <div className={styles.profileContainer}>      <ProfileHeader 
         profileData={profileData}
         isOwnProfile={isOwnProfile}
         handleFollow={handleFollow}
         handleUnfollow={handleUnfollow}
         onShowFollowers={() => setShowFollowers(true)}
         onShowFollowing={() => setShowFollowing(true)}
+        onTogglePosts={() => setShowPosts(prev => !prev)}
         onToggleEditing={() => setIsEditing(!isEditing)}
         onTogglePasswordChange={() => setIsChangingPassword(!isChangingPassword)}
         isEditing={isEditing}
@@ -187,9 +190,7 @@ const ProfilePage = () => {
           following={following}
           onClose={() => setShowFollowing(false)}
         />
-      )}
-
-      {!isEditing && !isChangingPassword && profileData && (
+      )}      {!isEditing && !isChangingPassword && profileData && showPosts && (
         <div className={styles.userPostsSection}>
           <h2 className={styles.sectionTitle}>
             <FaList className={styles.sectionIcon} />

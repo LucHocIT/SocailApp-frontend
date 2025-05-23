@@ -138,6 +138,15 @@ class UserService {
       throw this.handleError(error);
     }
   }
+  // Tìm kiếm người dùng
+  async searchUsers(searchTerm, page = 1, pageSize = 10) {
+    try {
+      const response = await api.get(`/profile/search?term=${searchTerm}&page=${page}&pageSize=${pageSize}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
 
   // Xử lý lỗi
   handleError(error) {
