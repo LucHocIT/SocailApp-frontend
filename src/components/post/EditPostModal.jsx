@@ -76,18 +76,45 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
 
     try {
       setIsSubmitting(true);
-      const formData = new FormData();
-      formData.append('content', content);
       
-      if (mediaFile) {
-        formData.append('media', mediaFile);
-      }
-      
-      formData.append('removeExistingMedia', removeExistingMedia);
+      let mediaUrl = null;
+      let mediaType = null;
+      let mediaPublicId = null;
 
-      const updatedPost = await postService.updatePost(post.id, formData);
+      // Nếu có file media mới
+      if (mediaFile) {
+        // Xác định loại media để upload
+        let uploadMediaType = "file";
+        if (mediaFile.type.startsWith('image/')) {
+          uploadMediaType = "image";
+        } else if (mediaFile.type.startsWith('video/')) {
+          uploadMediaType = "video";
+        }
+        
+        // Upload media mới
+        const uploadResult = await postService.uploadMedia(mediaFile, uploadMediaType);
+        
+        if (uploadResult && uploadResult.mediaUrl) {
+          mediaUrl = uploadResult.mediaUrl;
+          mediaType = uploadMediaType;
+          mediaPublicId = uploadResult.publicId;
+        } else {
+          throw new Error(uploadResult.message || 'Không thể tải lên media');
+        }
+      }
+
+      // Chuẩn bị dữ liệu cập nhật
+      const updateData = {
+        content: content,
+        mediaUrl: mediaUrl || (removeExistingMedia ? null : existingMediaUrl),
+        mediaType: mediaType || (removeExistingMedia ? null : post.mediaType),
+        mediaPublicId: mediaPublicId || (removeExistingMedia ? null : post.mediaPublicId)
+      };
+
+      const updatedPost = await postService.updatePost(post.id, updateData);
       onSave(updatedPost);
       toast.success('Bài viết đã được cập nhật thành công!');
+      onHide();
     } catch (error) {
       console.error('Lỗi khi cập nhật bài viết:', error);
       toast.error(error.message || 'Lỗi khi cập nhật bài viết');

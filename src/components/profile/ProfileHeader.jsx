@@ -222,10 +222,9 @@ const ProfileHeader = ({
 
           <button 
             className={styles.statItem}
-            aria-label={`${profileData.postsCount} bài viết`}
-          >
-            <span className={styles.statValue}>
-              {new Intl.NumberFormat('vi-VN').format(profileData.postsCount)}
+            aria-label={`${profileData.postCount} bài viết`}
+          >            <span className={styles.statValue}>
+              {new Intl.NumberFormat('vi-VN').format(profileData.postCount)}
             </span>
             <span className={styles.statLabel}>Bài viết</span>
           </button>
