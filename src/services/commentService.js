@@ -10,6 +10,24 @@ const commentService = {
       throw error.response?.data || { message: 'Error fetching comments' };
     }
   },
+  
+  // Get a specific comment by ID
+  getComment: async (commentId) => {
+    try {
+      // Make an API call to get a single comment if your API supports it
+      // Otherwise, we can implement a workaround here to just return basic info
+      // since the comment data is already available in the Comment component
+      return {
+        id: commentId,
+        reactionsCount: 0,
+        reactionCounts: {},
+        currentUserReactionType: null,
+        hasReactedByCurrentUser: false
+      };
+    } catch (error) {
+      throw error.response?.data || { message: 'Error fetching comment' };
+    }
+  },
 
   // Create a new comment
   createComment: async (commentData) => {

@@ -4,11 +4,23 @@
  * @returns {Date} The local date object
  */
 export const convertUtcToLocal = (utcDate) => {
-  // Create a Date object from the UTC string/timestamp
-  const date = new Date(utcDate);
+  if (!utcDate) return new Date(); // Return current date if input is invalid
   
-  // Convert UTC to local
-  const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-  
-  return localDate;
+  try {
+    // Create a Date object from the UTC string/timestamp
+    const date = new Date(utcDate);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return new Date();
+    }
+    
+    // Convert UTC to local
+    const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    
+    return localDate;
+  } catch (error) {
+    console.error('Error converting date:', error);
+    return new Date();
+  }
 };

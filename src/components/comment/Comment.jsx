@@ -67,9 +67,11 @@ const Comment = ({
               <div>
                 <Card.Title className={styles.userName}>
                   {comment.username}
-                </Card.Title><small className={styles.timeAgo}>
-                  <TimeAgo date={convertUtcToLocal(comment.createdAt)} />
-                  {comment.updatedAt !== comment.createdAt && <span className={styles.edited}> (edited)</span>}
+                </Card.Title>                <small className={styles.timeAgo}>
+                  {comment.createdAt && <TimeAgo date={convertUtcToLocal(comment.createdAt)} />}
+                  {comment.updatedAt && comment.createdAt && comment.updatedAt !== comment.createdAt && 
+                    <span className={styles.edited}> (edited)</span>
+                  }
                 </small>
               </div>
             </div>
