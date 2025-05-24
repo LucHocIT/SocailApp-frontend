@@ -92,14 +92,19 @@ const ProfilePage = () => {
       }
 
       // Check if viewing own profile
-      setIsOwnProfile(!userId || (user && targetUserId === user.id));
-
-      if (!data) {
+      setIsOwnProfile(!userId || (user && targetUserId === user.id));      if (!data) {
         navigate('/');
         return;
       }
+        // Ensure both isFollowing and isFollowedByCurrentUser are set correctly
+      // This handles both fields to ensure compatibility with either field name
+      const updatedData = {
+        ...data,
+        isFollowing: data.isFollowedByCurrentUser || data.isFollowing || false,
+        isFollowedByCurrentUser: data.isFollowedByCurrentUser || data.isFollowing || false,
+      };
       
-      setProfileData(data);
+      setProfileData(updatedData);
 
       // Initialize form if it's own profile
       if (!userId || (user && targetUserId === user.id)) {
@@ -137,33 +142,30 @@ const ProfilePage = () => {
   // Effect to fetch profile data
   useEffect(() => {
     fetchProfileData();
-  }, [fetchProfileData]);
-
-  const handleFollow = async () => {
+  }, [fetchProfileData]);  const handleFollow = async () => {
     try {
-      await followUser(profileData.id);
+      const response = await followUser(profileData.id);
       toast.success(`Đã theo dõi ${profileData.firstName} ${profileData.lastName}`);
-      
-      // Update UI
+        // Update UI using the response data if available
       setProfileData(prev => ({
         ...prev,
-        isFollowing: true,
+        isFollowing: response.isFollowing || true,
+        isFollowedByCurrentUser: response.isFollowedByCurrentUser || true,
         followersCount: prev.followersCount + 1
       }));
     } catch (error) {
       toast.error(error.message || 'Không thể theo dõi người dùng này');
     }
   };
-  
-  const handleUnfollow = async () => {
+    const handleUnfollow = async () => {
     try {
-      await unfollowUser(profileData.id);
+      const response = await unfollowUser(profileData.id);
       toast.success(`Đã bỏ theo dõi ${profileData.firstName} ${profileData.lastName}`);
-      
-      // Update UI
+        // Update UI using the response data if available
       setProfileData(prev => ({
         ...prev,
-        isFollowing: false,
+        isFollowing: response.isFollowing !== undefined ? response.isFollowing : false,
+        isFollowedByCurrentUser: response.isFollowedByCurrentUser !== undefined ? response.isFollowedByCurrentUser : false,
         followersCount: prev.followersCount - 1
       }));
     } catch (error) {

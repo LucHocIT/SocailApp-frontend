@@ -329,16 +329,14 @@ const ProfileHeader = ({
                 <button className={styles.btnSecondary} onClick={onTogglePasswordChange}>
                   <FaKey /> Đổi mật khẩu
                 </button>
-              </>
-            ) : user && (
-              <>
-                <button
-                  className={profileData.isFollowing ? styles.btnFollowing : styles.btnFollow}
-                  onClick={profileData.isFollowing ? onUnfollowUser : onFollowUser}
+              </>            ) : user && (
+              <>                <button
+                  className={profileData.isFollowing || profileData.isFollowedByCurrentUser ? styles.btnFollowing : styles.btnFollow}
+                  onClick={profileData.isFollowing || profileData.isFollowedByCurrentUser ? onUnfollowUser : onFollowUser}
                 >
-                  {profileData.isFollowing ? (
+                  {profileData.isFollowing || profileData.isFollowedByCurrentUser ? (
                     <>
-                      <FaUserCheck /> Đang theo dõi
+                      <FaUserCheck /> Bỏ theo dõi
                     </>
                   ) : (
                     <>

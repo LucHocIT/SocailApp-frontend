@@ -35,21 +35,26 @@ const FollowersList = ({ userId, type = 'followers', onClose }) => {
     
     fetchUsers();
   }, [userId, type, getFollowers, getFollowing]);
-  
-  const handleFollowToggle = async (user) => {
+    const handleFollowToggle = async (user) => {
     try {
+      let response;
+      
       if (user.isFollowing) {
-        await unfollowUser(user.id);
+        response = await unfollowUser(user.id);
         toast.success(`Đã bỏ theo dõi ${user.username}`);
       } else {
-        await followUser(user.id);
+        response = await followUser(user.id);
         toast.success(`Đã theo dõi ${user.username}`);
       }
       
-      // Update local state
+      // Update local state using response if available, or fallback to toggling
+      const newFollowState = response?.isFollowing !== undefined 
+        ? response.isFollowing 
+        : !user.isFollowing;
+        
       setUsers(users.map(u => 
         u.id === user.id 
-          ? { ...u, isFollowing: !u.isFollowing } 
+          ? { ...u, isFollowing: newFollowState, isFollowedByCurrentUser: newFollowState } 
           : u
       ));
     } catch (error) {
