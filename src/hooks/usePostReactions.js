@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import postService from '../services/postService';
-import { useAuth } from '../context/hooks';
+// filepath: e:\SocialApp\frontend\src\hooks\usePostReactions.js
+import { useState, useEffect, useCallback } from "react";
+import postService from "../services/postService";
+import { useAuth } from "../context/hooks";
 
 /**
  * Custom hook to handle post reactions
@@ -30,8 +31,8 @@ const usePostReactions = (postId) => {
           setCurrentReaction(data.currentUserReactionType);
         }
       } catch (err) {
-        console.error('Failed to fetch reactions:', err);
-        setError('Could not load reactions');
+        console.error("Failed to fetch reactions:", err);
+        setError("Could not load reactions");
       } finally {
         setLoading(false);
       }
@@ -45,7 +46,7 @@ const usePostReactions = (postId) => {
   // Handle reaction change
   const handleReaction = useCallback(async ({ reactionType }) => {
     if (!user) {
-      return { success: false, message: 'Login required to react' };
+      return { success: false, message: "Login required to react" };
     }
 
     try {
@@ -54,13 +55,13 @@ const usePostReactions = (postId) => {
         reactionType
       };
 
-      // Optimistic UI update
+      // Check if user is toggling the same reaction (clicking the one they already have)
       const oldReaction = currentReaction;
       const isRemovingSameReaction = oldReaction === reactionType;
 
       // Optimistically update UI
       if (isRemovingSameReaction) {
-        // Removing reaction
+        // Removing reaction - user is toggling off their current reaction
         setCurrentReaction(null);
         setReactionCounts(prev => {
           const updated = {...prev};
@@ -71,8 +72,11 @@ const usePostReactions = (postId) => {
           return updated;
         });
         setTotalReactions(prev => Math.max(0, prev - 1));
+        
+        // Call API to remove the reaction
+        await postService.removeReaction(postId);
       } else {
-        // Adding or changing reaction
+        // Either adding a new reaction or changing to a different one
         setCurrentReaction(reactionType);
         setReactionCounts(prev => {
           const updated = {...prev};
@@ -92,22 +96,14 @@ const usePostReactions = (postId) => {
           updated[reactionType] = (updated[reactionType] || 0) + 1;
           return updated;
         });
-      }
-
-      // Call API
-      if (isRemovingSameReaction) {
-        // Send null for reactionType to remove reaction
-        await postService.addReaction({
-          postId,
-          reactionType: null
-        });
-      } else {
+        
+        // Call API to add or update the reaction
         await postService.addReaction(payload);
       }
 
       return { success: true };
     } catch (err) {
-      console.error('Error handling reaction:', err);
+      console.error("Error handling reaction:", err);
       
       // Revert optimistic update on error
       setCurrentReaction(currentReaction);
@@ -123,12 +119,63 @@ const usePostReactions = (postId) => {
           setCurrentReaction(null);
         }
       } catch (refreshError) {
-        console.error('Failed to refresh reactions:', refreshError);
+        console.error("Failed to refresh reactions:", refreshError);
       }
       
-      return { success: false, message: 'Failed to update reaction' };
+      return { success: false, message: "Failed to update reaction" };
     }
   }, [postId, currentReaction, user]);
+
+  // Handle reaction removal directly
+  const removeReaction = useCallback(async () => {
+    if (!user) {
+      return { success: false, message: "Login required to remove reaction" };
+    }
+    
+    if (!currentReaction) {
+      return { success: true, message: "No reaction to remove" };
+    }
+
+    try {
+      // Optimistic UI update
+      const oldReactionType = currentReaction;
+      
+      // Update UI state
+      setCurrentReaction(null);
+      setReactionCounts(prev => {
+        const updated = {...prev};
+        if (updated[oldReactionType] && updated[oldReactionType] > 0) {
+          updated[oldReactionType]--;
+          if (updated[oldReactionType] === 0) delete updated[oldReactionType];
+        }
+        return updated;
+      });
+      setTotalReactions(prev => Math.max(0, prev - 1));
+      
+      // Call API
+      await postService.removeReaction(postId);
+      
+      return { success: true };
+    } catch (err) {
+      console.error("Error removing reaction:", err);
+      
+      // Refresh reactions to ensure correct state
+      try {
+        const data = await postService.getPostReactions(postId);
+        setReactionCounts(data.reactionCounts || {});
+        setTotalReactions(data.totalCount || 0);
+        if (data.hasReactedByCurrentUser) {
+          setCurrentReaction(data.currentUserReactionType);
+        } else {
+          setCurrentReaction(null);
+        }
+      } catch (refreshError) {
+        console.error("Failed to refresh reactions:", refreshError);
+      }
+      
+      return { success: false, message: "Failed to remove reaction" };
+    }
+  }, [postId, currentReaction, user, reactionCounts, totalReactions]);
 
   return {
     loading,
@@ -136,7 +183,8 @@ const usePostReactions = (postId) => {
     reactionCounts,
     totalReactions,
     currentReaction,
-    handleReaction
+    handleReaction,
+    removeReaction
   };
 };
 

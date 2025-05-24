@@ -55,15 +55,13 @@ const postService = {
     } catch (error) {
       throw error.response?.data || { message: 'Error deleting post' };
     }
-  },
-
-  // Like or unlike a post
-  toggleLike: async (postId) => {
+  },  // Toggle reaction on a post
+  toggleReaction: async (postId, reactionType) => {
     try {
-      const response = await api.post(`/posts/${postId}/like`);
+      const response = await api.post(`/reactions/post/${postId}`, { reactionType });
       return response.data;
-    } catch (error) {
-      throw error.response?.data || { message: 'Error toggling like' };
+    } catch (error){
+      throw error.response?.data || { message: 'Error toggling reaction' };
     }
   },
   // Upload media for a post
@@ -90,11 +88,10 @@ const postService = {
   // === REACTIONS FUNCTIONALITY ===
   
   /**
-   * Add or update a reaction to a post or comment
+   * Add or update a reaction to a post
    * 
    * @param {Object} reactionData - The reaction data 
-   * @param {number} reactionData.postId - The post ID (optional if commentId is provided)
-   * @param {number} reactionData.commentId - The comment ID (optional if postId is provided)
+   * @param {number} reactionData.postId - The post ID
    * @param {string} reactionData.reactionType - The reaction type ('like', 'love', 'haha', 'wow', 'sad', 'angry')
    * @returns {Promise} - The response from the API
    */
@@ -107,16 +104,15 @@ const postService = {
       throw error;
     }
   },
-
   /**
-   * Remove a reaction
+   * Remove a reaction from a post
    * 
-   * @param {number} reactionId - The ID of the reaction to remove
+   * @param {number} postId - The post ID to remove reaction from
    * @returns {Promise} - The response from the API
    */
-  removeReaction: async (reactionId) => {
+  removeReaction: async (postId) => {
     try {
-      const response = await api.delete(`/reactions/${reactionId}`);
+      const response = await api.delete(`/reactions/post/${postId}`);
       return response.data;
     } catch (error) {
       console.error('Error removing reaction:', error);
@@ -136,22 +132,6 @@ const postService = {
       return response.data;
     } catch (error) {
       console.error('Error getting post reactions:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * Get all reactions for a comment
-   * 
-   * @param {number} commentId - The comment ID
-   * @returns {Promise} - The response from the API
-   */
-  getCommentReactions: async (commentId) => {
-    try {
-      const response = await api.get(`/reactions/comment/${commentId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error getting comment reactions:', error);
       throw error;
     }
   },

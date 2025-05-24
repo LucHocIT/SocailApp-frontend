@@ -8,15 +8,14 @@ import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 const PostReactionButton = ({ postId }) => {
   const [showReactions, setShowReactions] = useState(false);
-  const [hoveringReaction, setHoveringReaction] = useState(null);
-  const buttonRef = useRef(null);
+  const [hoveringReaction, setHoveringReaction] = useState(null);  const buttonRef = useRef(null);
   const timeoutRef = useRef(null);
-  
   const { 
     loading,
     currentReaction, 
     totalReactions, 
-    handleReaction 
+    handleReaction,
+    removeReaction
   } = usePostReactions(postId);
   
   const reactionTypes = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
@@ -40,26 +39,32 @@ const PostReactionButton = ({ postId }) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     if (currentReaction) {
-      await handleReaction({ reactionType: currentReaction });
+      // Xóa reaction ngay lập tức không cần xác nhận
+      const result = await removeReaction();
+      if (!result.success && result.message) {
+        toast.error(result.message);
+      }
     } else {
+      // Nếu chưa có reaction, thêm mới
       await handleReaction({ reactionType: 'love' });
     }
   };
-    const animProps = reactionAnimationProps({
+  
+  const animProps = reactionAnimationProps({
     type: currentReaction || 'love',
     isActive: !!currentReaction
   });
 
   const getReactionLabel = (type) => {
     const labels = {
-      like: 'Thích',
-      love: 'Yêu thích',
+      like: 'Like',
+      love: 'Love',
       haha: 'Haha',
       wow: 'Wow',
-      sad: 'Buồn',
-      angry: 'Phẫn nộ'
+      sad: 'Sad',
+      angry: 'Angry'
     };
-    return labels[type] || 'Thích';
+    return labels[type] || 'Like';
   };
   
   return (
@@ -119,10 +124,10 @@ const PostReactionButton = ({ postId }) => {
                 style={{ 
                   fontSize: '1.2rem', 
                   marginRight: '4px',
-                  color: 'var(--text-muted)' 
+                  color: 'var(--red-color)' 
                 }}
               />
-              <span className="reaction-text">Thích</span>
+              <span className="reaction-text" style={{ color: 'var(--red-color)' }}>Like</span>
             </>
           )}
         </div>
@@ -207,8 +212,7 @@ const PostReactionButton = ({ postId }) => {
           )}
         </AnimatePresence>
       </div>
-      
-      {totalReactions > 0 && (
+        {totalReactions > 0 && (
         <span 
           className="reaction-count"
           style={{ 
@@ -224,41 +228,7 @@ const PostReactionButton = ({ postId }) => {
           }}
         >
           {loading ? '...' : totalReactions}
-        </span>
-      )}
-        <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes heartbeat {
-          0% { transform: scale(1); }
-          25% { transform: scale(1.3); }
-          50% { transform: scale(1); }
-          75% { transform: scale(1.1); }
-          100% { transform: scale(1); }
-        }
-        
-        .reaction-icon-button:hover {
-          transform: scale(1.3) translateY(-5px);
-        }
-          .reaction-button:hover .reaction-emoji {
-          transform: scale(1.2);
-          transition: transform 0.2s ease;
-        }
-      `}</style>
+        </span>      )}
     </div>
   );
 };
