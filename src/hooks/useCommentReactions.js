@@ -9,6 +9,7 @@ const useCommentReactions = (commentId) => {
   const [totalReactions, setTotalReactions] = useState(0);
   const [reactionCounts, setReactionCounts] = useState({});
   const { user } = useAuth();
+  
   // Calculate reaction counts from comment data
   const processCommentReactions = useCallback((commentData) => {
     if (!commentData) return;
@@ -31,7 +32,8 @@ const useCommentReactions = (commentId) => {
     }
   }, []);
   
-  // Handle adding or toggling a reaction  const handleReaction = async (type) => {
+  // Handle adding or toggling a reaction
+  const handleReaction = async (type) => {
     if (!user) {
       toast.error('You must be logged in to react to comments');
       return;
@@ -44,23 +46,8 @@ const useCommentReactions = (commentId) => {
         reactionType: type
       };
       
-      // If clicking the same reaction, remove it (toggle)
-      const isRemove = type === currentReaction;
-      
-      // Call the commentService API to add/toggle reaction
       const updatedComment = await commentService.addReaction(reactionDto);
-      
-      // Update local state based on the response
       processCommentReactions(updatedComment);
-      
-      // Don't show toasts for better user experience
-      /* 
-      if (isRemove) {
-        toast.success('Reaction removed!', { autoClose: 1500 });
-      } else {
-        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} reaction added!`, { autoClose: 1500 });
-      }
-      */
     } catch (error) {
       toast.error(error.message || 'Failed to process reaction');
     } finally {
@@ -82,12 +69,14 @@ const useCommentReactions = (commentId) => {
       
       const updatedComment = await commentService.addReaction(reactionDto);
       processCommentReactions(updatedComment);
-      toast.success('Reaction removed!', { autoClose: 1500 });
     } catch (error) {
       toast.error(error.message || 'Failed to remove reaction');
     } finally {
       setLoading(false);
-    }  };  // Initialize with data from the comment prop if available
+    }
+  };
+
+  // Initialize with data from the comment prop if available
   useEffect(() => {
     // If commentId is valid and we have a comment object in props, process it
     if (commentId) {
