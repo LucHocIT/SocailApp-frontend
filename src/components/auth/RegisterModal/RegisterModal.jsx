@@ -85,15 +85,13 @@ const fieldVariants = {
 };
 
 const stepIndicatorVariants = {
-  inactive: { scale: 1, backgroundColor: "var(--bg-light)" },
+  inactive: { scale: 1 },
   active: {
     scale: [1, 1.2, 1],
-    backgroundColor: "var(--primary-color)",
     transition: { duration: 0.5 }
   },
   completed: {
     scale: 1,
-    backgroundColor: "var(--success-color)",
     transition: { duration: 0.3 }
   }
 };
@@ -242,12 +240,16 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
           </motion.div>
         )}
 
-        <motion.div className={styles.stepIndicator}>
-          <motion.div
+        <motion.div className={styles.stepIndicator}>          <motion.div
             className={`${styles.step} ${currentStep >= 1 ? styles.active : ''} ${currentStep > 1 ? styles.completed : ''}`}
             variants={stepIndicatorVariants}
             animate={currentStep > 1 ? "completed" : currentStep === 1 ? "active" : "inactive"}
             data-title="Thông tin"
+            style={{ 
+              backgroundColor: currentStep > 1 ? 'var(--success-color)' : 
+                               currentStep === 1 ? 'var(--primary-color)' : 
+                               'var(--bg-light)' 
+            }}
           >
             {currentStep > 1 ? <FaCheckCircle /> : <FaUserCircle />}
           </motion.div>
@@ -256,6 +258,9 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
             variants={stepIndicatorVariants}
             animate={currentStep === 2 ? "active" : "inactive"}
             data-title="Xác minh"
+            style={{ 
+              backgroundColor: currentStep === 2 ? 'var(--primary-color)' : 'var(--bg-light)' 
+            }}
           >
             <FaShieldAlt />
           </motion.div>
@@ -331,10 +336,11 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                           placeholder="Chọn tên đăng nhập của bạn"
                           onFocus={() => setFieldFocus(prev => ({ ...prev, username: true }))}
                           onBlur={() => setFieldFocus(prev => ({ ...prev, username: false }))}
-                        />
-                        <motion.div
+                        />                        <motion.div
                           animate={{
-                            scale: fieldFocus.username ? 1.1 : 1,
+                            scale: fieldFocus.username ? 1.1 : 1
+                          }}
+                          style={{
                             color: fieldFocus.username ? 'var(--primary-color)' : 'var(--text-muted)'
                           }}
                         >
@@ -358,10 +364,11 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                           placeholder="Nhập địa chỉ email của bạn"
                           onFocus={() => setFieldFocus(prev => ({ ...prev, email: true }))}
                           onBlur={() => setFieldFocus(prev => ({ ...prev, email: false }))}
-                        />
-                        <motion.div
+                        />                        <motion.div
                           animate={{
-                            scale: fieldFocus.email ? 1.1 : 1,
+                            scale: fieldFocus.email ? 1.1 : 1
+                          }}
+                          style={{
                             color: fieldFocus.email ? 'var(--primary-color)' : 'var(--text-muted)'
                           }}
                         >
@@ -432,13 +439,13 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.7 }}
-                    >
-                      <motion.button
+                    >                      <motion.button
                         type="submit"
                         className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''} ${styles.submitButton}`}
                         disabled={isSubmitting}
-                        whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(var(--primary-color-rgb), 0.5)" }}
+                        whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
+                        style={{ boxShadow: "0 0 15px rgba(var(--primary-color-rgb), 0.5)" }}
                       >
                         {isSubmitting ? (
                           <motion.span
@@ -533,27 +540,26 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.5 }}
-                    >
-                      <motion.button
+                    >                      <motion.button
                         type="button"
                         onClick={handleResendCode}
-                        whileHover={{ scale: 1.05, backgroundColor: "rgba(var(--primary-color-rgb), 0.1)" }}
+                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
+                        style={{ backgroundColor: "rgba(var(--primary-color-rgb), 0.1)" }}
                       >
                         <FaEnvelope style={{ marginRight: '8px' }} />
                         {isCodeSent ? 'Gửi lại mã xác nhận' : 'Gửi mã xác nhận'}
                       </motion.button>
-                    </motion.div>
-
-                    <motion.button
+                    </motion.div>                    <motion.button
                       type="submit"
                       className={`btn btn-primary ${isSubmitting ? 'btn-loading' : ''}`}
                       disabled={isSubmitting || !isCodeSent}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 }}
-                      whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(var(--primary-color-rgb), 0.5)" }}
+                      whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      style={{ boxShadow: "0 0 15px rgba(var(--primary-color-rgb), 0.5)" }}
                     >
                       {isSubmitting ? (
                         <motion.span
@@ -592,10 +598,10 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
-            Đã có tài khoản?{' '}
-            <motion.a
+            Đã có tài khoản?{' '}            <motion.a
               onClick={onSwitchToLogin}
-              whileHover={{ scale: 1.05, color: 'var(--primary-color)' }}
+              whileHover={{ scale: 1.05 }}
+              style={{ color: 'var(--primary-color)', cursor: 'pointer' }}
             >
               Đăng nhập
             </motion.a>

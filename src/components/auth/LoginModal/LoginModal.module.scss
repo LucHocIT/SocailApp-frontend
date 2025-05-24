@@ -41,9 +41,10 @@ $login-gradient: linear-gradient(135deg, $primary-color 0%, color.adjust($primar
 .formGroup {  margin-bottom: $spacing-3; // Reduced from $spacing-4
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  
-  &:hover {
-    transform: translateY(-2px);
+    &:hover {
+    /* Bỏ transform để tránh di chuyển icon */
+    /* transform: translateY(-2px); */
+    box-shadow: 0 2px 8px rgba($primary-color, 0.15);
   }
   
   label {
@@ -61,8 +62,7 @@ $login-gradient: linear-gradient(135deg, $primary-color 0%, color.adjust($primar
       font-size: 1.1em;
     }
   }
-  
-  .inputWithIcon {
+    .inputWithIcon {
     position: relative;
     
     input {
@@ -76,6 +76,7 @@ $login-gradient: linear-gradient(135deg, $primary-color 0%, color.adjust($primar
       transform: translateY(-50%);
       color: $text-muted;
       transition: all 0.3s ease;
+      pointer-events: none; /* Đảm bảo icon không chặn sự kiện chuột */
     }
   }
   

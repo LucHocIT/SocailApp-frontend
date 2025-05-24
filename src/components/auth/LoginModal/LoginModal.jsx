@@ -269,9 +269,11 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
                 <motion.button 
                   type="submit" 
                   className={`btn btn-primary ${isSubmitting || isProcessing ? 'btn-loading' : ''}`}
-                  disabled={isSubmitting || isProcessing}
-                  whileHover={{ scale: 1.03, boxShadow: "0 0 15px rgba(var(--primary-color-rgb), 0.5)" }}
+                  disabled={isSubmitting || isProcessing}                  whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
+                  style={{ 
+                    boxShadow: "0 0 15px rgba(var(--primary-color-rgb), 0.5)" 
+                  }}
                 >
                   {isSubmitting || isProcessing ? (
                     <motion.span
@@ -291,13 +293,16 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
                       <FaSignInAlt style={{ marginRight: '8px' }} /> Đăng nhập
                     </motion.span>
                   )}
-                </motion.button>
-
-                <motion.span 
+                </motion.button>                <motion.span 
                   className={styles.forgotPassword} 
                   onClick={onSwitchToForgotPassword}
-                  whileHover={{ scale: 1.03, color: 'var(--primary-color)' }}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  whileHover={{ scale: 1.03 }}
+                  style={{ 
+                    color: 'var(--primary-color)',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center' 
+                  }}
                 >
                   <FaKey style={{ marginRight: '5px' }} /> Quên mật khẩu?
                 </motion.span>
@@ -334,7 +339,8 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
               onClick={handleGoogleLogin} 
               disabled={isProcessing}
               title="Đăng nhập với Google"
-              whileHover={{ scale: 1.1, boxShadow: "0 0 8px rgba(234, 67, 53, 0.5)" }}
+              whileHover={{ scale: 1.1 }}
+              style={{ boxShadow: "0 0 8px rgba(234, 67, 53, 0.5)" }}
               whileTap={{ scale: 0.95 }}
               className={styles.googleButton}
             >
@@ -345,7 +351,8 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
               onClick={handleFacebookLogin} 
               disabled={isProcessing}
               title="Đăng nhập với Facebook"
-              whileHover={{ scale: 1.1, boxShadow: "0 0 8px rgba(59, 89, 152, 0.5)" }}
+              whileHover={{ scale: 1.1 }}
+              style={{ boxShadow: "0 0 8px rgba(59, 89, 152, 0.5)" }}
               whileTap={{ scale: 0.95 }}
               className={styles.facebookButton}
             >
@@ -359,9 +366,9 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
           >
             Chưa có tài khoản?{' '}
             <motion.a 
-              onClick={onSwitchToRegister}
-              whileHover={{ scale: 1.05, color: 'var(--primary-color)' }}
+              onClick={onSwitchToRegister}              whileHover={{ scale: 1.05 }}
               className={styles.registerLink}
+              style={{ color: 'var(--primary-color)' }}
             >
               <FaUserPlus style={{ marginRight: '5px', verticalAlign: 'middle' }} /> Đăng ký
             </motion.a>

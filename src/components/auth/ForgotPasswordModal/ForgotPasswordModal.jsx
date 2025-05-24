@@ -404,9 +404,9 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
                     >
                       <motion.button 
                         type="button"
-                        onClick={handleResendCode}
-                        whileHover={{ scale: 1.05, backgroundColor: "rgba(var(--primary-color-rgb), 0.1)" }}
-                        whileTap={{ scale: 0.95 }}
+                        onClick={handleResendCode}                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  style={{ backgroundColor: "rgba(var(--primary-color-rgb), 0.1)" }}
                       >
                         <FaEnvelope style={{ marginRight: '8px' }} />
                         Gửi lại mã xác nhận
@@ -573,9 +573,12 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
             transition={{ delay: 0.7 }}
           >
             <motion.a 
-              onClick={onSwitchToLogin}
-              whileHover={{ scale: 1.05, color: 'var(--primary-color)' }}
-              style={{ display: 'inline-flex', alignItems: 'center' }}
+              onClick={onSwitchToLogin}              whileHover={{ scale: 1.05 }}
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center',
+                color: 'var(--primary-color)' 
+              }}
             >
               <FaArrowLeft style={{ marginRight: '8px' }} /> Quay lại đăng nhập
             </motion.a>

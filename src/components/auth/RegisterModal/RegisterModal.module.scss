@@ -11,9 +11,10 @@
   margin-bottom: $spacing-4;
   position: relative;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
-  &:hover {
-    transform: translateY(-2px);
+    &:hover {
+    /* Bỏ transform để tránh di chuyển icon */
+    /* transform: translateY(-2px); */
+    box-shadow: 0 2px 8px rgba($primary-color, 0.15);
   }
   
   label {
@@ -37,14 +38,14 @@
     input {
       padding-left: $spacing-8;
     }
-    
-    .fieldIcon {
+      .fieldIcon {
       position: absolute;
       left: $spacing-3;
       top: 50%;
       transform: translateY(-50%);
       color: $text-muted;
       transition: all 0.3s ease;
+      pointer-events: none; /* Đảm bảo icon không chặn sự kiện chuột */
     }
   }
   
