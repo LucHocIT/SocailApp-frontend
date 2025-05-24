@@ -9,42 +9,23 @@ const useCommentReactions = (commentId) => {
   const [totalReactions, setTotalReactions] = useState(0);
   const [reactionCounts, setReactionCounts] = useState({});
   const { user } = useAuth();
-  
-  // Calculate reaction counts from comment data
+    // Calculate reaction counts from comment data
   const processCommentReactions = useCallback((comment) => {
     if (!comment) return;
     
-    const counts = {
-      like: 0,
-      love: 0,
-      haha: 0,
-      wow: 0,
-      sad: 0,
-      angry: 0
-    };
-    
-    if (comment.reactions && comment.reactions.length > 0) {
-      // Count reactions by type
-      comment.reactions.forEach(reaction => {
-        if (counts[reaction.type] !== undefined) {
-          counts[reaction.type]++;
-        }
-      });
+    // Get reaction counts from the comment reactionCounts object
+    if (comment.reactionCounts) {
+      setReactionCounts(comment.reactionCounts);
+      setTotalReactions(comment.reactionsCount || 0);
       
-      // Find user's current reaction
-      if (user) {
-        const userReaction = comment.reactions.find(r => r.userId === user.id);
-        setCurrentReaction(userReaction ? userReaction.type : null);
-      }
-      
-      setTotalReactions(comment.reactions.length);
+      // Set current user reaction
+      setCurrentReaction(comment.currentUserReactionType || null);
     } else {
-      setCurrentReaction(null);
+      setReactionCounts({});
       setTotalReactions(0);
+      setCurrentReaction(null);
     }
-    
-    setReactionCounts(counts);
-  }, [user]);
+  }, []);
   
   // Handle adding or toggling a reaction
   const handleReaction = async (type) => {
@@ -98,25 +79,12 @@ const useCommentReactions = (commentId) => {
     } finally {
       setLoading(false);
     }  };
-
-  // Fetch comment data when commentId changes
+  // Initialize with data from the comment prop if available
   useEffect(() => {
-    const fetchCommentData = async () => {
-      if (!commentId) return;
-      
-      setLoading(true);
-      try {
-        const comment = await commentService.getComment(commentId);
-        processCommentReactions(comment);
-      } catch (error) {
-        console.error('Failed to load comment reactions:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchCommentData();
-  }, [commentId, user, processCommentReactions]); // Include processCommentReactions as it's now defined before this effect
+    // We will get reaction data directly from the Comment component
+    // The Comment component already has the comment data with reactions
+    // No need to fetch separately here
+  }, [commentId]);
   
   return {
     loading,

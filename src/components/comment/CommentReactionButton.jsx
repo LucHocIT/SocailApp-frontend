@@ -6,15 +6,17 @@ import { toast } from 'react-toastify';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import styles from './styles/ReactionButton.module.scss';
 
-const CommentReactionButton = ({ commentId, onShowUsers }) => {
+const CommentReactionButton = ({ commentId, onShowUsers, comment }) => {
   const [showReactions, setShowReactions] = useState(false);
   const [hoveringReaction, setHoveringReaction] = useState(null);  
   const buttonRef = useRef(null);
   const timeoutRef = useRef(null);
+  
+  const [totalReactions, setTotalReactions] = useState(comment?.reactionsCount || 0);
+  const [currentReaction, setCurrentReaction] = useState(comment?.currentUserReactionType || null);
+  
   const { 
     loading,
-    currentReaction, 
-    totalReactions, 
     handleReaction,
     removeReaction
   } = useCommentReactions(commentId);
