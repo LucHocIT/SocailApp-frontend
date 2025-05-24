@@ -10,8 +10,10 @@ import postService from '../../services/postService';
 import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import styles from './styles/PostCard.module.scss';
+import commentSectionStyles from '../comment/styles/CommentSection.module.scss';
 import PostReactionButton from './PostReactionButton';
 import ReactionUsersModal from './ReactionUsersModal';
+import CommentList from '../comment/CommentList';
 
 const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  
   const { user } = useAuth();
@@ -20,6 +22,7 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
   const showContentToggle = post.content.length > 280;
   const [expanded, setExpanded] = useState(false);
   const [showReactionUsersModal, setShowReactionUsersModal] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   
   // Handle double tap
   const cardRef = useRef(null);
@@ -284,12 +287,14 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
           <div className={styles.actionButtons}>
             <div className={styles.reactionButtonWrapper}>
               <PostReactionButton postId={post.id} onShowUsers={() => setShowReactionUsersModal(true)} />
-            </div>
-
-            <Link to={`/post/${post.id}`} className={styles.actionButton}>
+            </div>            <Button
+              variant="link"
+              className={styles.actionButton}
+              onClick={() => setShowComments(!showComments)}
+            >
               <FaComment className={styles.actionIcon} />
               <span className={styles.actionCount}>{post.commentsCount}</span>
-            </Link>
+            </Button>
               
             <Button 
               variant="link" 
@@ -306,14 +311,21 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
             </div>
           </div>
         </Card.Footer>
-      </Card>
-
-      {/* Modal hiển thị người dùng đã thả reaction */}
+      </Card>      {/* Modal hiển thị người dùng đã thả reaction */}
       <ReactionUsersModal 
         show={showReactionUsersModal} 
         onHide={() => setShowReactionUsersModal(false)} 
         postId={post.id}
       />
+        {/* Comment section */}
+      {showComments && (
+        <div className={commentSectionStyles.commentSection}>
+          <CommentList 
+            postId={post.id} 
+            commentCount={post.commentsCount} 
+          />
+        </div>
+      )}
     </>
   );
 };

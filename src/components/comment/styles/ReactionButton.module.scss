@@ -1,0 +1,61 @@
+// ReactionButton styles - shared between post and comment reactions
+.reactionButtonContainer {
+  position: relative;
+}
+
+.reactionButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: #777;
+  padding: 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #007bff;
+  }
+  
+  &.hasReaction {
+    color: #e41e3f;
+  }
+}
+
+.reactionCount {
+  margin-left: 4px;
+  font-size: 0.85rem;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.reactionSelector {
+  position: absolute;
+  bottom: 100%;
+  left: -20px;
+  display: flex;
+  background-color: white;
+  border-radius: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  z-index: 100;
+}
+
+.reactionOption {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  font-size: 1.2rem;
+  border-radius: 50%;
+  margin: 0 0.25rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  
+  &:hover {
+    transform: scale(1.2);
+  }
+}

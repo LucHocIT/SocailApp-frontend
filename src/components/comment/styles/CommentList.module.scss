@@ -1,0 +1,33 @@
+.commentListContainer {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.commentHeader {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.newCommentForm {
+  margin-bottom: 1.5rem;
+}
+
+.commentList {
+  margin-top: 1rem;
+}
+
+.loadingSpinner {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.noComments {
+  color: #777;
+  text-align: center;
+  padding: 1rem 0;
+  font-style: italic;
+}
