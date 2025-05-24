@@ -58,20 +58,18 @@ const Comment = ({
       <Card className={styles.commentCard}>
         <Card.Body>
           <div className={styles.commentHeader}>
-            <div className={styles.userInfo}>
-              <Image 
-                src={comment.userProfilePicture || '/default-avatar.png'} 
+            <div className={styles.userInfo}>              <Image 
+                src={comment.profilePictureUrl || '/default-avatar.png'} 
                 roundedCircle 
                 className={styles.avatar}
-                alt={`${comment.userName}'s avatar`}
+                alt={`${comment.username}'s avatar`}
               />
               <div>
                 <Card.Title className={styles.userName}>
-                  {comment.userName}
-                </Card.Title>
-                <small className={styles.timeAgo}>
-                  <TimeAgo date={convertUtcToLocal(comment.dateCreated)} />
-                  {comment.isEdited && <span className={styles.edited}> (edited)</span>}
+                  {comment.username}
+                </Card.Title><small className={styles.timeAgo}>
+                  <TimeAgo date={convertUtcToLocal(comment.createdAt)} />
+                  {comment.updatedAt !== comment.createdAt && <span className={styles.edited}> (edited)</span>}
                 </small>
               </div>
             </div>
@@ -107,10 +105,10 @@ const Comment = ({
               {comment.content}
             </Card.Text>
           )}
-          
-          <div className={styles.commentActions}>
+            <div className={styles.commentActions}>
             <CommentReactionButton 
               commentId={comment.id}
+              comment={comment}
               onShowUsers={() => {}} // Implement user list modal if needed
             />
             

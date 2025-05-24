@@ -9,17 +9,21 @@ const useCommentReactions = (commentId) => {
   const [totalReactions, setTotalReactions] = useState(0);
   const [reactionCounts, setReactionCounts] = useState({});
   const { user } = useAuth();
-    // Calculate reaction counts from comment data
-  const processCommentReactions = useCallback((comment) => {
-    if (!comment) return;
+  // Calculate reaction counts from comment data
+  const processCommentReactions = useCallback((commentData) => {
+    if (!commentData) return;
     
     // Get reaction counts from the comment reactionCounts object
-    if (comment.reactionCounts) {
-      setReactionCounts(comment.reactionCounts);
-      setTotalReactions(comment.reactionsCount || 0);
+    if (commentData.reactionCounts) {
+      setReactionCounts(commentData.reactionCounts);
+      setTotalReactions(commentData.reactionsCount || 0);
       
-      // Set current user reaction
-      setCurrentReaction(comment.currentUserReactionType || null);
+      // Set current user reaction if user has reacted
+      if (commentData.hasReactedByCurrentUser) {
+        setCurrentReaction(commentData.currentUserReactionType || null);
+      } else {
+        setCurrentReaction(null);
+      }
     } else {
       setReactionCounts({});
       setTotalReactions(0);
@@ -27,8 +31,7 @@ const useCommentReactions = (commentId) => {
     }
   }, []);
   
-  // Handle adding or toggling a reaction
-  const handleReaction = async (type) => {
+  // Handle adding or toggling a reaction  const handleReaction = async (type) => {
     if (!user) {
       toast.error('You must be logged in to react to comments');
       return;
@@ -44,14 +47,20 @@ const useCommentReactions = (commentId) => {
       // If clicking the same reaction, remove it (toggle)
       const isRemove = type === currentReaction;
       
+      // Call the commentService API to add/toggle reaction
       const updatedComment = await commentService.addReaction(reactionDto);
+      
+      // Update local state based on the response
       processCommentReactions(updatedComment);
       
+      // Don't show toasts for better user experience
+      /* 
       if (isRemove) {
         toast.success('Reaction removed!', { autoClose: 1500 });
       } else {
         toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} reaction added!`, { autoClose: 1500 });
       }
+      */
     } catch (error) {
       toast.error(error.message || 'Failed to process reaction');
     } finally {
@@ -78,12 +87,13 @@ const useCommentReactions = (commentId) => {
       toast.error(error.message || 'Failed to remove reaction');
     } finally {
       setLoading(false);
-    }  };
-  // Initialize with data from the comment prop if available
+    }  };  // Initialize with data from the comment prop if available
   useEffect(() => {
-    // We will get reaction data directly from the Comment component
-    // The Comment component already has the comment data with reactions
-    // No need to fetch separately here
+    // If commentId is valid and we have a comment object in props, process it
+    if (commentId) {
+      // We'll get updates to reactions through the onCommentUpdated callback
+      // in the Comment component, which will pass updated data here
+    }
   }, [commentId]);
   
   return {

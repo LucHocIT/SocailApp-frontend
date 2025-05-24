@@ -12,9 +12,11 @@ const CommentReactionButton = ({ commentId, onShowUsers, comment }) => {
   const buttonRef = useRef(null);
   const timeoutRef = useRef(null);
   
-  const [totalReactions, setTotalReactions] = useState(comment?.reactionsCount || 0);
-  const [currentReaction, setCurrentReaction] = useState(comment?.currentUserReactionType || null);
+  // Use local state for reaction counts to avoid dependency on the hook
+  const [totalReactions] = useState(comment?.reactionsCount || 0);
+  const [currentReaction] = useState(comment?.currentUserReactionType || null);
   
+  // Get handlers from the hook
   const { 
     loading,
     handleReaction,
