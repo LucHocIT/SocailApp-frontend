@@ -13,7 +13,6 @@ import commentService from '../../services/commentService';
 const Comment = ({ 
   comment, 
   postId, 
-  parentId = null, 
   level = 0, 
   onCommentUpdated,
   onCommentDeleted 
@@ -154,13 +153,10 @@ const Comment = ({
                 Hide replies ({comment.replies.length})
               </Button>
               
-              <div className={styles.replies}>
-                {comment.replies.map(reply => (
-                  <Comment
+              <div className={styles.replies}>                {comment.replies.map(reply => (                  <Comment
                     key={reply.id}
                     comment={reply}
                     postId={postId}
-                    parentId={comment.id}
                     level={level + 1}
                     onCommentUpdated={onCommentUpdated}
                     onCommentDeleted={onCommentDeleted}
