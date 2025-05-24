@@ -34,18 +34,17 @@ const PostReactionButton = ({ postId }) => {
     if (!result.success && result.message) {
       toast.error(result.message);
     }
-  };
-    const handleButtonClick = async () => {
+  };    const handleButtonClick = async () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     if (currentReaction) {
-      // Xóa reaction ngay lập tức không cần xác nhận
+      // If user already reacted, remove the reaction when clicked again
       const result = await removeReaction();
       if (!result.success && result.message) {
         toast.error(result.message);
       }
     } else {
-      // Nếu chưa có reaction, thêm mới
+      // If no reaction yet, add a default 'love' reaction
       await handleReaction({ reactionType: 'love' });
     }
   };

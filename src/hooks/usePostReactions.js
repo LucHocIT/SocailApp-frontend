@@ -69,9 +69,13 @@ const usePostReactions = (postId) => {
             updated[oldReaction]--;
             if (updated[oldReaction] === 0) delete updated[oldReaction];
           }
+          
+          // Update total count based on updated reaction counts
+          const newTotal = Object.values(updated).reduce((sum, count) => sum + count, 0);
+          setTotalReactions(newTotal);
+          
           return updated;
         });
-        setTotalReactions(prev => Math.max(0, prev - 1));
         
         // Call API to remove the reaction
         await postService.removeReaction(postId);
@@ -87,13 +91,14 @@ const usePostReactions = (postId) => {
               updated[oldReaction]--;
               if (updated[oldReaction] === 0) delete updated[oldReaction];
             }
-          } else {
-            // Only increment total if adding new reaction (not changing)
-            setTotalReactions(prev => prev + 1);
           }
           
           // Increment new reaction type
           updated[reactionType] = (updated[reactionType] || 0) + 1;
+          
+          // Update total count based on the updated reaction counts
+          const newTotal = Object.values(updated).reduce((sum, count) => sum + count, 0);
+          setTotalReactions(newTotal);
           return updated;
         });
         
@@ -148,9 +153,13 @@ const usePostReactions = (postId) => {
           updated[oldReactionType]--;
           if (updated[oldReactionType] === 0) delete updated[oldReactionType];
         }
+        
+        // Update total count based on the updated reaction counts
+        const newTotal = Object.values(updated).reduce((sum, count) => sum + count, 0);
+        setTotalReactions(newTotal);
+        
         return updated;
       });
-      setTotalReactions(prev => Math.max(0, prev - 1));
       
       // Call API
       await postService.removeReaction(postId);
@@ -175,7 +184,7 @@ const usePostReactions = (postId) => {
       
       return { success: false, message: "Failed to remove reaction" };
     }
-  }, [postId, currentReaction, user, reactionCounts, totalReactions]);
+  }, [postId, currentReaction, user]);
 
   return {
     loading,
