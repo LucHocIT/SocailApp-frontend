@@ -3,7 +3,7 @@
 @use 'sass:color';
 @use '../../styles/abstracts/mixins' as *;
 
-// Modal Overlay
+// Modal Overlay - Fixed with higher z-index
 .overlay {
   position: fixed;
   top: 0;
@@ -16,261 +16,370 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: $z-index-modal;
+  padding: 20px; // Thêm padding cho overlay
+  box-sizing: border-box;
+  z-index: 9999; // Much higher to override any potential conflicts
 }
 
-// Modal Container
+// Keyframes definitions at root level
+@keyframes borderGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes modalPulse {
+  0% {
+    box-shadow: $shadow-2xl, 0 0 0 rgba($primary-color, 0.1);
+  }
+  100% {
+    box-shadow: $shadow-2xl, 0 0 25px rgba($primary-color, 0.3);
+  }
+}
+
+// Base styles for auth modal
+:global(.auth-modal) {
+  .modal-header {
+    &, & * {
+      color: white;
+    }
+  }
+  
+  .modal-body {
+    * {
+      color: $text-dark;
+    }
+    
+    .formGroup {
+      label {
+        color: $text-dark;
+      }
+      
+      input {
+        color: $text-dark;
+        background-color: white;
+      }
+      
+      .error {
+        color: $danger-color;
+      }
+    }
+    
+    button {
+      &.btn-primary {
+        color: white;
+      }
+    }
+    
+    a, .forgotPassword, .registerLink {
+      color: $primary-color;
+    }
+  }
+  
+  .modal-footer {
+    p {
+      color: $text-dark;
+    }
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+// Modal Container - Completely revised
 .modal {
   background: white;
   border-radius: $border-radius-xl;
   width: 100%;
   max-width: 450px;
-  box-shadow: $shadow-2xl, 0 0 0 rgba($primary-color, 0.2);
+  box-shadow: $shadow-2xl, 0 0 15px rgba($primary-color, 0.3);
   overflow: hidden;
   position: relative;
-  animation: modalPulse 3s infinite ease-in-out alternate;
+  margin: auto; // Center both horizontally and vertically
+  max-height: 90vh; // Prevent modal from being too tall
+  display: flex;
+  flex-direction: column;
+  transform: none; // Remove any transforms that could affect positioning
+  z-index: 10000; // Ensure always on top
   
-  @keyframes modalPulse {
-    0% {
-      box-shadow: $shadow-2xl, 0 0 0 rgba($primary-color, 0.1);
+  &::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    z-index: -1;
+    background: linear-gradient(45deg, 
+      $primary-color, 
+      $secondary-color, 
+      color.adjust($primary-color, $lightness: 20%), 
+      color.adjust($secondary-color, $lightness: 20%),
+      $primary-color
+    );
+    background-size: 400%;
+    border-radius: $border-radius-xl;
+    animation: borderGlow 10s linear infinite;
+    opacity: 0.7;
+  }
+}
+
+// Modal Header (this will be used by child components)
+:global(.modal-header) {
+  position: relative;
+  padding: $spacing-8 $spacing-6 $spacing-6;
+  text-align: center;
+  background: linear-gradient(135deg, $primary-color 0%, color.adjust($primary-color, $lightness: 15%) 70%, color.adjust($secondary-color, $lightness: -5%) 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+  
+  h2 {
+    font-size: $font-size-2xl;
+    margin: 0;
+    margin-bottom: $spacing-2;
+    font-weight: 600;
+    color: white;
+  }
+  
+  p {
+    font-size: $font-size-base;
+    margin: 0;
+    opacity: 0.9;
+    color: white;
+  }
+  
+  .closeButton {
+    position: absolute;
+    top: $spacing-3;
+    right: $spacing-3;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    opacity: 0.9;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: $border-radius-full;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    
+    &:hover {
+      opacity: 1;
+      transform: scale(1.1) rotate(90deg);
+      background: rgba(255, 255, 255, 0.25);
     }
-    100% {
-      box-shadow: $shadow-2xl, 0 0 25px rgba($primary-color, 0.3);
+    
+    &:active {
+      transform: scale(0.95);
     }
   }
+}
 
-  // Modal Header (this will be used by child components)
-  :global(.modal-header) {
-    position: relative;
-    padding: $spacing-8 $spacing-6 $spacing-6;
-    text-align: center;
-    background: linear-gradient(135deg, $primary-color 0%, color.adjust($primary-color, $lightness: 15%) 70%, color.adjust($secondary-color, $lightness: -5%) 100%);
-    background-size: 200% 200%;
-    animation: gradientShift 15s ease infinite;
+// Modal Body (this will be used by child components)
+:global(.modal-body) {
+  padding: $spacing-6;
+  overflow-y: auto; // Add scroll if content is too long
+  flex: 1; // Allow modal-body to expand
+  display: flex;
+  flex-direction: column;
+  max-height: 65vh; // Limit max height to prevent too tall modals
+  
+  /* Custom scrollbar for Webkit browsers */
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cacaca;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #aaaaaa;
+  }
+}
+
+// Modal Footer (this will be used by child components)
+:global(.modal-footer) {
+  padding: $spacing-4 $spacing-6 $spacing-6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  
+  .divider {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: $spacing-6 0;
     
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    &::before, &::after {
+      content: '';
+      flex-grow: 1;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.1);
     }
-    color: white;
     
-    h2 {
-      font-size: $font-size-2xl;
-      margin: 0;
+    span {
+      padding: 0 $spacing-3;
+      font-size: $font-size-sm;
+      color: $text-muted;
+    }
+  }
+  
+  p {
+    margin: $spacing-3 0;
+    
+    a {
+      color: $primary-color;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition-base;
+      
+      &:hover {
+        color: $primary-dark;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Social login buttons
+:global(.social-login-buttons) {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-3;
+  margin-top: $spacing-4;
+  
+  button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    box-shadow: $shadow-sm;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      padding: 2px;
+      background: linear-gradient(135deg, $primary-light, $secondary-light);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+    
+    &:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: $shadow-lg, 0 5px 15px rgba($primary-color, 0.2);
+    }
+    
+    &:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+    
+    svg {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover svg {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// Form styles
+:global(.auth-form) {
+  margin-top: $spacing-4;
+  
+  .formGroup {
+    margin-bottom: $spacing-4;
+    
+    label {
+      display: block;
+      font-size: $font-size-sm;
+      font-weight: 500;
       margin-bottom: $spacing-2;
+      color: $text-dark;
+      transition: color 0.3s ease;
+    }
+    
+    input {
+      @include form-input;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 1px solid $gray-200;
+      color: $text-dark;
+      
+      &:focus {
+        border-color: $primary-color;
+        box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+        transform: translateY(-2px);
+      }
+    }
+    
+    .error {
+      color: $danger-color;
+      font-size: $font-size-xs;
+      margin-top: $spacing-1;
+      animation: errorShake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+      
+      @keyframes errorShake {
+        10%, 90% { transform: translateX(-1px); }
+        20%, 80% { transform: translateX(2px); }
+        30%, 50%, 70% { transform: translateX(-3px); }
+        40%, 60% { transform: translateX(3px); }
+      }
+    }
+    
+    &:focus-within label {
+      color: $primary-color;
       font-weight: 600;
     }
-    
-    p {
-      font-size: $font-size-base;
-      margin: 0;
-      opacity: 0.9;
-    }
-      .closeButton {
-      position: absolute;
-      top: $spacing-3;
-      right: $spacing-3;
-      background: rgba(255, 255, 255, 0.15);
-      border: none;
-      color: white;
-      opacity: 0.9;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      border-radius: $border-radius-full;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      -webkit-backdrop-filter: blur(2px);
-      backdrop-filter: blur(2px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      
-      &:hover {
-        opacity: 1;
-        transform: scale(1.1) rotate(90deg);
-        background: rgba(255, 255, 255, 0.25);
-      }
-      
-      &:active {
-        transform: scale(0.95);
-      }
-    }
   }
-
-  // Modal Body (this will be used by child components)
-  :global(.modal-body) {
-    padding: $spacing-6;
-  }
-
-  // Modal Footer (this will be used by child components)
-  :global(.modal-footer) {
-    padding: $spacing-4 $spacing-6 $spacing-6;
+  
+  .actions {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    color: $text-light;
-    
-    .divider {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      margin: $spacing-6 0;
-      
-      &::before, &::after {
-        content: '';
-        flex-grow: 1;
-        height: 1px;
-        background: rgba(0, 0, 0, 0.1);
-      }
-      
-      span {
-        padding: 0 $spacing-3;
-        font-size: $font-size-sm;
-        color: $text-muted;
-      }
-    }
-    
-    p {
-      margin: $spacing-3 0;
-      
-      a {
-        color: $primary-color;
-        font-weight: 500;
-        cursor: pointer;
-        transition: $transition-base;
-        
-        &:hover {
-          color: $primary-dark;
-          text-decoration: underline;
-        }
-      }
-    }
-  }
-  // Social login buttons
-  :global(.social-login-buttons) {
-    display: flex;
-    justify-content: center;
     gap: $spacing-3;
-    margin-top: $spacing-4;
-    
-    button {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: none;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      position: relative;
-      box-shadow: $shadow-sm;
-      
-      &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: 50%;
-        padding: 2px;
-        background: linear-gradient(135deg, $primary-light, $secondary-light);
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-      }
-      
-      &:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: $shadow-lg, 0 5px 15px rgba($primary-color, 0.2);
-      }
-      
-      &:active {
-        transform: translateY(-1px) scale(0.98);
-      }
-      
-      svg {
-        width: 20px;
-        height: 20px;
-        transition: transform 0.3s ease;
-      }
-      
-      &:hover svg {
-        transform: scale(1.1);
-      }
-    }
-  }
-  // Form styles
-  :global(.auth-form) {
     margin-top: $spacing-6;
     
-    .formGroup {
-      margin-bottom: $spacing-4;
-      
-      label {
-        display: block;
-        font-size: $font-size-sm;
-        font-weight: 500;
-        margin-bottom: $spacing-2;
-        color: $text-light;
-        transition: color 0.3s ease;
-      }
-      
-      input {
-        @include form-input;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        border: 1px solid $gray-200;
-        
-        &:focus {
-          border-color: $primary-color;
-          box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
-          transform: translateY(-2px);
-        }
-      }
-      
-      .error {
-        color: $danger-color;
-        font-size: $font-size-xs;
-        margin-top: $spacing-1;
-        animation: errorShake 0.6s cubic-bezier(.36,.07,.19,.97) both;
-        
-        @keyframes errorShake {
-          10%, 90% { transform: translateX(-1px); }
-          20%, 80% { transform: translateX(2px); }
-          30%, 50%, 70% { transform: translateX(-3px); }
-          40%, 60% { transform: translateX(3px); }
-        }
-      }
-      
-      &:focus-within label {
-        color: $primary-color;
-        font-weight: 600;
-      }
+    button {
+      width: 100%;
     }
     
-    .actions {
-      display: flex;
-      flex-direction: column;
-      gap: $spacing-3;
-      margin-top: $spacing-6;
+    .forgotPassword {
+      font-size: $font-size-sm;
+      color: $text-light;
+      text-align: center;
+      cursor: pointer;
+      transition: $transition-base;
       
-      button {
-        width: 100%;
-      }
-      
-      .forgotPassword {
-        font-size: $font-size-sm;
-        color: $text-light;
-        text-align: center;
-        cursor: pointer;
-        transition: $transition-base;
-        
-        &:hover {
-          color: $primary-color;
-        }
+      &:hover {
+        color: $primary-color;
       }
     }
   }
@@ -278,20 +387,32 @@
 
 // Responsive styles
 @media (max-width: $breakpoint-sm) {
+  .overlay {
+    padding: 15px;
+    align-items: center; // Keep centered but with less padding
+  }
+  
   .modal {
-    width: 95%;
+    width: 100%;
     max-width: none;
+    margin: auto;
+    max-height: 95vh; // Increase max height on mobile
     
     :global(.modal-header) {
-      padding: $spacing-6 $spacing-4 $spacing-4;
+      padding: $spacing-5 $spacing-3 $spacing-3;
+      
+      h2 {
+        font-size: $font-size-xl; // Reduce font size on mobile
+      }
     }
     
     :global(.modal-body) {
-      padding: $spacing-4;
+      padding: $spacing-4 $spacing-3;
+      max-height: 75vh; // Adjusted height for mobile
     }
     
     :global(.modal-footer) {
-      padding: $spacing-3 $spacing-4 $spacing-4;
+      padding: $spacing-3 $spacing-3 $spacing-4;
     }
   }
 }

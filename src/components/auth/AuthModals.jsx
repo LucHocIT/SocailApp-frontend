@@ -51,15 +51,15 @@ const AuthModals = ({ isOpen, onClose, initialMode = 'login' }) => {
   const MotionDiv = motion.div;
     return (
     <AnimatePresence>
-      {isOpen && (
-        <MotionDiv 
+      {isOpen && (        <MotionDiv 
           className={styles.overlay}
           onClick={handleBackdropClick}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-        >          <MotionDiv 
-            className={styles.modal}
+        >
+          <MotionDiv 
+            className={`${styles.modal} auth-modal`}
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 10 }}
