@@ -135,6 +135,31 @@ const postService = {
       throw error;
     }
   },
+  /**
+   * Get users who reacted to a post
+   * 
+   * @param {number} postId - The post ID to get reactions for
+   * @returns {Promise} - The response from the API containing users and their reactions
+   */
+  getReactionUsers: async (postId) => {
+    try {
+      const response = await api.get(`/reactions/history/${postId}`);
+      
+      // Chuyển đổi cấu trúc dữ liệu để phù hợp với mong đợi của component
+      return {
+        users: response.data.map(reaction => ({
+          id: reaction.userId,
+          username: reaction.username,
+          profilePictureUrl: reaction.profilePictureUrl,
+          reactionType: reaction.reactionType,
+          isVerified: reaction.isVerified || false
+        }))
+      };
+    } catch (error) {
+      console.error('Error getting reaction users:', error);
+      throw error;
+    }
+  },
 
   /**
    * Get emoji representation for reaction types

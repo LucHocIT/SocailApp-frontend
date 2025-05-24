@@ -6,9 +6,10 @@ import usePostReactions from '../../hooks/usePostReactions';
 import { toast } from 'react-toastify';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
-const PostReactionButton = ({ postId }) => {
+const PostReactionButton = ({ postId, onShowUsers }) => {
   const [showReactions, setShowReactions] = useState(false);
-  const [hoveringReaction, setHoveringReaction] = useState(null);  const buttonRef = useRef(null);
+  const [hoveringReaction, setHoveringReaction] = useState(null);  
+  const buttonRef = useRef(null);
   const timeoutRef = useRef(null);
   const { 
     loading,
@@ -34,7 +35,9 @@ const PostReactionButton = ({ postId }) => {
     if (!result.success && result.message) {
       toast.error(result.message);
     }
-  };    const handleButtonClick = async () => {
+  };    
+  
+  const handleButtonClick = async () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     if (currentReaction) {
@@ -46,6 +49,14 @@ const PostReactionButton = ({ postId }) => {
     } else {
       // If no reaction yet, add a default 'love' reaction
       await handleReaction({ reactionType: 'love' });
+    }
+  };
+  
+  // Xử lý sự kiện click vào số lượng reaction để hiển thị modal
+  const handleReactionCountClick = (e) => {
+    e.stopPropagation();
+    if (totalReactions > 0 && onShowUsers) {
+      onShowUsers();
     }
   };
   
@@ -97,7 +108,8 @@ const PostReactionButton = ({ postId }) => {
             transform: 'translateZ(0)',
             willChange: 'transform',
           }}
-        >          {currentReaction ? (
+        >          
+          {currentReaction ? (
             <>
               <span 
                 className="reaction-emoji heartbeat"
@@ -118,7 +130,8 @@ const PostReactionButton = ({ postId }) => {
               </span>
             </>
           ) : (
-            <>              <FaRegHeart 
+            <>              
+              <FaRegHeart 
                 className="reaction-emoji"  
                 style={{ 
                   fontSize: '1.2rem', 
@@ -211,9 +224,11 @@ const PostReactionButton = ({ postId }) => {
           )}
         </AnimatePresence>
       </div>
-        {totalReactions > 0 && (
+      
+      {totalReactions > 0 && (
         <span 
           className="reaction-count"
+          onClick={handleReactionCountClick}
           style={{ 
             fontSize: '0.875rem', 
             marginLeft: '8px',
@@ -224,10 +239,16 @@ const PostReactionButton = ({ postId }) => {
             background: 'rgba(0,0,0,0.05)',
             padding: '2px 8px',
             borderRadius: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              background: 'rgba(0,0,0,0.1)',
+            }
           }}
         >
           {loading ? '...' : totalReactions}
-        </span>      )}
+        </span>
+      )}
     </div>
   );
 };

@@ -11,6 +11,7 @@ import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import styles from './styles/PostCard.module.scss';
 import PostReactionButton from './PostReactionButton';
+import ReactionUsersModal from './ReactionUsersModal';
 
 const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  
   const { user } = useAuth();
@@ -18,6 +19,7 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
   const [viewsCount, setViewsCount] = useState(post.viewsCount || Math.floor(Math.random() * 50) + 5); // Placeholder
   const showContentToggle = post.content.length > 280;
   const [expanded, setExpanded] = useState(false);
+  const [showReactionUsersModal, setShowReactionUsersModal] = useState(false);
   
   // Handle double tap
   const cardRef = useRef(null);
@@ -117,193 +119,202 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
   const isOwner = user && post.userId === user.id;
   
   return (
-    <Card className={`${styles.postCard} ${post.isNew ? styles.newPost : ''}`} data-aos="fade-up" ref={cardRef} onTouchStart={handleDoubleTap} style={{ position: 'relative' }}>
-      <Card.Header className={styles.cardHeader}>
-        <div className={styles.userInfo}>
-          <Link to={`/profile/${post.username}`} className={styles.avatarLink}>
-            <Image
-              src={post.profilePictureUrl || '/images/default-avatar.png'}
-              alt={post.username}
-              className={styles.avatar}
-              roundedCircle
-            />
-            {user && post.isVerified && (
-              <span className={styles.verifiedBadge} title="Tài khoản đã xác minh">✓</span>
-            )}
-          </Link>
-          <div>
-            <div className={styles.userHeader}>
-              <Link to={`/profile/${post.username}`} className={styles.username}>
-                {post.username}
-              </Link>
-              {post.category && (
-                <Badge bg="primary" pill className={styles.categoryBadge}>
-                  {post.category}
-                </Badge>
+    <>
+      <Card className={`${styles.postCard} ${post.isNew ? styles.newPost : ''}`} data-aos="fade-up" ref={cardRef} onTouchStart={handleDoubleTap} style={{ position: 'relative' }}>
+        <Card.Header className={styles.cardHeader}>
+          <div className={styles.userInfo}>
+            <Link to={`/profile/${post.username}`} className={styles.avatarLink}>
+              <Image
+                src={post.profilePictureUrl || '/images/default-avatar.png'}
+                alt={post.username}
+                className={styles.avatar}
+                roundedCircle
+              />
+              {user && post.isVerified && (
+                <span className={styles.verifiedBadge} title="Tài khoản đã xác minh">✓</span>
               )}
-            </div>
-            <div className={styles.timeInfo}>
-              <TimeAgo date={convertUtcToLocal(post.createdAt)} title={new Date(post.createdAt).toLocaleString()} />
-              {post.updatedAt && post.updatedAt !== post.createdAt && (
-                <Badge bg="light" text="dark" className={`ms-2 fst-italic ${styles.editedBadge}`}>đã chỉnh sửa</Badge>
-              )}
+            </Link>
+            <div>
+              <div className={styles.userHeader}>
+                <Link to={`/profile/${post.username}`} className={styles.username}>
+                  {post.username}
+                </Link>
+                {post.category && (
+                  <Badge bg="primary" pill className={styles.categoryBadge}>
+                    {post.category}
+                  </Badge>
+                )}
+              </div>
+              <div className={styles.timeInfo}>
+                <TimeAgo date={convertUtcToLocal(post.createdAt)} title={new Date(post.createdAt).toLocaleString()} />
+                {post.updatedAt && post.updatedAt !== post.createdAt && (
+                  <Badge bg="light" text="dark" className={`ms-2 fst-italic ${styles.editedBadge}`}>đã chỉnh sửa</Badge>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        <div className={styles.postActions}>
-          {/* Nút bookmark */}          
-          <OverlayTrigger
-            placement="top"
-            overlay={<Tooltip>{isBookmarked ? 'Bỏ lưu bài viết' : 'Lưu bài viết'}</Tooltip>}
-          >
-            <Button 
-              variant="link" 
-              className={styles.bookmarkButton}
-              onClick={handleBookmark}
+          <div className={styles.postActions}>
+            {/* Nút bookmark */}          
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>{isBookmarked ? 'Bỏ lưu bài viết' : 'Lưu bài viết'}</Tooltip>}
             >
-              {isBookmarked ? 
-                <FaBookmark className={styles.bookmarkIcon} /> : 
-                <FaRegBookmark className={styles.bookmarkIcon} />
-              }
-            </Button>
-          </OverlayTrigger>
-
-          {isOwner && (
-            <Dropdown align="end">
-              <Dropdown.Toggle variant="link" className={styles.menuButton}>
-                <FaEllipsisV />
-              </Dropdown.Toggle>
-              <Dropdown.Menu className={styles.dropdownMenu}>
-                <Dropdown.Item 
-                  onClick={() => {
-                    if (onPostUpdated) onPostUpdated(post);
-                  }}
-                >
-                  <FaPencilAlt className="me-2" /> Chỉnh sửa
-                </Dropdown.Item>
-                <Dropdown.Item 
-                  onClick={handleDelete}
-                  className="text-danger"
-                >
-                  <FaTrash className="me-2" /> Xóa
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          )}
-        </div>
-      </Card.Header>
-
-      <Card.Body className={styles.cardBody}>
-        <Card.Text className={styles.postContent}>
-          {showContentToggle ? (
-            <>
-              {expanded ? post.content : `${post.content.slice(0, 280)}...`}
               <Button 
                 variant="link" 
-                className={styles.readMoreButton}
-                onClick={() => setExpanded(!expanded)}
+                className={styles.bookmarkButton}
+                onClick={handleBookmark}
               >
-                {expanded ? 'Thu gọn' : 'Xem thêm'}
+                {isBookmarked ? 
+                  <FaBookmark className={styles.bookmarkIcon} /> : 
+                  <FaRegBookmark className={styles.bookmarkIcon} />
+                }
               </Button>
-            </>
-          ) : post.content}
-        </Card.Text>
+            </OverlayTrigger>
 
-        {post.hashtags && post.hashtags.length > 0 && (
-          <div className={styles.hashtagContainer}>
-            {post.hashtags.map((tag, index) => (
-              <Badge key={index} bg="light" text="primary" className={styles.hashtag}>
-                #{tag}
-              </Badge>
-            ))}
+            {isOwner && (
+              <Dropdown align="end">
+                <Dropdown.Toggle variant="link" className={styles.menuButton}>
+                  <FaEllipsisV />
+                </Dropdown.Toggle>
+                <Dropdown.Menu className={styles.dropdownMenu}>
+                  <Dropdown.Item 
+                    onClick={() => {
+                      if (onPostUpdated) onPostUpdated(post);
+                    }}
+                  >
+                    <FaPencilAlt className="me-2" /> Chỉnh sửa
+                  </Dropdown.Item>
+                  <Dropdown.Item 
+                    onClick={handleDelete}
+                    className="text-danger"
+                  >
+                    <FaTrash className="me-2" /> Xóa
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
           </div>
-        )}
-        
-        {post.mediaUrl && (
-          <div className={`${styles.mediaContainer} ${post.mediaType === 'image' ? styles.imageContainer : ''}`}>            
-            {post.mediaType === 'image' ? (
-              <div className={styles.imageWrapper}>
-                <Image 
-                  src={post.mediaUrl} 
-                  alt="Post media" 
-                  className={styles.image}
-                  loading="lazy"
-                  fluid 
-                />
-                <div className={styles.imageOverlay}>
-                  <div className={styles.imageActions}>
-                    <div 
-                      className={styles.imageAction} 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(post.mediaUrl, '_blank');
-                      }}
-                      title="Xem ảnh đầy đủ"
-                    >
-                      <FaEye />
+        </Card.Header>
+
+        <Card.Body className={styles.cardBody}>
+          <Card.Text className={styles.postContent}>
+            {showContentToggle ? (
+              <>
+                {expanded ? post.content : `${post.content.slice(0, 280)}...`}
+                <Button 
+                  variant="link" 
+                  className={styles.readMoreButton}
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  {expanded ? 'Thu gọn' : 'Xem thêm'}
+                </Button>
+              </>
+            ) : post.content}
+          </Card.Text>
+
+          {post.hashtags && post.hashtags.length > 0 && (
+            <div className={styles.hashtagContainer}>
+              {post.hashtags.map((tag, index) => (
+                <Badge key={index} bg="light" text="primary" className={styles.hashtag}>
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+          
+          {post.mediaUrl && (
+            <div className={`${styles.mediaContainer} ${post.mediaType === 'image' ? styles.imageContainer : ''}`}>            
+              {post.mediaType === 'image' ? (
+                <div className={styles.imageWrapper}>
+                  <Image 
+                    src={post.mediaUrl} 
+                    alt="Post media" 
+                    className={styles.image}
+                    loading="lazy"
+                    fluid 
+                  />
+                  <div className={styles.imageOverlay}>
+                    <div className={styles.imageActions}>
+                      <div 
+                        className={styles.imageAction} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(post.mediaUrl, '_blank');
+                        }}
+                        title="Xem ảnh đầy đủ"
+                      >
+                        <FaEye />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ) : post.mediaType === 'video' ? (
-              <div className={styles.videoWrapper}>
-                <video 
-                  className={styles.video}
-                  controls
-                  poster={post.thumbnailUrl}
-                >
-                  <source src={post.mediaUrl} type={post.mediaMimeType || 'video/mp4'} />
-                  Your browser does not support the video tag.
-                </video>
-                <div className={styles.videoDuration}>{post.duration || '00:00'}</div>
-              </div>
-            ) : post.mediaType === 'file' ? (
-              <div className={styles.fileContainer}>
-                <a 
-                  href={post.mediaUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.file}
-                >
-                  <FaFile className={styles.fileIcon} /> 
-                  <span>{post.mediaFilename}</span>
-                  <Badge bg="light" text="dark" className={styles.fileSize}>
-                    {post.mediaFileSize || '0 KB'}
-                  </Badge>
-                </a>
-              </div>
-            ) : null}
-          </div>
-        )}
-      </Card.Body>
-      
-      <Card.Footer className={styles.cardFooter}>
-        <div className={styles.actionButtons}>
-          <div className={styles.reactionButtonWrapper}>
-            <PostReactionButton postId={post.id} />
-          </div>
+              ) : post.mediaType === 'video' ? (
+                <div className={styles.videoWrapper}>
+                  <video 
+                    className={styles.video}
+                    controls
+                    poster={post.thumbnailUrl}
+                  >
+                    <source src={post.mediaUrl} type={post.mediaMimeType || 'video/mp4'} />
+                    Your browser does not support the video tag.
+                  </video>
+                  <div className={styles.videoDuration}>{post.duration || '00:00'}</div>
+                </div>
+              ) : post.mediaType === 'file' ? (
+                <div className={styles.fileContainer}>
+                  <a 
+                    href={post.mediaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.file}
+                  >
+                    <FaFile className={styles.fileIcon} /> 
+                    <span>{post.mediaFilename}</span>
+                    <Badge bg="light" text="dark" className={styles.fileSize}>
+                      {post.mediaFileSize || '0 KB'}
+                    </Badge>
+                  </a>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </Card.Body>
+        
+        <Card.Footer className={styles.cardFooter}>
+          <div className={styles.actionButtons}>
+            <div className={styles.reactionButtonWrapper}>
+              <PostReactionButton postId={post.id} onShowUsers={() => setShowReactionUsersModal(true)} />
+            </div>
 
-          <Link to={`/post/${post.id}`} className={styles.actionButton}>
-            <FaComment className={styles.actionIcon} />
-            <span className={styles.actionCount}>{post.commentsCount}</span>
-          </Link>
+            <Link to={`/post/${post.id}`} className={styles.actionButton}>
+              <FaComment className={styles.actionIcon} />
+              <span className={styles.actionCount}>{post.commentsCount}</span>
+            </Link>
+              
+            <Button 
+              variant="link" 
+              className={styles.actionButton}
+              onClick={handleShare}
+            >
+              <FaShareAlt className={styles.actionIcon} />
+              <span className={styles.actionLabel}>Chia sẻ</span>
+            </Button>
             
-          <Button 
-            variant="link" 
-            className={styles.actionButton}
-            onClick={handleShare}
-          >
-            <FaShareAlt className={styles.actionIcon} />
-            <span className={styles.actionLabel}>Chia sẻ</span>
-          </Button>
-          
-          <div className={styles.viewCount}>
-            <FaEye className={styles.viewIcon} />
-            <span>{viewsCount || 0}</span>
+            <div className={styles.viewCount}>
+              <FaEye className={styles.viewIcon} />
+              <span>{viewsCount || 0}</span>
+            </div>
           </div>
-        </div>
-      </Card.Footer>
-    </Card>
+        </Card.Footer>
+      </Card>
+
+      {/* Modal hiển thị người dùng đã thả reaction */}
+      <ReactionUsersModal 
+        show={showReactionUsersModal} 
+        onHide={() => setShowReactionUsersModal(false)} 
+        postId={post.id}
+      />
+    </>
   );
 };
 
