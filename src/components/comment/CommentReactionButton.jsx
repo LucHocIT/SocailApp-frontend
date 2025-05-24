@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { reactionAnimationProps } from '../../utils/animationHelpers';
 import useCommentReactions from '../../hooks/useCommentReactions';
+import commentService from '../../services/commentService';
 import { toast } from 'react-toastify';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import styles from './styles/ReactionButton.module.scss';
@@ -11,17 +12,68 @@ const CommentReactionButton = ({ commentId, onShowUsers, comment }) => {
   const [hoveringReaction, setHoveringReaction] = useState(null);  
   const buttonRef = useRef(null);
   const timeoutRef = useRef(null);
+    // Use local state for reaction counts to avoid dependency on the hook
+  const [totalReactions, setTotalReactions] = useState(comment?.reactionsCount || 0);
+  const [currentReaction, setCurrentReaction] = useState(comment?.currentUserReactionType || null);
+  const [loading, setLoading] = useState(false);
   
-  // Use local state for reaction counts to avoid dependency on the hook
-  const [totalReactions] = useState(comment?.reactionsCount || 0);
-  const [currentReaction] = useState(comment?.currentUserReactionType || null);
+  // Get minimal handlers from the hook
+  const reactions = useCommentReactions(commentId);
   
-  // Get handlers from the hook
-  const { 
-    loading,
-    handleReaction,
-    removeReaction
-  } = useCommentReactions(commentId);
+  // Define local handlers
+  const handleReaction = async (type) => {
+    if (loading) return;
+    
+    setLoading(true);    try {
+      // Use the hook's handler if available, otherwise implement a simple version
+      if (reactions.handleReaction) {
+        await reactions.handleReaction(type);
+      } else {
+        const result = await commentService.addReaction({
+          commentId: commentId,
+          reactionType: type
+        });
+        
+        if (result) {
+          // Update local state
+          setCurrentReaction(type);
+          setTotalReactions(prev => prev + 1);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to add reaction');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const removeReaction = async () => {
+    if (loading || !currentReaction) return;
+    
+    setLoading(true);    try {
+      // Use the hook's handler if available, otherwise implement a simple version
+      if (reactions.removeReaction) {
+        await reactions.removeReaction();
+      } else {
+        const result = await commentService.addReaction({
+          commentId: commentId,
+          reactionType: currentReaction // Toggling the same type removes it
+        });
+        
+        if (result) {
+          // Update local state
+          setCurrentReaction(null);
+          setTotalReactions(prev => Math.max(0, prev - 1));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to remove reaction');
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const reactionTypes = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
   
