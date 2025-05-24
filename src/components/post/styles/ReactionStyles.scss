@@ -1,4 +1,3 @@
-
 // Các biến màu cho các loại reaction
 :root {
   --blue-color: 64, 99, 255;    // like
@@ -11,17 +10,9 @@
 .reactionButtonWrapper {
   position: relative;
   display: inline-block;
-  
-  &:hover {
-    .reactionOptions {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-  }
 }
 
-.reactionOptions {
+.reactionOptions, .reaction-selector {
   position: absolute;
   bottom: 100%;
   left: 0;
@@ -32,32 +23,49 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   margin-bottom: 10px;
   z-index: 10;
-  opacity: 0;
-  transform: translateY(10px);
-  pointer-events: none;
   transition: all 0.2s ease;
   
   &.showReactions {
     opacity: 1;
     transform: translateY(0);
-    pointer-events: auto;
   }
 }
 
-.reactionOption {
+/* Specific styles for reaction selector */
+.reaction-selector {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  will-change: opacity, transform;
+  
+  /* Create an invisible area around the selector to make it easier to hover */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    z-index: -1;
+  }
+}
+
+.reactionOption, .reaction-icon-button {
   padding: 5px;
   margin: 0 3px;
   background: transparent;
   border: none;
   border-radius: 50%;
-  transition: transform 0.1s ease;
+  transition: all 0.2s ease;
+  text-decoration: none;
   
   &:hover {
     transform: scale(1.3);
+    text-decoration: none;
   }
   
-  &.activeReaction {
+  &.activeReaction, &.active-reaction {
     position: relative;
+    transform: scale(1.2);
+    box-shadow: 0 0 0 2px var(--primary-color);
     
     &:after {
       content: '';
@@ -149,6 +157,30 @@
   }
 }
 
+// Thêm hiệu ứng mượt mà cho menu reaction
+@keyframes reactionMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reaction-selector {
+  animation: reactionMenuFadeIn 0.2s ease forwards;
+}
+
+.reaction-icon-button {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  &:hover {
+    transform: scale(1.3);
+  }
+}
+
 .reacted {
   font-weight: bold;
 }
@@ -172,4 +204,23 @@
 
 .reactionType-angry {
   color: rgb(var(--orange-color));
+}
+
+/* Styles for active reaction in the menu */
+.active-reaction {
+  position: relative;
+  z-index: 2;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  }
 }

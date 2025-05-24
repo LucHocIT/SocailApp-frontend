@@ -1,106 +1,52 @@
+// filepath: e:\SocialApp\frontend\src\components\post\PostCard.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Button, Image, Badge, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaHeart, FaRegHeart, FaComment, FaEllipsisV, FaTrash, FaPencilAlt, FaFile, 
-  FaShareAlt, FaBookmark, FaRegBookmark, FaEye } from 'react-icons/fa';
+import { FaComment, FaEllipsisV, FaTrash, FaPencilAlt, FaFile, 
+  FaShareAlt, FaBookmark, FaRegBookmark, FaEye, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useAuth } from '../../context/hooks';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
 import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import styles from './styles/PostCard.module.scss';
+import PostReactionButton from './PostReactionButton';
 
-const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  const { user } = useAuth();
-  const [isLiked, setIsLiked] = useState(post.isLikedByCurrentUser);
-  const [likesCount, setLikesCount] = useState(post.likesCount);
+const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  
+  const { user } = useAuth();
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarkedByCurrentUser || false);
   const [viewsCount, setViewsCount] = useState(post.viewsCount || Math.floor(Math.random() * 50) + 5); // Placeholder
-  // Add reaction state
-  const [currentReaction, setCurrentReaction] = useState(post.currentUserReactionType || null);
-  const [reactionCounts, setReactionCounts] = useState(post.reactionCounts || {});
-  // Updated to handle reactions instead of simple likes
-  const handleReaction = async (reactionType = 'like') => {
-    try {
-      if (!user) {
-        toast.error('Bạn cần đăng nhập để bày tỏ cảm xúc!');
-        return;
+  const showContentToggle = post.content.length > 280;
+  const [expanded, setExpanded] = useState(false);
+  
+  // Handle double tap
+  const cardRef = useRef(null);
+  const [lastTap, setLastTap] = useState(0);
+  
+  const handleDoubleTap = (e) => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      // Double tap detected - add heart animation only
+      if (user) {
+        const heart = document.createElement('div');
+        heart.className = styles.doubleTapHeart;
+        heart.innerHTML = '❤️';
+        
+        const rect = cardRef.current.getBoundingClientRect();
+        heart.style.left = `${e.clientX - rect.left}px`;
+        heart.style.top = `${e.clientY - rect.top}px`;
+        
+        cardRef.current.appendChild(heart);
+        
+        setTimeout(() => {
+          heart.remove();
+        }, 1000);
       }
-
-      // If same reaction is clicked again, remove it
-      const shouldRemove = currentReaction === reactionType;
-      
-      // If removing or changing reaction
-      if (currentReaction) {
-        // Update reaction counts by decrementing old reaction type
-        setReactionCounts(prev => {
-          const updated = {...prev};
-          if (updated[currentReaction] && updated[currentReaction] > 0) {
-            updated[currentReaction]--;
-            if (updated[currentReaction] === 0) {
-              delete updated[currentReaction];
-            }
-          }
-          return updated;
-        });
-      }
-      
-      // If adding new reaction (not removing)
-      if (!shouldRemove) {
-        // Update reaction counts by incrementing new reaction type
-        setReactionCounts(prev => {
-          const updated = {...prev};
-          updated[reactionType] = (updated[reactionType] || 0) + 1;
-          return updated;
-        });
-      }
-      
-      // Update like state for backward compatibility
-      const isLikeAction = reactionType === 'like';
-      if (shouldRemove) {
-        setIsLiked(false);
-        setLikesCount(prev => Math.max(0, prev - (currentReaction === 'like' ? 1 : 0)));
-        setCurrentReaction(null);
-      } else {
-        setIsLiked(isLikeAction);
-        // Increment likes count only if changing from non-like to like
-        if (isLikeAction && currentReaction !== 'like') {
-          setLikesCount(prev => prev + 1);
-        } else if (!isLikeAction && currentReaction === 'like') {
-          // Decrement likes count if changing from like to another reaction
-          setLikesCount(prev => Math.max(0, prev - 1));
-        }
-        setCurrentReaction(reactionType);
-      }
-      
-      // Call API to update reaction
-      await postService.addReaction({
-        postId: post.id,
-        reactionType: shouldRemove ? null : reactionType
-      });
-      
-      // Show feedback
-      if (!shouldRemove) {
-        const reactionMessages = {
-          like: 'Bạn đã thích bài viết!',
-          love: 'Bạn đã yêu thích bài viết!',
-          haha: 'Bạn thấy bài viết hài hước!',
-          wow: 'Bạn ngạc nhiên về bài viết!',
-          sad: 'Bạn buồn về bài viết này!',
-          angry: 'Bài viết khiến bạn tức giận!'
-        };
-        toast.success(reactionMessages[reactionType] || 'Đã bày tỏ cảm xúc!');
-      } else {
-        toast.info('Đã xóa cảm xúc!');
-      }
-    } catch (error) {
-      console.error('Failed to handle reaction:', error);
-      toast.error('Không thể bày tỏ cảm xúc. Vui lòng thử lại sau.');
     }
+    setLastTap(now);
   };
   
-  // For backward compatibility with old like system
-  const handleLike = () => handleReaction('like');
-
   const handleDelete = async () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
       try {
@@ -143,39 +89,6 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  const { user } =
     // Tăng số lượt chia sẻ (giả lập)
     setViewsCount(prevCount => prevCount + 1);
   };
-    const isOwner = user && post.userId === user.id;const showContentToggle = post.content.length > 280;
-  const [expanded, setExpanded] = useState(false);
-  
-  // Xử lý double tap để like
-  const cardRef = useRef(null);
-  const [lastTap, setLastTap] = useState(0);
-  
-  const handleDoubleTap = (e) => {
-    const now = Date.now();
-    const DOUBLE_TAP_DELAY = 300;
-    if (now - lastTap < DOUBLE_TAP_DELAY) {
-      // Double tap detected
-      if (!isLiked && user) {
-        handleLike();
-        
-        // Hiệu ứng hình trái tim
-        const heart = document.createElement('div');
-        heart.className = styles.doubleTapHeart;
-        heart.innerHTML = '❤️';
-        
-        const rect = cardRef.current.getBoundingClientRect();
-        heart.style.left = `${e.clientX - rect.left}px`;
-        heart.style.top = `${e.clientY - rect.top}px`;
-        
-        cardRef.current.appendChild(heart);
-        
-        setTimeout(() => {
-          heart.remove();
-        }, 1000);
-      }
-    }
-    setLastTap(now);
-  };
   
   // Theo dõi lượt xem
   useEffect(() => {
@@ -200,6 +113,9 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  const { user } =
       observer.disconnect();
     };
   }, []);
+  
+  const isOwner = user && post.userId === user.id;
+  
   return (
     <Card className={`${styles.postCard} ${post.isNew ? styles.newPost : ''}`} data-aos="fade-up" ref={cardRef} onTouchStart={handleDoubleTap} style={{ position: 'relative' }}>
       <Card.Header className={styles.cardHeader}>
@@ -235,7 +151,8 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  const { user } =
           </div>
         </div>
         <div className={styles.postActions}>
-          {/* Nút bookmark */}          <OverlayTrigger
+          {/* Nút bookmark */}          
+          <OverlayTrigger
             placement="top"
             overlay={<Tooltip>{isBookmarked ? 'Bỏ lưu bài viết' : 'Lưu bài viết'}</Tooltip>}
           >
@@ -303,7 +220,8 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  const { user } =
         )}
         
         {post.mediaUrl && (
-          <div className={`${styles.mediaContainer} ${post.mediaType === 'image' ? styles.imageContainer : ''}`}>            {post.mediaType === 'image' ? (
+          <div className={`${styles.mediaContainer} ${post.mediaType === 'image' ? styles.imageContainer : ''}`}>            
+            {post.mediaType === 'image' ? (
               <div className={styles.imageWrapper}>
                 <Image 
                   src={post.mediaUrl} 
@@ -327,7 +245,7 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  const { user } =
                   </div>
                 </div>
               </div>
-            ) : post.mediaType === 'video' ?(
+            ) : post.mediaType === 'video' ? (
               <div className={styles.videoWrapper}>
                 <video 
                   className={styles.video}
@@ -357,85 +275,20 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  const { user } =
             ) : null}
           </div>
         )}
-      </Card.Body>      <Card.Footer className={styles.cardFooter}>
-        <div className={styles.reactionSummaryRow}>
-          {Object.keys(reactionCounts).length > 0 && (
-            <div className={styles.reactionBadges}>
-              {/* Display top reaction emojis */}
-              {Object.entries(reactionCounts)
-                .sort(([, countA], [, countB]) => countB - countA)
-                .slice(0, 3)
-                .map(([type], index) => (
-                  <span 
-                    key={type} 
-                    className={styles.reactionBadge}
-                    style={{ 
-                      zIndex: 3 - index, 
-                      marginLeft: index > 0 ? '-8px' : '0',
-                      backgroundColor: `var(${postService.getReactionColor(type)})`
-                    }}
-                  >
-                    {postService.getReactionEmoji(type)}
-                  </span>
-                ))
-              }
-              <span className={styles.totalReactionCount}>{likesCount}</span>
-            </div>
-          )}
-        </div>
-
+      </Card.Body>
+      
+      <Card.Footer className={styles.cardFooter}>
         <div className={styles.actionButtons}>
           <div className={styles.reactionButtonWrapper}>
-            <Button 
-              variant="link" 
-              className={`${styles.actionButton} ${currentReaction ? styles.reacted : ''}`}
-              onClick={handleLike}
-              onMouseOver={() => document.getElementById(`reactionOptions-${post.id}`).classList.add(styles.showReactions)}
-              onMouseLeave={() => document.getElementById(`reactionOptions-${post.id}`).classList.remove(styles.showReactions)}
-            >
-              {currentReaction ? 
-                <>
-                  {postService.getReactionEmoji(currentReaction)}
-                  <span className={styles.actionLabel}>
-                    {currentReaction.charAt(0).toUpperCase() + currentReaction.slice(1)}
-                  </span>
-                </>
-                : 
-                <>
-                  <FaRegHeart className={styles.actionIcon} />
-                  <span className={styles.actionLabel}>Thích</span>
-                </>
-              }
-            </Button>
-            
-            {/* Reaction options */}
-            <div 
-              id={`reactionOptions-${post.id}`}
-              className={styles.reactionOptions}
-              onMouseOver={() => document.getElementById(`reactionOptions-${post.id}`).classList.add(styles.showReactions)}
-              onMouseLeave={() => document.getElementById(`reactionOptions-${post.id}`).classList.remove(styles.showReactions)}
-            >
-              {['like', 'love', 'haha', 'wow', 'sad', 'angry'].map((type) => (
-                <Button 
-                  key={type}
-                  variant="link"
-                  className={`${styles.reactionOption} ${currentReaction === type ? styles.activeReaction : ''}`}
-                  onClick={() => handleReaction(type)}
-                >
-                  <span className={styles.reactionEmoji}>{postService.getReactionEmoji(type)}</span>
-                  <span className={styles.reactionLabel}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </span>
-                </Button>
-              ))}
-            </div>
+            <PostReactionButton postId={post.id} />
           </div>
 
           <Link to={`/post/${post.id}`} className={styles.actionButton}>
             <FaComment className={styles.actionIcon} />
             <span className={styles.actionCount}>{post.commentsCount}</span>
           </Link>
-            <Button 
+            
+          <Button 
             variant="link" 
             className={styles.actionButton}
             onClick={handleShare}

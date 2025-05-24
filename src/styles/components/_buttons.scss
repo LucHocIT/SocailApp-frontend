@@ -31,6 +31,15 @@
   }
 }
 
+// Link button - override Bootstrap's default
+.btn-link {
+  text-decoration: none;
+  
+  &:hover, &:focus, &:active {
+    text-decoration: none;
+  }
+}
+
 // Primary button
 .btn-primary {
   background: linear-gradient(135deg,
