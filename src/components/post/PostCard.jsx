@@ -10,27 +10,96 @@ import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import styles from './styles/PostCard.module.scss';
 
-const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
-  const { user } = useAuth();  const [isLiked, setIsLiked] = useState(post.isLikedByCurrentUser);
+const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  const { user } = useAuth();
+  const [isLiked, setIsLiked] = useState(post.isLikedByCurrentUser);
   const [likesCount, setLikesCount] = useState(post.likesCount);
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarkedByCurrentUser || false);
   const [viewsCount, setViewsCount] = useState(post.viewsCount || Math.floor(Math.random() * 50) + 5); // Placeholder
-
-  const handleLike = async () => {
+  // Add reaction state
+  const [currentReaction, setCurrentReaction] = useState(post.currentUserReactionType || null);
+  const [reactionCounts, setReactionCounts] = useState(post.reactionCounts || {});
+  // Updated to handle reactions instead of simple likes
+  const handleReaction = async (reactionType = 'like') => {
     try {
       if (!user) {
-        toast.error('Bạn cần đăng nhập để thích bài viết!');
+        toast.error('Bạn cần đăng nhập để bày tỏ cảm xúc!');
         return;
       }
 
-      await postService.toggleLike(post.id);
-      setIsLiked(!isLiked);
-      setLikesCount(isLiked ? likesCount - 1 : likesCount + 1);
+      // If same reaction is clicked again, remove it
+      const shouldRemove = currentReaction === reactionType;
+      
+      // If removing or changing reaction
+      if (currentReaction) {
+        // Update reaction counts by decrementing old reaction type
+        setReactionCounts(prev => {
+          const updated = {...prev};
+          if (updated[currentReaction] && updated[currentReaction] > 0) {
+            updated[currentReaction]--;
+            if (updated[currentReaction] === 0) {
+              delete updated[currentReaction];
+            }
+          }
+          return updated;
+        });
+      }
+      
+      // If adding new reaction (not removing)
+      if (!shouldRemove) {
+        // Update reaction counts by incrementing new reaction type
+        setReactionCounts(prev => {
+          const updated = {...prev};
+          updated[reactionType] = (updated[reactionType] || 0) + 1;
+          return updated;
+        });
+      }
+      
+      // Update like state for backward compatibility
+      const isLikeAction = reactionType === 'like';
+      if (shouldRemove) {
+        setIsLiked(false);
+        setLikesCount(prev => Math.max(0, prev - (currentReaction === 'like' ? 1 : 0)));
+        setCurrentReaction(null);
+      } else {
+        setIsLiked(isLikeAction);
+        // Increment likes count only if changing from non-like to like
+        if (isLikeAction && currentReaction !== 'like') {
+          setLikesCount(prev => prev + 1);
+        } else if (!isLikeAction && currentReaction === 'like') {
+          // Decrement likes count if changing from like to another reaction
+          setLikesCount(prev => Math.max(0, prev - 1));
+        }
+        setCurrentReaction(reactionType);
+      }
+      
+      // Call API to update reaction
+      await postService.addReaction({
+        postId: post.id,
+        reactionType: shouldRemove ? null : reactionType
+      });
+      
+      // Show feedback
+      if (!shouldRemove) {
+        const reactionMessages = {
+          like: 'Bạn đã thích bài viết!',
+          love: 'Bạn đã yêu thích bài viết!',
+          haha: 'Bạn thấy bài viết hài hước!',
+          wow: 'Bạn ngạc nhiên về bài viết!',
+          sad: 'Bạn buồn về bài viết này!',
+          angry: 'Bài viết khiến bạn tức giận!'
+        };
+        toast.success(reactionMessages[reactionType] || 'Đã bày tỏ cảm xúc!');
+      } else {
+        toast.info('Đã xóa cảm xúc!');
+      }
     } catch (error) {
-      console.error('Failed to toggle like:', error);
-      toast.error('Không thể thích bài viết. Vui lòng thử lại sau.');
+      console.error('Failed to handle reaction:', error);
+      toast.error('Không thể bày tỏ cảm xúc. Vui lòng thử lại sau.');
     }
   };
+  
+  // For backward compatibility with old like system
+  const handleLike = () => handleReaction('like');
 
   const handleDelete = async () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
@@ -288,21 +357,79 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
             ) : null}
           </div>
         )}
-      </Card.Body>
+      </Card.Body>      <Card.Footer className={styles.cardFooter}>
+        <div className={styles.reactionSummaryRow}>
+          {Object.keys(reactionCounts).length > 0 && (
+            <div className={styles.reactionBadges}>
+              {/* Display top reaction emojis */}
+              {Object.entries(reactionCounts)
+                .sort(([, countA], [, countB]) => countB - countA)
+                .slice(0, 3)
+                .map(([type], index) => (
+                  <span 
+                    key={type} 
+                    className={styles.reactionBadge}
+                    style={{ 
+                      zIndex: 3 - index, 
+                      marginLeft: index > 0 ? '-8px' : '0',
+                      backgroundColor: `var(${postService.getReactionColor(type)})`
+                    }}
+                  >
+                    {postService.getReactionEmoji(type)}
+                  </span>
+                ))
+              }
+              <span className={styles.totalReactionCount}>{likesCount}</span>
+            </div>
+          )}
+        </div>
 
-      <Card.Footer className={styles.cardFooter}>
         <div className={styles.actionButtons}>
-          <Button 
-            variant="link" 
-            className={`${styles.actionButton} ${isLiked ? styles.liked : ''}`}
-            onClick={handleLike}
-          >
-            {isLiked ? 
-              <FaHeart className={`${styles.actionIcon} ${styles.heartBeat}`} /> : 
-              <FaRegHeart className={styles.actionIcon} />
-            }
-            <span className={styles.actionCount}>{likesCount}</span>
-          </Button>
+          <div className={styles.reactionButtonWrapper}>
+            <Button 
+              variant="link" 
+              className={`${styles.actionButton} ${currentReaction ? styles.reacted : ''}`}
+              onClick={handleLike}
+              onMouseOver={() => document.getElementById(`reactionOptions-${post.id}`).classList.add(styles.showReactions)}
+              onMouseLeave={() => document.getElementById(`reactionOptions-${post.id}`).classList.remove(styles.showReactions)}
+            >
+              {currentReaction ? 
+                <>
+                  {postService.getReactionEmoji(currentReaction)}
+                  <span className={styles.actionLabel}>
+                    {currentReaction.charAt(0).toUpperCase() + currentReaction.slice(1)}
+                  </span>
+                </>
+                : 
+                <>
+                  <FaRegHeart className={styles.actionIcon} />
+                  <span className={styles.actionLabel}>Thích</span>
+                </>
+              }
+            </Button>
+            
+            {/* Reaction options */}
+            <div 
+              id={`reactionOptions-${post.id}`}
+              className={styles.reactionOptions}
+              onMouseOver={() => document.getElementById(`reactionOptions-${post.id}`).classList.add(styles.showReactions)}
+              onMouseLeave={() => document.getElementById(`reactionOptions-${post.id}`).classList.remove(styles.showReactions)}
+            >
+              {['like', 'love', 'haha', 'wow', 'sad', 'angry'].map((type) => (
+                <Button 
+                  key={type}
+                  variant="link"
+                  className={`${styles.reactionOption} ${currentReaction === type ? styles.activeReaction : ''}`}
+                  onClick={() => handleReaction(type)}
+                >
+                  <span className={styles.reactionEmoji}>{postService.getReactionEmoji(type)}</span>
+                  <span className={styles.reactionLabel}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </span>
+                </Button>
+              ))}
+            </div>
+          </div>
 
           <Link to={`/post/${post.id}`} className={styles.actionButton}>
             <FaComment className={styles.actionIcon} />

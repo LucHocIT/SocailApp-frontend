@@ -66,7 +66,6 @@ const postService = {
       throw error.response?.data || { message: 'Error toggling like' };
     }
   },
-
   // Upload media for a post
   uploadMedia: async (mediaFile, mediaType = "image") => {
     try {
@@ -86,6 +85,113 @@ const postService = {
       // If we have a response with data, throw that, otherwise throw a generic error
       throw error.response?.data || { message: 'Error uploading media' };
     }
+  },
+  
+  // === REACTIONS FUNCTIONALITY ===
+  
+  /**
+   * Add or update a reaction to a post or comment
+   * 
+   * @param {Object} reactionData - The reaction data 
+   * @param {number} reactionData.postId - The post ID (optional if commentId is provided)
+   * @param {number} reactionData.commentId - The comment ID (optional if postId is provided)
+   * @param {string} reactionData.reactionType - The reaction type ('like', 'love', 'haha', 'wow', 'sad', 'angry')
+   * @returns {Promise} - The response from the API
+   */
+  addReaction: async (reactionData) => {
+    try {
+      const response = await api.post('/reactions', reactionData);
+      return response.data;
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Remove a reaction
+   * 
+   * @param {number} reactionId - The ID of the reaction to remove
+   * @returns {Promise} - The response from the API
+   */
+  removeReaction: async (reactionId) => {
+    try {
+      const response = await api.delete(`/reactions/${reactionId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error removing reaction:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get all reactions for a post
+   * 
+   * @param {number} postId - The post ID
+   * @returns {Promise} - The response from the API
+   */
+  getPostReactions: async (postId) => {
+    try {
+      const response = await api.get(`/reactions/post/${postId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting post reactions:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get all reactions for a comment
+   * 
+   * @param {number} commentId - The comment ID
+   * @returns {Promise} - The response from the API
+   */
+  getCommentReactions: async (commentId) => {
+    try {
+      const response = await api.get(`/reactions/comment/${commentId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting comment reactions:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get emoji representation for reaction types
+   * 
+   * @param {string} type - Reaction type
+   * @returns {string} - Emoji character
+   */
+  getReactionEmoji: (type) => {
+    const emojiMap = {
+      like: '👍',
+      love: '❤️',
+      haha: '😂',
+      wow: '😮',
+      sad: '😢',
+      angry: '😠'
+    };
+    
+    return emojiMap[type] || '👍';
+  },
+
+  /**
+   * Get color for reaction types
+   * 
+   * @param {string} type - Reaction type
+   * @returns {string} - CSS color variable
+   */
+  getReactionColor: (type) => {
+    const colorMap = {
+      like: '--blue-color',
+      love: '--red-color',
+      haha: '--yellow-color',
+      wow: '--yellow-color',
+      sad: '--yellow-color',
+      angry: '--orange-color'
+    };
+    
+    return colorMap[type] || '--primary-color';
   }
 };
 

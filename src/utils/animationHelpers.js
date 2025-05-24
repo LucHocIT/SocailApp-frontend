@@ -123,3 +123,114 @@ export const iconAnimationProps = ({
     }
   };
 };
+
+/**
+ * Animation variants for reaction button hover effects
+ */
+export const reactionHoverVariants = {
+  initial: { scale: 0, opacity: 0 },
+  hover: { 
+    scale: 1, 
+    opacity: 1,
+    transition: { 
+      type: "spring", 
+      stiffness: 400, 
+      damping: 17 
+    }
+  },
+  exit: { 
+    scale: 0, 
+    opacity: 0,
+    transition: { duration: 0.2 }
+  }
+};
+
+/**
+ * Animation variants for individual reaction icons
+ */
+export const reactionIconVariants = {
+  initial: { y: 20, opacity: 0 },
+  hover: i => ({ 
+    y: 0, 
+    opacity: 1,
+    transition: { 
+      delay: i * 0.05,
+      type: "spring", 
+      stiffness: 400,
+      damping: 17
+    }
+  }),
+  tap: { scale: 1.2 }
+};
+
+/**
+ * Creates animation props for reaction buttons
+ * 
+ * @param {Object} options - Options for reaction animation
+ * @param {string} options.type - Type of reaction ('like', 'love', 'haha', 'wow', 'sad', 'angry')
+ * @param {boolean} options.isActive - Whether the reaction is active
+ * @returns {Object} Combined animation and style props for reactions
+ */
+export const reactionAnimationProps = ({
+  type = 'like',
+  isActive = false
+} = {}) => {
+  // Colors for different reaction types
+  const reactionColors = {
+    like: '--blue-color',
+    love: '--red-color',
+    haha: '--yellow-color',
+    wow: '--yellow-color',
+    sad: '--yellow-color',
+    angry: '--orange-color'
+  };
+
+  // Scales for different reaction types when active
+  const reactionScales = {
+    like: 1.1,
+    love: 1.2,
+    haha: 1.1,
+    wow: 1.15,
+    sad: 1.1,
+    angry: 1.2
+  };
+
+  return {
+    animate: {
+      scale: isActive ? reactionScales[type] || 1.1 : 1
+    },
+    whileHover: { scale: isActive ? reactionScales[type] * 1.05 : 1.05 },
+    whileTap: { scale: 0.95 },
+    transition: { type: "spring", stiffness: 400, damping: 17 },
+    style: {
+      color: isActive ? `var(${reactionColors[type] || '--primary-color'})` : `var(--text-muted)`
+    }
+  };
+};
+
+/**
+ * Animation variants for reaction selection popup
+ */
+export const reactionPopupVariants = {
+  hidden: { y: 10, opacity: 0, pointerEvents: 'none' },
+  visible: { 
+    y: 0, 
+    opacity: 1,
+    pointerEvents: 'auto',
+    transition: { 
+      type: "spring", 
+      stiffness: 300, 
+      damping: 25,
+      staggerChildren: 0.05
+    }
+  }
+};
+
+/**
+ * Animation for reaction counter
+ */
+export const reactionCounterVariants = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: { scale: 1, opacity: 1 },
+  exit: { scale: 0.8, opacity: 0 }
+};
