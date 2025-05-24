@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import commentService from '../services/commentService';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/hooks';
@@ -9,9 +9,9 @@ const useCommentReactions = (commentId) => {
   const [totalReactions, setTotalReactions] = useState(0);
   const [reactionCounts, setReactionCounts] = useState({});
   const { user } = useAuth();
-
+  
   // Calculate reaction counts from comment data
-  const processCommentReactions = (comment) => {
+  const processCommentReactions = useCallback((comment) => {
     if (!comment) return;
     
     const counts = {
@@ -44,7 +44,7 @@ const useCommentReactions = (commentId) => {
     }
     
     setReactionCounts(counts);
-  };
+  }, [user]);
   
   // Handle adding or toggling a reaction
   const handleReaction = async (type) => {
@@ -97,8 +97,26 @@ const useCommentReactions = (commentId) => {
       toast.error(error.message || 'Failed to remove reaction');
     } finally {
       setLoading(false);
-    }
-  };
+    }  };
+
+  // Fetch comment data when commentId changes
+  useEffect(() => {
+    const fetchCommentData = async () => {
+      if (!commentId) return;
+      
+      setLoading(true);
+      try {
+        const comment = await commentService.getComment(commentId);
+        processCommentReactions(comment);
+      } catch (error) {
+        console.error('Failed to load comment reactions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchCommentData();
+  }, [commentId, user, processCommentReactions]); // Include processCommentReactions as it's now defined before this effect
   
   return {
     loading,
