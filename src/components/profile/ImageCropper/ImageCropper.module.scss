@@ -1,4 +1,6 @@
 // ImageCropper.module.scss
+@use "sass:color";
+
 $primary-color: #4389f5;
 $primary-hover: #3672d8;
 $primary-light: rgba(67, 137, 245, 0.1);
@@ -78,10 +80,9 @@ $border-radius: 8px;
 }
 
 .controlsContainer {
-  padding: 16px;
-  background-color: $gray-bg;
-  border-top: 1px solid darken($gray-bg, 5%);
-  border-bottom: 1px solid darken($gray-bg, 5%);
+  padding: 16px;  background-color: $gray-bg;
+  border-top: 1px solid color.adjust($gray-bg, $lightness: -5%);
+  border-bottom: 1px solid color.adjust($gray-bg, $lightness: -5%);
 }
 
 .controlGroup {
@@ -101,10 +102,9 @@ $border-radius: 8px;
   
   input[type="range"] {
     flex: 1;
-    margin-left: 10px;
-    appearance: none;
+    margin-left: 10px;    appearance: none;
     height: 6px;
-    background: lighten($primary-color, 30%);
+    background: color.adjust($primary-color, $lightness: 30%);
     border-radius: 3px;
     outline: none;
     
@@ -153,11 +153,10 @@ $border-radius: 8px;
 
 .canvasWrapper {
   display: inline-flex;
-  justify-content: center;
-  background-color: lighten($gray-bg, 3%);
+  justify-content: center;  background-color: color.adjust($gray-bg, $lightness: 3%);
   padding: 10px;
   border-radius: 8px;
-  border: 1px dashed darken($gray-bg, 10%);
+  border: 1px dashed color.adjust($gray-bg, $lightness: -10%);
   
   canvas {
     max-width: 150px;
@@ -207,7 +206,7 @@ $border-radius: 8px;
 }
 
 .cancelButton {
-  @include button-style($gray-bg, darken($gray-bg, 8%), $black);
+  @include button-style($gray-bg, color.adjust($gray-bg, $lightness: -8%), $black);
 }
 
 .applyButton {

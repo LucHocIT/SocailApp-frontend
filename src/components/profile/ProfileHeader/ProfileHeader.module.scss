@@ -1,4 +1,6 @@
 // ProfileHeader Module Styles
+@use "sass:color";
+
 // Define variables locally since imports are not working
 $primary-color: #4389f5;
 $primary-hover: #3672d8;
@@ -425,10 +427,9 @@ $gradient-success: linear-gradient(135deg, #42b72a 0%, #3ac01b 100%);
     
     .statValue {
       color: $primary-color;
-    }
-    
+    }    
     .statLabel {
-      color: darken($text-secondary, 15%);
+      color: color.adjust($text-secondary, $lightness: -15%);
     }
   }
 }
