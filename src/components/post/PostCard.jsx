@@ -1,4 +1,3 @@
-// filepath: e:\SocialApp\frontend\src\components\post\PostCard.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Button, Image, Badge, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
@@ -12,14 +11,15 @@ import { convertUtcToLocal } from '../../utils/dateUtils';
 import styles from './styles/PostCard.module.scss';
 import PostReactionButton from './PostReactionButton';
 import ReactionUsersModal from './ReactionUsersModal';
+import PostModal from './PostModal';
 
 const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  
-  const { user } = useAuth();
-  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarkedByCurrentUser || false);
+  const { user } = useAuth();  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarkedByCurrentUser || false);
   const [viewsCount, setViewsCount] = useState(post.viewsCount || Math.floor(Math.random() * 50) + 5); // Placeholder
   const showContentToggle = post.content.length > 280;
   const [expanded, setExpanded] = useState(false);
   const [showReactionUsersModal, setShowReactionUsersModal] = useState(false);
+  const [showPostModal, setShowPostModal] = useState(false);
   
   // Handle double tap
   const cardRef = useRef(null);
@@ -284,12 +284,14 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
           <div className={styles.actionButtons}>
             <div className={styles.reactionButtonWrapper}>
               <PostReactionButton postId={post.id} onShowUsers={() => setShowReactionUsersModal(true)} />
-            </div>
-
-            <Link to={`/post/${post.id}`} className={styles.actionButton}>
+            </div>            <Button
+              variant="link"
+              className={styles.actionButton}
+              onClick={() => setShowPostModal(true)} 
+            >
               <FaComment className={styles.actionIcon} />
               <span className={styles.actionCount}>{post.commentsCount}</span>
-            </Link>
+            </Button>
               
             <Button 
               variant="link" 
@@ -308,11 +310,17 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
         </Card.Footer>
       </Card>
 
-      {/* Modal hiển thị người dùng đã thả reaction */}
-      <ReactionUsersModal 
+      {/* Modal hiển thị người dùng đã thả reaction */}      <ReactionUsersModal 
         show={showReactionUsersModal} 
         onHide={() => setShowReactionUsersModal(false)} 
         postId={post.id}
+      />
+      
+      {/* Modal bài viết khi ấn vào nút comment */}
+      <PostModal
+        show={showPostModal}
+        onHide={() => setShowPostModal(false)}
+        post={post}
       />
     </>
   );

@@ -1,5 +1,10 @@
 @use '../abstracts/variables' as *;
 
+// Override Bootstrap's modal max-width
+:global(.modal-dialog) {
+  max-width: none; /* Remove Bootstrap's default max-width limitation */
+}
+
 // Modal base
 .modal-overlay {
   position: fixed;

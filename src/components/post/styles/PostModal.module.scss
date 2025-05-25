@@ -1,0 +1,281 @@
+// PostModal.module.scss
+@use '../../../styles/abstracts/variables' as *;
+@use '../../../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
+@use '../../../styles/abstracts/mixins' as *;
+
+.modalDialog {
+  max-width: 1040px !important; /* Increased by 1.3x from 800px */
+  width: 95%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center; /* Ensure modal is centered horizontally */
+  align-items: center; /* Vertical centering */
+  position: relative; /* Ensure positioning context for absolute centering if needed */
+}
+
+.modalContent {
+  border: none;
+  border-radius: 12px;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  width: 100% !important; /* Ensure full width within the modal dialog with !important */
+  margin: 0 auto; /* Center the content within the dialog */
+  transform: translateX(0); /* Ensure no accidental left shift */
+}
+
+.modalHeader {
+  background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 15%));
+  padding: 1rem 1.5rem;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  
+  :global(.modal-title) {
+    width: 100%;
+  }
+  
+  :global(.btn-close) {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s;
+    opacity: 0.8;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    
+    &:hover {
+      transform: rotate(90deg);
+      background-color: rgba(255, 255, 255, 0.5);
+      opacity: 1;
+    }
+  }
+}
+
+.headerUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: white;
+  
+  &:hover {
+    color: rgba(255, 255, 255, 0.9);
+    .headerUsername {
+      text-decoration: underline;
+    }
+  }
+}
+
+.headerAvatar {
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.headerUserText {
+  display: flex;
+  flex-direction: column;
+}
+
+.headerUsername {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.headerTime {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.modalBody {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+  overflow-y: auto;
+  min-height: 300px; /* Ensure a minimum height for the modal body */
+}
+
+.contentSection {
+  padding: 1.25rem;
+  border-bottom: 1px solid $gray-200;
+}
+
+.postText {
+  font-size: 1rem;
+  white-space: pre-wrap;
+  margin-bottom: 1rem;
+}
+
+.mediaContainer {
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+    .postImage {
+    max-height: 600px; /* Further increased for better proportions */
+    width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+  
+  .postVideo {
+    width: 100%;
+    max-height: 600px; /* Further increased for better proportions */
+    border-radius: 8px;
+  }
+}
+
+.actionsContainer {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reactionContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.commentsSection {
+  padding: 1.25rem;
+}
+
+.commentsSectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: $text-dark;
+}
+
+.emptyComments {
+  text-align: center;
+  padding: 2rem 0;
+  color: $text-muted;
+  font-style: italic;
+}
+
+.loadingComments {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 0;
+  color: $text-muted;
+}
+
+.commentsList {
+  max-height: 450px; /* Further increased for the larger modal */
+  overflow-y: auto;
+}
+
+.commentPlaceholder {
+  padding: 1rem;
+  background-color: $gray-100;
+  border-radius: 8px;
+  text-align: center;
+  color: $text-muted;
+}
+
+.modalFooter {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid $gray-200;
+  background: $gray-100;
+}
+
+.commentForm {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.commentAvatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.commentInput {
+  flex-grow: 1;
+  border-radius: 20px;
+  padding: 0.6rem 1rem;
+  background-color: white;
+  border: 1px solid $gray-300;
+  transition: all 0.3s;
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+    border-color: $primary-color;
+  }
+}
+
+.commentSubmit {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: $primary-color;
+  border: none;
+  
+  &:hover {
+    background: color.adjust($primary-color, $lightness: -10%);
+    transform: scale(1.05);
+  }
+  
+  &:disabled {
+    background: $gray-400;
+  }
+}
+
+.loginPrompt {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  
+  p {
+    margin-bottom: 0;
+    color: $text-muted;
+  }
+  
+  button {
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .modalDialog {
+    width: 100%;
+    margin: 0;
+    max-width: none;
+    justify-content: center; /* Maintain center alignment on small screens */
+  }
+  
+  .modalContent {
+    border-radius: 0;
+    height: 100vh;
+    width: 100%; /* Full width on small screens */
+  }
+  
+  .modalBody {
+    max-height: none;
+    flex-grow: 1;
+  }
+  
+  .commentsList {
+    max-height: none;
+  }
+}
