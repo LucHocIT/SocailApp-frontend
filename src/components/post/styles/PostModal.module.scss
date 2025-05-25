@@ -5,13 +5,18 @@
 @use '../../../styles/abstracts/mixins' as *;
 
 .modalDialog {
-  max-width: 1040px !important; /* Increased by 1.3x from 800px */
+  max-width: 1000px !important; /* Set maximum width */
   width: 95%;
   margin: 0 auto;
   display: flex;
   justify-content: center; /* Ensure modal is centered horizontally */
   align-items: center; /* Vertical centering */
   position: relative; /* Ensure positioning context for absolute centering if needed */
+  
+  /* Override Bootstrap's responsive sizing constraints for larger screens */
+  @media (min-width: $breakpoint-md) {
+    max-width: 1000px !important;
+  }
 }
 
 .modalContent {
@@ -25,6 +30,7 @@
   width: 100% !important; /* Ensure full width within the modal dialog with !important */
   margin: 0 auto; /* Center the content within the dialog */
   transform: translateX(0); /* Ensure no accidental left shift */
+  max-width: none !important; /* Remove any max-width limitation */
 }
 
 .modalHeader {
@@ -115,7 +121,7 @@
   margin-bottom: 1rem;
   border-radius: 8px;
   overflow: hidden;
-    .postImage {
+  .postImage {
     max-height: 600px; /* Further increased for better proportions */
     width: 100%;
     object-fit: contain;
@@ -126,6 +132,13 @@
     width: 100%;
     max-height: 600px; /* Further increased for better proportions */
     border-radius: 8px;
+  }
+  
+  /* Ensure images and videos look good in wider modals */
+  @media (min-width: $breakpoint-lg) {
+    .postImage, .postVideo {
+      max-height: 700px; /* Even taller for large screens */
+    }
   }
 }
 
@@ -256,6 +269,7 @@
   }
 }
 
+/* Small screens (mobile) */
 @media (max-width: 576px) {
   .modalDialog {
     width: 100%;
@@ -277,5 +291,21 @@
   
   .commentsList {
     max-height: none;
+  }
+}
+
+/* Ensure large screens can handle wider modals */
+@media (min-width: $breakpoint-lg) {
+  .modalDialog {
+    max-width: 1000px !important;
+  }
+  
+  .modalContent {
+    max-width: none !important;
+  }
+  
+  /* Override Bootstrap's modal-dialog max-width constraints */
+  :global(.modal-dialog.modal-dialog-centered) {
+    max-width: 1000px !important;
   }
 }

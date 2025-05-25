@@ -24,7 +24,6 @@ const PostModal = ({ show, onHide, post }) => {
     toast.info('Chức năng đăng bình luận sẽ được triển khai sau');
     setCommentText('');
   };
-
   return (
     <Modal 
       show={show} 
@@ -32,6 +31,7 @@ const PostModal = ({ show, onHide, post }) => {
       dialogClassName={styles.modalDialog}
       contentClassName={styles.modalContent}
       centered
+      size="xl" // Ensure Bootstrap uses largest size class
       aria-labelledby="post-modal"
     >
       <Modal.Header closeButton className={styles.modalHeader}>
