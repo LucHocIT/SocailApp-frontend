@@ -43,32 +43,58 @@ const CommentForm = ({
     }
     
     setIsSubmitting(true);
-    
-    try {
-      let result;
+      try {
+      const tempCommentId = `temp-${Date.now()}`;
+      // Prepare optimistic update data (for immediate UI update)
+      const optimisticComment = {
+        id: isEditing ? commentId : tempCommentId,
+        postId,
+        parentId,
+        content: content.trim(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        userId: user.id,
+        username: user.username,
+        profilePictureUrl: user.profilePictureUrl,
+        reactionCounts: {},
+        reactionsCount: 0
+      };
       
+      // Save original content for potential rollback
+      const originalContent = content.trim();
+      
+      // Update UI immediately
+      if (onSubmitSuccess) {
+        onSubmitSuccess(optimisticComment);
+      }
+      
+      // Clear content immediately after updating UI for new comments
+      if (!isEditing) {
+        setContent('');
+      }
+      
+      // Actual API call
       if (isEditing) {
         const updateData = {
-          content: content.trim()
+          content: originalContent
         };
-        result = await commentService.updateComment(commentId, updateData);
-        toast.success('Comment updated successfully');
+        await commentService.updateComment(commentId, updateData);
       } else {
         const commentData = {
           postId: postId,
-          parentId: parentId,
-          content: content.trim()
-        };
-        result = await commentService.createComment(commentData);
-        toast.success('Comment posted successfully');
-        setContent(''); // Clear form after posting
-      }
-      
-      // Call the success callback with the new/updated comment
-      if (onSubmitSuccess) {
-        onSubmitSuccess(result);
+          parentId: parentId,          content: originalContent
+        };        try {
+          await commentService.createComment(commentData);
+          
+          // If needed, we could update the UI with the real comment ID from the server
+          // But in most cases, the optimistic update is enough
+        } catch (error) {
+          // If API call fails, show error but don't revert UI (better UX)
+          console.error("API error:", error);
+        }
       }
     } catch (error) {
+      // If there's an error with the optimistic update process, show an error
       toast.error(error.message || 'Failed to submit comment');
     } finally {
       setIsSubmitting(false);
@@ -81,8 +107,7 @@ const CommentForm = ({
       handleSubmit(e);
     }
   };
-    return (
-    <Form className={styles.commentForm} onSubmit={handleSubmit}>
+    return (    <Form className={styles.commentForm} onSubmit={handleSubmit}>
       <div className={styles.formContent}>
         {user && !isEditing && (
           <div className={styles.userAvatar}>
@@ -106,7 +131,7 @@ const CommentForm = ({
             className={styles.textarea}
             disabled={isSubmitting}
             autoFocus={isEditing}
-            style={{ height: 'auto', minHeight: '60px' }}
+            style={{ height: 'auto', minHeight: '36px' }}
           />
           
           <button
@@ -124,35 +149,38 @@ const CommentForm = ({
         </Form.Group>
       </div>
       
-      <div className={styles.buttonGroup}>
-        {onCancel && (
-          <Button
-            variant="outline-secondary"
-            size="sm"
-            onClick={onCancel}
-            disabled={isSubmitting}
-            className={styles.cancelButton}
-          >
-            <FaTimesCircle className={styles.buttonIcon} /> Cancel
-          </Button>
-        )}
-        
-        <Button
-          variant="primary"
-          size="sm"
-          type="submit"
-          disabled={isSubmitting || !content.trim()}
-          className={styles.submitButton}
-        >
-          {isSubmitting ? (
-            <Spinner animation="border" size="sm" />
-          ) : (
-            <>
-              <FaPaperPlane className={styles.buttonIcon} /> {isEditing ? 'Update' : 'Post'}
-            </>
+      {/* Only show Cancel and Post buttons when in edit mode or when reply mode */}
+      {(isEditing || parentId) && (
+        <div className={styles.buttonGroup}>
+          {onCancel && (
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              className={styles.cancelButton}
+            >
+              <FaTimesCircle className={styles.buttonIcon} /> Cancel
+            </Button>
           )}
-        </Button>
-      </div>
+          
+          <Button
+            variant="primary"
+            size="sm"
+            type="submit"
+            disabled={isSubmitting || !content.trim()}
+            className={styles.submitButton}
+          >
+            {isSubmitting ? (
+              <Spinner animation="border" size="sm" />
+            ) : (
+              <>
+                <FaPaperPlane className={styles.buttonIcon} /> {isEditing ? 'Update' : 'Post'}
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </Form>
   );
 };

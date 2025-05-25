@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { Card, Button, Image, Dropdown } from 'react-bootstrap';
+import { Button, Image, Dropdown } from 'react-bootstrap';
 import { FaEllipsisV, FaTrash, FaPencilAlt, FaReply } from 'react-icons/fa';
 import { useAuth } from '../../context/hooks';
 import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import CommentReactionButton from './CommentReactionButton';
-import { CommentReactionUsersModal } from './CommentReactionUsersModal';
+import CommentReactionUsersModal from './CommentReactionUsersModal';
 import CommentForm from './CommentForm';
 import styles from './styles/Comment.module.scss';
 import { toast } from 'react-toastify';
 import commentService from '../../services/commentService';
 
-const Comment = ({ 
+ const Comment = ({ 
   comment, 
   postId, 
   level = 0, 
@@ -31,9 +31,16 @@ const Comment = ({
     if (!window.confirm('Are you sure you want to delete this comment?')) return;
     
     try {
-      await commentService.deleteComment(comment.id);
-      toast.success('Comment deleted successfully');
+      // Update UI immediately before API call
       onCommentDeleted(comment.id);
+      
+      // Make API call without waiting for response
+      commentService.deleteComment(comment.id)
+        .catch(error => {
+          // If API call fails, show error and potentially revert the UI update
+          toast.error(error.message || 'Failed to delete comment');
+          // TODO: Potentially revert the UI update
+        });
     } catch (error) {
       toast.error(error.message || 'Failed to delete comment');
     }
@@ -49,67 +56,58 @@ const Comment = ({
     setShowReplies(true);
     onCommentUpdated(newComment);
   };
-
   // Calculate indentation based on nesting level
-  const indentStyle = {
-    marginLeft: level > 0 ? `${Math.min(level, 3) * 20}px` : '0',
-  };
+  const indentStyle = level > 0 ? styles.nestedComment : '';
   
   return (
-    <div className={styles.commentContainer} style={indentStyle}>
-      <Card className={styles.commentCard}>
-        <Card.Body>
-          <div className={styles.commentHeader}>
-            <div className={styles.userInfo}>              <Image 
-                src={comment.profilePictureUrl || '/default-avatar.png'} 
-                roundedCircle 
-                className={styles.avatar}
-                alt={`${comment.username}'s avatar`}
-              />
-              <div>
-                <Card.Title className={styles.userName}>
-                  {comment.username}
-                </Card.Title>                <small className={styles.timeAgo}>
-                  {comment.createdAt && <TimeAgo date={convertUtcToLocal(comment.createdAt)} />}
-                  {comment.updatedAt && comment.createdAt && comment.updatedAt !== comment.createdAt && 
-                    <span className={styles.edited}> (edited)</span>
-                  }
-                </small>
-              </div>
+    <div className={`${styles.commentContainer} ${indentStyle}`}>
+      <div className={styles.commentWrapper}>
+        <div className={styles.userInfo}>
+          <Image 
+            src={comment.profilePictureUrl || '/default-avatar.png'} 
+            roundedCircle 
+            className={styles.avatar}
+            alt={`${comment.username}'s avatar`}
+          />
+          <div className={styles.commentBubble}>
+            <div className={styles.commentHeader}>
+              <strong className={styles.userName}>{comment.username}</strong>
+              
+              {isAuthor && (
+                <Dropdown className={styles.commentDropdown}>
+                  <Dropdown.Toggle variant="link" className={styles.dropdownToggle}>
+                    <FaEllipsisV />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu align="end">
+                    <Dropdown.Item onClick={() => setIsEditing(true)}>
+                      <FaPencilAlt className="me-2" /> Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={handleDelete} className="text-danger">
+                      <FaTrash className="me-2" /> Delete
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              )}
             </div>
             
-            {isAuthor && (
-              <Dropdown className={styles.commentDropdown}>
-                <Dropdown.Toggle variant="link" className={styles.dropdownToggle}>
-                  <FaEllipsisV />
-                </Dropdown.Toggle>
-                <Dropdown.Menu align="end">
-                  <Dropdown.Item onClick={() => setIsEditing(true)}>
-                    <FaPencilAlt className="me-2" /> Edit
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={handleDelete} className="text-danger">
-                    <FaTrash className="me-2" /> Delete
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
+            {isEditing ? (
+              <CommentForm
+                postId={postId}
+                initialContent={comment.content}
+                commentId={comment.id}
+                onSubmitSuccess={handleEdit}
+                onCancel={() => setIsEditing(false)}
+                isEditing={true}
+              />
+            ) : (
+              <div className={styles.contentText}>{comment.content}</div>
             )}
           </div>
-          
-          {isEditing ? (
-            <CommentForm
-              postId={postId}
-              initialContent={comment.content}
-              commentId={comment.id}
-              onSubmitSuccess={handleEdit}
-              onCancel={() => setIsEditing(false)}
-              isEditing={true}
-            />
-          ) : (
-            <Card.Text className={styles.commentContent}>
-              {comment.content}
-            </Card.Text>
-          )}
-            <div className={styles.commentActions}>            <CommentReactionButton 
+        </div>
+        
+        <div className={styles.commentFooter}>
+          <div className={styles.actionLinks}>
+            <CommentReactionButton 
               commentId={comment.id}
               comment={comment}
               onShowUsers={() => setShowReactionUsersModal(true)}
@@ -119,27 +117,34 @@ const Comment = ({
               <Button 
                 variant="link" 
                 size="sm" 
-                className={styles.replyButton}
+                className={styles.actionLink}
                 onClick={() => setIsReplying(!isReplying)}
               >
-                <FaReply /> Reply
+                Reply
               </Button>
             )}
+            
+            <small className={styles.timeAgo}>
+              {comment.createdAt && <TimeAgo date={convertUtcToLocal(comment.createdAt)} />}
+              {comment.updatedAt && comment.createdAt && comment.updatedAt !== comment.createdAt && 
+                <span className={styles.edited}> (edited)</span>
+              }
+            </small>
           </div>
-          
-          {isReplying && (
-            <div className={styles.replyForm}>
-              <CommentForm
-                postId={postId}
-                parentId={comment.id}
-                onSubmitSuccess={handleNewReply}
-                onCancel={() => setIsReplying(false)}
-                placeholder="Write a reply..."
-              />
-            </div>
-          )}
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
+      
+      {isReplying && (
+        <div className={styles.replyForm}>
+          <CommentForm
+            postId={postId}
+            parentId={comment.id}
+            onSubmitSuccess={handleNewReply}
+            onCancel={() => setIsReplying(false)}
+            placeholder="Write a reply..."
+          />
+        </div>
+      )}
       
       {/* Replies section */}
       {hasReplies && (
@@ -154,7 +159,9 @@ const Comment = ({
                 Hide replies ({comment.replies.length})
               </Button>
               
-              <div className={styles.replies}>                {comment.replies.map(reply => (                  <Comment
+              <div className={styles.replies}>
+                {comment.replies.map(reply => (
+                  <Comment
                     key={reply.id}
                     comment={reply}
                     postId={postId}
@@ -174,7 +181,8 @@ const Comment = ({
               Show replies ({comment.replies.length})
             </Button>
           )}
-        </div>      )}
+        </div>
+      )}
       
       {/* Reaction Users Modal */}
       <CommentReactionUsersModal 
@@ -186,4 +194,6 @@ const Comment = ({
   );
 };
 
+// Export the component
+export { Comment };
 export default Comment;

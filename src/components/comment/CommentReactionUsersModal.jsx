@@ -164,4 +164,6 @@ const CommentReactionUsersModal = ({ show, onHide, commentId }) => {
   );
 };
 
+// Export both as named export and default export for compatibility
+export { CommentReactionUsersModal };
 export default CommentReactionUsersModal;

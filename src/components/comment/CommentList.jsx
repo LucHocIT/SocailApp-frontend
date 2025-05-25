@@ -50,11 +50,10 @@ const CommentList = ({ postId, commentCount }) => {
     if (postId) {
       loadComments();
     }  }, [loadComments, postId]);
-  
-  const handleCommentCreated = (newComment) => {
+    const handleCommentCreated = (newComment) => {
     // If it's a top-level comment, add to the list
     if (!newComment.parentId) {
-      setComments(prevComments => [...prevComments, { ...newComment, replies: [] }]);
+      setComments(prevComments => [{ ...newComment, replies: [] }, ...prevComments]);
     } else {
       // If it's a reply, update the parent comment
       setComments(prevComments => updateCommentReplies(prevComments, newComment));
