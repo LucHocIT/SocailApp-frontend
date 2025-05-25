@@ -1,11 +1,30 @@
 .commentContainer {
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
+  animation: fadeIn 0.3s ease-in-out;
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 .commentCard {
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  background: linear-gradient(to bottom, #ffffff, #fafafa);
+  
+  &:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
 }
 
 .commentHeader {
@@ -21,10 +40,12 @@
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   margin-right: 0.75rem;
   object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .userName {
@@ -47,13 +68,17 @@
   margin-bottom: 0.75rem;
   white-space: pre-wrap;
   word-break: break-word;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #333;
 }
 
 .commentActions {
   display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  gap: 1.2rem;
+  margin-top: 0.8rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f5f5f5;
 }
 
 .replyButton {
