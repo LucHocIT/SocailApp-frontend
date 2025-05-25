@@ -5,7 +5,7 @@ import { useAuth } from '../../context/hooks';
 import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import CommentReactionButton from './CommentReactionButton';
-import CommentReactionUsersModal from './CommentReactionUsersModal';
+import { CommentReactionUsersModal } from './CommentReactionUsersModal';
 import CommentForm from './CommentForm';
 import styles from './styles/Comment.module.scss';
 import { toast } from 'react-toastify';
