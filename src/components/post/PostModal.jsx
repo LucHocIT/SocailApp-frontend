@@ -23,14 +23,14 @@ const PostModal = ({ show, onHide, post }) => {
     // Placeholder: Sẽ tích hợp API để đăng bình luận sau
     toast.info('Chức năng đăng bình luận sẽ được triển khai sau');
     setCommentText('');
-  };
-  return (
+  };  return (
     <Modal 
       show={show} 
       onHide={onHide} 
       dialogClassName={styles.modalDialog}
       contentClassName={styles.modalContent}
       centered
+      fullscreen="lg-down"
       size="xl" // Ensure Bootstrap uses largest size class
       aria-labelledby="post-modal"
     >

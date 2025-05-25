@@ -4,6 +4,21 @@
 @use 'sass:color';
 @use '../../../styles/abstracts/mixins' as *;
 
+/* Global overrides for Bootstrap's modal constraints */
+:global {
+  .modal-xl {
+    max-width: 1000px !important;
+    width: 1000px !important;
+  }
+  
+  @media (min-width: 992px) {
+    .modal-xl {
+      max-width: 1000px !important;
+      width: 1000px !important;
+    }
+  }
+}
+
 .modalDialog {
   max-width: 1000px !important; /* Set maximum width */
   width: 95%;
@@ -13,8 +28,20 @@
   align-items: center; /* Vertical centering */
   position: relative; /* Ensure positioning context for absolute centering if needed */
   
-  /* Override Bootstrap's responsive sizing constraints for larger screens */
+  /* Ensure the modal has its max-width at all breakpoints */
+  @media (min-width: $breakpoint-sm) {
+    max-width: 1000px !important;
+  }
+  
   @media (min-width: $breakpoint-md) {
+    max-width: 1000px !important;
+  }
+  
+  @media (min-width: $breakpoint-lg) {
+    max-width: 1000px !important;
+  }
+  
+  @media (min-width: $breakpoint-xl) {
     max-width: 1000px !important;
   }
 }
@@ -31,6 +58,10 @@
   margin: 0 auto; /* Center the content within the dialog */
   transform: translateX(0); /* Ensure no accidental left shift */
   max-width: none !important; /* Remove any max-width limitation */
+  
+  /* Force full width and remove any Bootstrap constraints */
+  min-width: 100% !important; 
+  box-sizing: border-box !important;
 }
 
 .modalHeader {
@@ -121,23 +152,34 @@
   margin-bottom: 1rem;
   border-radius: 8px;
   overflow: hidden;
+  text-align: center; /* Center the media content */
+  
   .postImage {
     max-height: 600px; /* Further increased for better proportions */
-    width: 100%;
+    max-width: 100%;
     object-fit: contain;
     border-radius: 8px;
+    margin: 0 auto; /* Center the image */
   }
   
   .postVideo {
-    width: 100%;
+    max-width: 100%;
     max-height: 600px; /* Further increased for better proportions */
     border-radius: 8px;
+    margin: 0 auto; /* Center the video */
   }
   
   /* Ensure images and videos look good in wider modals */
   @media (min-width: $breakpoint-lg) {
     .postImage, .postVideo {
       max-height: 700px; /* Even taller for large screens */
+    }
+  }
+  
+  /* Very large screens */
+  @media (min-width: $breakpoint-xl) {
+    .postImage, .postVideo {
+      max-height: 750px; /* Maximum height for xl screens */
     }
   }
 }
@@ -298,14 +340,23 @@
 @media (min-width: $breakpoint-lg) {
   .modalDialog {
     max-width: 1000px !important;
+    width: 1000px !important; /* Force exact width on large screens */
   }
   
   .modalContent {
     max-width: none !important;
+    width: 100% !important;
   }
   
   /* Override Bootstrap's modal-dialog max-width constraints */
   :global(.modal-dialog.modal-dialog-centered) {
     max-width: 1000px !important;
+    width: 1000px !important;
+  }
+  
+  /* Direct override for Bootstrap's xl modal sizing */
+  :global(.modal-xl) {
+    max-width: 1000px !important;
+    width: 1000px !important;
   }
 }
