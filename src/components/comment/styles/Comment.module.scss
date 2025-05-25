@@ -1,4 +1,4 @@
-/* filepath: e:\SocialApp\frontend\src\components\comment\styles\Comment.module.scss.new */
+/* filepath: e:\SocialApp\frontend\src\components\comment\styles\Comment.module.scss */
 .commentContainer {
   margin-bottom: 12px;
 }
@@ -30,6 +30,7 @@
   position: relative;
   flex-grow: 1;
   max-width: calc(100% - 40px);
+  box-shadow: none;
 }
 
 .commentHeader {
@@ -42,6 +43,8 @@
   font-size: 0.9rem;
   margin-bottom: 2px;
   display: block;
+  font-weight: 600;
+  color: #050505;
 }
 
 .contentText {
@@ -80,6 +83,7 @@
   display: flex;
   gap: 12px;
   font-size: 0.75rem;
+  margin-top: 2px;
 }
 
 .actionLink {
