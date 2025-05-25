@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Spinner } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Spinner, Button } from 'react-bootstrap';
+import { FaComments, FaCommentSlash } from 'react-icons/fa';
 import commentService from '../../services/commentService';
 import Comment from './Comment';
 import CommentForm from './CommentForm';
@@ -10,15 +11,18 @@ import { useAuth } from '../../context/hooks';
 const CommentList = ({ postId, commentCount }) => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showCommentSection, setShowCommentSection] = useState(true);
   const { user } = useAuth();
+    // Recursively build the comment tree
+  const getChildComments = useCallback((parentId, allComments) => {
+    const children = allComments.filter(c => c.parentId === parentId);
+    return children.map(child => ({
+      ...child,
+      replies: getChildComments(child.id, allComments)
+    }));
+  }, []);
   
-  useEffect(() => {
-    if (postId) {
-      loadComments();
-    }
-  }, [postId]);
-  
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     setLoading(true);
     try {
       const commentData = await commentService.getCommentsByPostId(postId);
@@ -40,16 +44,12 @@ const CommentList = ({ postId, commentCount }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId, getChildComments]);
   
-  // Recursively build the comment tree
-  const getChildComments = (parentId, allComments) => {
-    const children = allComments.filter(c => c.parentId === parentId);
-    return children.map(child => ({
-      ...child,
-      replies: getChildComments(child.id, allComments)
-    }));
-  };
+  useEffect(() => {
+    if (postId) {
+      loadComments();
+    }  }, [loadComments, postId]);
   
   const handleCommentCreated = (newComment) => {
     // If it's a top-level comment, add to the list
@@ -125,44 +125,61 @@ const CommentList = ({ postId, commentCount }) => {
       return comment;
     });
   };
-  
-  return (
+    return (
     <div className={styles.commentListContainer}>
-      <h5 className={styles.commentHeader}>
-        Comments{commentCount > 0 ? ` (${commentCount})` : ''}
-      </h5>
-      
-      {user && (
-        <div className={styles.newCommentForm}>
-          <CommentForm 
-            postId={postId} 
-            onSubmitSuccess={handleCommentCreated} 
-          />
-        </div>
-      )}
-      
-      {loading ? (
-        <div className={styles.loadingSpinner}>
-          <Spinner animation="border" variant="primary" />
-        </div>
-      ) : (
-        <div className={styles.commentList}>
-          {comments.length === 0 ? (
-            <p className={styles.noComments}>
-              No comments yet. Be the first to comment!
-            </p>
+      <div className={styles.commentHeader}>
+        <h5 className={styles.commentTitle}>
+          Comments{commentCount > 0 ? ` (${commentCount})` : ''}
+        </h5>
+        <Button 
+          variant="link" 
+          className={styles.toggleButton}
+          onClick={() => setShowCommentSection(!showCommentSection)}
+          aria-label={showCommentSection ? "Hide comments" : "Show comments"}
+        >
+          {showCommentSection ? (
+            <><FaCommentSlash /> Hide</>
           ) : (
-            comments.map(comment => (
-              <Comment
-                key={comment.id}
-                comment={comment}
-                postId={postId}
-                onCommentUpdated={handleCommentUpdated}
-                onCommentDeleted={handleCommentDeleted}
-              />
-            ))
+            <><FaComments /> Show</>
           )}
-        </div>
+        </Button>
+      </div>
+      
+      {showCommentSection && (
+        <>
+          {user && (
+            <div className={styles.newCommentForm}>
+              <CommentForm 
+                postId={postId} 
+                onSubmitSuccess={handleCommentCreated} 
+              />
+            </div>
+          )}
+          
+          {loading ? (
+            <div className={styles.loadingSpinner}>
+              <Spinner animation="border" variant="primary" />
+            </div>
+          ) : (
+            <div className={styles.commentList}>
+              {comments.length === 0 ? (
+                <p className={styles.noComments}>
+                  No comments yet. Be the first to comment!
+                </p>
+              ) : (
+                comments.map(comment => (
+                  <Comment
+                    key={comment.id}
+                    comment={comment}
+                    postId={postId}
+                    onCommentUpdated={handleCommentUpdated}
+                    onCommentDeleted={handleCommentDeleted}
+                  />
+                ))
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

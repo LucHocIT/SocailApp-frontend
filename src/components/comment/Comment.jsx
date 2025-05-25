@@ -5,6 +5,7 @@ import { useAuth } from '../../context/hooks';
 import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import CommentReactionButton from './CommentReactionButton';
+import CommentReactionUsersModal from './CommentReactionUsersModal';
 import CommentForm from './CommentForm';
 import styles from './styles/Comment.module.scss';
 import { toast } from 'react-toastify';
@@ -21,6 +22,7 @@ const Comment = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [showReplies, setShowReplies] = useState(level < 1); // Auto-expand first level replies
+  const [showReactionUsersModal, setShowReactionUsersModal] = useState(false);
   const isAuthor = user && user.id === comment.userId;
   const hasReplies = comment.replies && comment.replies.length > 0;
   const maxDepth = 3; // Maximum nesting level to display
@@ -107,11 +109,10 @@ const Comment = ({
               {comment.content}
             </Card.Text>
           )}
-            <div className={styles.commentActions}>
-            <CommentReactionButton 
+            <div className={styles.commentActions}>            <CommentReactionButton 
               commentId={comment.id}
               comment={comment}
-              onShowUsers={() => {}} // Implement user list modal if needed
+              onShowUsers={() => setShowReactionUsersModal(true)}
             />
             
             {level < maxDepth && (
@@ -173,8 +174,14 @@ const Comment = ({
               Show replies ({comment.replies.length})
             </Button>
           )}
-        </div>
-      )}
+        </div>      )}
+      
+      {/* Reaction Users Modal */}
+      <CommentReactionUsersModal 
+        show={showReactionUsersModal}
+        onHide={() => setShowReactionUsersModal(false)}
+        commentId={comment.id}
+      />
     </div>
   );
 };
