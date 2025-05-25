@@ -1,25 +1,46 @@
+/* filepath: e:\SocialApp\frontend\src\components\comment\styles\CommentForm.module.scss.new */
 .commentForm {
-  margin-bottom: 1rem;
+  margin-bottom: 8px;
 }
 
 .formContent {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 4px;
+  position: relative;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    left: -32px;
+    top: 16px;
+    width: 20px;
+    height: 1px;
+    background-color: #e4e6eb;
+    display: none;
+  }
+  
+  .replyForm & {
+    &::before {
+      display: block;
+    }
+  }
 }
 
 .userAvatar {
   flex-shrink: 0;
+  
   img {
+    width: 32px;
+    height: 32px;
     object-fit: cover;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
   }
 }
 
 .formGroup {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   position: relative;
   flex-grow: 1;
   width: 100%;
@@ -27,81 +48,75 @@
 
 .textarea {
   resize: none;
-  font-size: 0.95rem;
-  padding: 0.8rem 1rem;
-  border-radius: 1.2rem;
-  transition: all 0.3s ease;
-  border: 1px solid #e0e0e0;
-  background-color: #f9f9f9;
+  font-size: 0.9rem;
+  padding: 8px 36px 8px 12px;
+  border-radius: 18px;
+  transition: all 0.2s ease;
+  border: 1px solid #ddd;
+  background-color: #f0f2f5;
   
   &:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-    border-color: #bbb;
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+    border-color: #1877F2;
     background-color: #fff;
+  }
+  
+  &::placeholder {
+    color: #65676B;
+    font-size: 0.9rem;
+  }
+  
+  .replyForm & {
+    background-color: #f8f9fa;
+    border-color: #e4e6eb;
+    
+    &:focus {
+      background-color: #fff;
+    }
   }
 }
 
 .buttonGroup {
   display: flex;
   justify-content: flex-end;
-  gap: 0.8rem;
-  margin-top: 0.5rem;
+  gap: 8px;
+  margin-top: 8px;
+  padding-left: 40px; /* Align with comment content */
 }
 
-.submitButton {
-  min-width: 80px;
-  padding: 0.4rem 1rem;
-  font-weight: 500;
-  border-radius: 20px;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-}
-
-.cancelButton {
-  min-width: 80px;
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: #f1f1f1;
-  }
+.submitButton, .cancelButton {
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 4px;
 }
 
 .inlineSubmitButton {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  right: 8px;
+  bottom: 8px;
   background: transparent;
   border: none;
-  color: #0d6efd;
+  color: #1877F2;
   transition: all 0.2s ease;
-  padding: 5px;
-  border-radius: 50%;
+  padding: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
   
   &:hover:not(:disabled) {
-    background: rgba(13, 110, 253, 0.1);
-    color: #0b5ed7;
+    color: #0a66c2;
     transform: scale(1.1);
   }
   
   &:disabled {
-    color: #aaa;
+    color: #BCC0C4;
     cursor: not-allowed;
   }
 }
 
-.buttonIcon {
-  margin-right: 6px;
-  font-size: 0.9rem;
+/* Mobile adjustments */
+@media (max-width: 576px) {
+  .buttonGroup {
+    padding-left: 32px;
+  }
 }

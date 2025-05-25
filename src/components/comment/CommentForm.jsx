@@ -14,6 +14,7 @@ const CommentForm = ({
   onSubmitSuccess, 
   onCancel,
   isEditing = false,
+  autoFocus = false,
   placeholder = 'Write a comment...'
 }) => {
   const [content, setContent] = useState(initialContent);
@@ -124,13 +125,12 @@ const CommentForm = ({
           <Form.Control
             as="textarea"
             ref={textareaRef}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+            value={content}            onChange={(e) => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={styles.textarea}
             disabled={isSubmitting}
-            autoFocus={isEditing}
+            autoFocus={isEditing || autoFocus}
             style={{ height: 'auto', minHeight: '36px' }}
           />
           

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Image, Dropdown } from 'react-bootstrap';
-import { FaEllipsisV, FaTrash, FaPencilAlt, FaReply } from 'react-icons/fa';
+import { FaEllipsisV, FaTrash, FaPencilAlt, FaReply, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { useAuth } from '../../context/hooks';
 import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
@@ -50,17 +50,37 @@ import commentService from '../../services/commentService';
     setIsEditing(false);
     onCommentUpdated(updatedComment);
   };
-  
-  const handleNewReply = (newComment) => {
+    const handleNewReply = (newComment) => {
+    // Optimistic UI update for new replies
     setIsReplying(false);
     setShowReplies(true);
-    onCommentUpdated(newComment);
+    
+    // Create a temporary copy of the comment with the new reply added
+    const updatedComment = {
+      ...comment,
+      replies: comment.replies 
+        ? [newComment, ...comment.replies] 
+        : [newComment]
+    };
+    
+    // Add a temporary flag to the new reply to animate it
+    newComment.isNew = true;
+    
+    // Clear the isNew flag after animation completes
+    setTimeout(() => {
+      newComment.isNew = false;
+    }, 2000);
+    
+    // Update UI immediately
+    onCommentUpdated(updatedComment);
   };
+
   // Calculate indentation based on nesting level
-  const indentStyle = level > 0 ? styles.nestedComment : '';
-  
-  return (
-    <div className={`${styles.commentContainer} ${indentStyle}`}>
+  const indentStyle = {
+    marginLeft: level > 0 ? `${Math.min(level, 3) * 20}px` : '0',
+  };
+    return (
+    <div className={`${styles.commentContainer} ${comment.isNew ? styles.newReply : ''}`} style={indentStyle}>
       <div className={styles.commentWrapper}>
         <div className={styles.userInfo}>
           <Image 
@@ -112,15 +132,14 @@ import commentService from '../../services/commentService';
               comment={comment}
               onShowUsers={() => setShowReactionUsersModal(true)}
             />
-            
-            {level < maxDepth && (
+              {level < maxDepth && (
               <Button 
                 variant="link" 
                 size="sm" 
                 className={styles.actionLink}
                 onClick={() => setIsReplying(!isReplying)}
               >
-                Reply
+                <FaReply /> Reply
               </Button>
             )}
             
@@ -132,17 +151,18 @@ import commentService from '../../services/commentService';
             </small>
           </div>
         </div>
-      </div>
-      
-      {isReplying && (
+      </div>      {isReplying && (
         <div className={styles.replyForm}>
-          <CommentForm
-            postId={postId}
-            parentId={comment.id}
-            onSubmitSuccess={handleNewReply}
-            onCancel={() => setIsReplying(false)}
-            placeholder="Write a reply..."
-          />
+          <div className="reply-form-wrapper">
+            <CommentForm
+              postId={postId}
+              parentId={comment.id}
+              onSubmitSuccess={handleNewReply}
+              onCancel={() => setIsReplying(false)}
+              placeholder="Write a reply..."
+              autoFocus={true}
+            />
+          </div>
         </div>
       )}
       
@@ -150,13 +170,12 @@ import commentService from '../../services/commentService';
       {hasReplies && (
         <div className={styles.repliesSection}>
           {showReplies ? (
-            <>
-              <Button 
+            <>              <Button 
                 variant="link" 
                 className={styles.toggleReplies}
                 onClick={() => setShowReplies(false)}
               >
-                Hide replies ({comment.replies.length})
+                <FaChevronUp /> Hide replies ({comment.replies.length})
               </Button>
               
               <div className={styles.replies}>
@@ -172,13 +191,12 @@ import commentService from '../../services/commentService';
                 ))}
               </div>
             </>
-          ) : (
-            <Button 
+          ) : (            <Button 
               variant="link" 
               className={styles.toggleReplies}
               onClick={() => setShowReplies(true)}
             >
-              Show replies ({comment.replies.length})
+              <FaChevronDown /> Show replies ({comment.replies.length})
             </Button>
           )}
         </div>

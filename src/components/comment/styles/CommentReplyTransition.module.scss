@@ -1,0 +1,21 @@
+/* Reply animation transitions */
+.replyEnter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.replyEnterActive {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.replyExit {
+  opacity: 1;
+}
+
+.replyExitActive {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 300ms, transform 300ms;
+}

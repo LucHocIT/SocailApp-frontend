@@ -30,7 +30,14 @@
   position: relative;
   flex-grow: 1;
   max-width: calc(100% - 40px);
-  box-shadow: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  
+  &:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.05);
+  }
 }
 
 .commentHeader {
@@ -91,6 +98,13 @@
   margin: 0;
   color: #65676B;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    margin-right: 4px;
+    font-size: 0.85rem;
+  }
   
   &:hover, &:focus {
     color: #1877F2;
@@ -112,13 +126,53 @@
 .replyForm {
   margin-left: 40px;
   margin-top: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  position: relative;
+  animation: slideDown 0.2s ease-out;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 0;
+    height: 100%;
+    border-left: 2px solid #e4e6eb;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.newReply {
+  animation: highlight 2s ease;
+}
+
+@keyframes highlight {
+  0%, 70% {
+    background-color: rgba(24, 119, 242, 0.08);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 
 .repliesSection {
   margin-left: 20px;
-  border-left: 1px solid #ddd;
+  margin-top: 4px;
+  border-left: 2px solid #e4e6eb;
   padding-left: 20px;
+  
+  &:hover {
+    border-left-color: #c0c4cc;
+  }
 }
 
 .toggleReplies {
@@ -127,15 +181,26 @@
   margin-bottom: 8px;
   font-size: 0.85rem;
   color: #65676B;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    margin-right: 5px;
+    font-size: 0.85rem;
+  }
   
   &:hover {
     color: #1877F2;
     background-color: transparent;
+    text-decoration: underline;
   }
 }
 
 .replies {
-  margin-top: 4px;
+  margin-top: 8px;
+  position: relative;
+  padding-top: 4px;
 }
 
 /* Mobile adjustments */
