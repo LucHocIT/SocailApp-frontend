@@ -4,11 +4,37 @@
 @use 'sass:color';
 @use '../../../styles/abstracts/mixins' as *;
 
+/* Root level overrides to ensure modal centering */
+:global {
+  .modal {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .modal-dialog {
+    margin: 0 auto !important;
+    transform: none !important;
+  }
+}
+
 /* Global overrides for Bootstrap's modal constraints */
 :global {
   .modal-xl {
     max-width: 1000px !important;
     width: 1000px !important;
+  }
+  
+  .modal-dialog {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  .modal-content {
+    margin: 0 auto !important;
   }
   
   @media (min-width: 992px) {
@@ -22,27 +48,38 @@
 .modalDialog {
   max-width: 1000px !important; /* Set maximum width */
   width: 95%;
-  margin: 0 auto;
+  margin: 0 auto !important; /* Force center alignment */
   display: flex;
-  justify-content: center; /* Ensure modal is centered horizontally */
-  align-items: center; /* Vertical centering */
+  justify-content: center !important; /* Ensure modal is centered horizontally */
+  align-items: center !important; /* Vertical centering */
   position: relative; /* Ensure positioning context for absolute centering if needed */
+  left: 0 !important; /* Prevent any left offset */
+  right: 0 !important; /* Prevent any right offset */
+  transform: none !important; /* Prevent any transform that might offset positioning */
   
   /* Ensure the modal has its max-width at all breakpoints */
   @media (min-width: $breakpoint-sm) {
     max-width: 1000px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
   
   @media (min-width: $breakpoint-md) {
     max-width: 1000px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
   
   @media (min-width: $breakpoint-lg) {
     max-width: 1000px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
   
   @media (min-width: $breakpoint-xl) {
     max-width: 1000px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
 }
 
@@ -55,13 +92,18 @@
   display: flex;
   flex-direction: column;
   width: 100% !important; /* Ensure full width within the modal dialog with !important */
-  margin: 0 auto; /* Center the content within the dialog */
-  transform: translateX(0); /* Ensure no accidental left shift */
+  margin: 0 auto !important; /* Force center the content within the dialog */
+  transform: none !important; /* Remove any transform that might offset positioning */
   max-width: none !important; /* Remove any max-width limitation */
   
   /* Force full width and remove any Bootstrap constraints */
   min-width: 100% !important; 
   box-sizing: border-box !important;
+  
+  /* Ensure content is properly centered */
+  position: relative !important;
+  left: 0 !important;
+  right: 0 !important;
 }
 
 .modalHeader {
@@ -341,22 +383,32 @@
   .modalDialog {
     max-width: 1000px !important;
     width: 1000px !important; /* Force exact width on large screens */
+    margin: 0 auto !important;
+    left: 0 !important;
+    right: 0 !important;
   }
   
   .modalContent {
     max-width: none !important;
     width: 100% !important;
+    margin: 0 auto !important;
   }
   
   /* Override Bootstrap's modal-dialog max-width constraints */
   :global(.modal-dialog.modal-dialog-centered) {
     max-width: 1000px !important;
     width: 1000px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: translate(0, 0) !important;
   }
   
   /* Direct override for Bootstrap's xl modal sizing */
   :global(.modal-xl) {
     max-width: 1000px !important;
     width: 1000px !important;
+    margin: 0 auto !important;
   }
 }
