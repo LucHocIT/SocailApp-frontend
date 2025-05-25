@@ -1,7 +1,7 @@
 // PostCard.module.scss
 @use '../../../styles/abstracts/variables' as *;
 @use '../../../styles/abstracts/mixins' as *;
-@import './ReactionStyles.scss';
+@use './ReactionStyles.scss' as *;
 
 .postCard {
   @include card-base;
