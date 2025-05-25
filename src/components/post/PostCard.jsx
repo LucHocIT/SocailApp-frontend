@@ -9,9 +9,14 @@ import postService from '../../services/postService';
 import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import styles from './styles/PostCard.module.scss';
+import commentSectionStyles from '../comment/styles/CommentSection.module.scss';
 import PostReactionButton from './PostReactionButton';
 import ReactionUsersModal from './ReactionUsersModal';
+<<<<<<< HEAD
 import PostModal from './PostModal';
+=======
+import CommentList from '../comment/CommentList';
+>>>>>>> 7bea60695958ec1237b04dbc481f2d85c3e12bf1
 
 const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  
   const { user } = useAuth();  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarkedByCurrentUser || false);
@@ -19,7 +24,11 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
   const showContentToggle = post.content.length > 280;
   const [expanded, setExpanded] = useState(false);
   const [showReactionUsersModal, setShowReactionUsersModal] = useState(false);
+<<<<<<< HEAD
   const [showPostModal, setShowPostModal] = useState(false);
+=======
+  const [showComments, setShowComments] = useState(false);
+>>>>>>> 7bea60695958ec1237b04dbc481f2d85c3e12bf1
   
   // Handle double tap
   const cardRef = useRef(null);
@@ -287,7 +296,11 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
             </div>            <Button
               variant="link"
               className={styles.actionButton}
+<<<<<<< HEAD
               onClick={() => setShowPostModal(true)} 
+=======
+              onClick={() => setShowComments(!showComments)}
+>>>>>>> 7bea60695958ec1237b04dbc481f2d85c3e12bf1
             >
               <FaComment className={styles.actionIcon} />
               <span className={styles.actionCount}>{post.commentsCount}</span>
@@ -308,13 +321,19 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
             </div>
           </div>
         </Card.Footer>
+<<<<<<< HEAD
       </Card>
 
       {/* Modal hiển thị người dùng đã thả reaction */}      <ReactionUsersModal 
+=======
+      </Card>      {/* Modal hiển thị người dùng đã thả reaction */}
+      <ReactionUsersModal 
+>>>>>>> 7bea60695958ec1237b04dbc481f2d85c3e12bf1
         show={showReactionUsersModal} 
         onHide={() => setShowReactionUsersModal(false)} 
         postId={post.id}
       />
+<<<<<<< HEAD
       
       {/* Modal bài viết khi ấn vào nút comment */}
       <PostModal
@@ -322,6 +341,17 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
         onHide={() => setShowPostModal(false)}
         post={post}
       />
+=======
+        {/* Comment section */}
+      {showComments && (
+        <div className={commentSectionStyles.commentSection}>
+          <CommentList 
+            postId={post.id} 
+            commentCount={post.commentsCount} 
+          />
+        </div>
+      )}
+>>>>>>> 7bea60695958ec1237b04dbc481f2d85c3e12bf1
     </>
   );
 };
