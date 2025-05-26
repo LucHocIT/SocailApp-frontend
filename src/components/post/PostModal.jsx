@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Modal, Button, Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import TimeAgo from 'react-timeago';
@@ -10,9 +10,19 @@ import styles from './styles/PostModal.module.scss';
 
 const PostModal = ({ show, onHide, post }) => {
   const { user } = useAuth();
+  const commentListRef = useRef(null);
 
-  // No need to manage comment state as CommentList handles this internally
-  // No longer need comment handlers as the CommentList component handles these internally
+  // Handler for when a new comment is added
+  const handleCommentAdded = (newComment) => {
+    // Update the comment count in the header
+    if (post.commentsCount !== undefined) {
+      post.commentsCount += 1;
+    }
+    // Add the new comment to the CommentList
+    if (commentListRef.current) {
+      commentListRef.current.handleCommentAdded(newComment);
+    }
+  };
 
   return (
     <Modal 
@@ -74,19 +84,24 @@ const PostModal = ({ show, onHide, post }) => {
               <PostReactionButton postId={post.id} />
             </div>
           </div>
-        </div>        <div className={styles.commentsSection}>
+        </div>
+
+        <div className={styles.commentsSection}>
           <h5 className={styles.commentsSectionTitle}>Bình luận ({post.commentsCount || 0})</h5>
           
           <CommentList 
+            ref={commentListRef}
             postId={post.id} 
             commentsCount={post.commentsCount} 
           />
         </div>
-      </Modal.Body>      <Modal.Footer className={styles.modalFooter}>
+      </Modal.Body>
+
+      <Modal.Footer className={styles.modalFooter}>
         {user ? (
           <CommentForm 
             postId={post.id} 
-            onCommentAdded={() => {}} 
+            onCommentAdded={handleCommentAdded}
           />
         ) : (
           <div className={styles.loginPrompt}>

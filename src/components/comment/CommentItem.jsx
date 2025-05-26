@@ -52,11 +52,13 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
         postId: postId,
         parentCommentId: comment.id
       });
-      
-      setReplies([...replies, newReply]);
+        setReplies([...replies, newReply]);
       setReplyText('');
       setReplyFormVisible(false);
       toast.success('Đã đăng phản hồi');
+      
+      // Update replies count
+      comment.repliesCount = (comment.repliesCount || 0) + 1;
       
       // Show replies if not already visible
       if (!showReplies) {
@@ -130,11 +132,22 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
       }
     }
   };
-
   // Handle reporting a comment
   const handleReport = () => {
     // This would be implemented later with a modal for reporting reasons
     toast.info('Chức năng báo cáo bình luận sẽ được triển khai sau');
+  };
+
+  // Handle reply deletion
+  const handleReplyDeleted = (replyId) => {
+    setReplies(prevReplies => prevReplies.filter(reply => reply.id !== replyId));
+    // Update replies count
+    comment.repliesCount = Math.max((comment.repliesCount || 0) - 1, 0);
+    
+    // Notify parent if needed
+    if (onCommentDeleted) {
+      onCommentDeleted(replyId);
+    }
   };
 
   // Format any reactions on the comment
@@ -266,8 +279,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
             
             {formatReactions()}
           </div>
-          
-          {comment.replies && comment.replies.length > 0 && (
+            {comment.repliesCount && comment.repliesCount > 0 && (
             <Button
               variant="link"
               className={styles.viewRepliesButton}
@@ -277,7 +289,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
               {loadingReplies ? (
                 <><Spinner as="span" animation="border" size="sm" /> Đang tải</>
               ) : (
-                <>{showReplies ? 'Ẩn' : 'Xem'} {comment.replies.length} phản hồi</>
+                <>{showReplies ? 'Ẩn' : 'Xem'} {comment.repliesCount} phản hồi</>
               )}
             </Button>
           )}
@@ -322,8 +334,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
               </div>
             </form>
           )}
-          
-          {showReplies && replies.length > 0 && (
+            {showReplies && replies.length > 0 && (
             <div className={styles.repliesContainer}>
               {replies.map(reply => (
                 <CommentItem
@@ -331,7 +342,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
                   comment={reply}
                   postId={postId}
                   onCommentUpdated={onCommentUpdated}
-                  onCommentDeleted={onCommentDeleted}
+                  onCommentDeleted={handleReplyDeleted}
                 />
               ))}
             </div>

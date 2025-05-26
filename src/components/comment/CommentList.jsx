@@ -1,15 +1,22 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { Button, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import CommentItem from './CommentItem';
 import commentService from '../../services/commentService';
 import styles from './styles/CommentList.module.scss';
 
-const CommentList = ({ postId }) => {
+const CommentList = forwardRef(({ postId }, ref) => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  
+  // Expose handleCommentAdded to parent through ref
+  useImperativeHandle(ref, () => ({
+    handleCommentAdded: (newComment) => {
+      setComments(prevComments => [newComment, ...prevComments]);
+    }
+  }));
   
   // Fetch comments
   const fetchComments = useCallback(async (pageNum = 1) => {
@@ -113,6 +120,6 @@ const CommentList = ({ postId }) => {
       )}
     </div>
   );
-};
+});
 
 export default CommentList;
