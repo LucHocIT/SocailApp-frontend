@@ -1,33 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Modal, Tab, Nav, Image, Spinner, Badge, Form, InputGroup, Button } from 'react-bootstrap';
+import { Modal, Tab, Nav, Image, Spinner, Badge, Button } from 'react-bootstrap';
 import postService from '../../services/postService';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ReactionUsersSkeleton from './ReactionUsersSkeleton';
-import './ReactionUsersModal.css';
-import { FaSearch, FaTimes } from 'react-icons/fa';
+import '../../styles/ReactionUsersModal.css';
 
-const ReactionUsersModal = ({ show, onHide, postId }) => {
-  const [loading, setLoading] = useState(true);
+const ReactionUsersModal = ({ show, onHide, postId }) => {  const [loading, setLoading] = useState(true);
   const [reactions, setReactions] = useState({});
   const [activeTab, setActiveTab] = useState('all');
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [followStatus, setFollowStatus] = useState({});
   const [processingFollow, setProcessingFollow] = useState({});
   const usersPerPage = 10;  // Sử dụng useMemo để tránh tạo lại mảng mỗi lần render
   const reactionTypes = useMemo(() => ['all', 'love', 'like', 'haha', 'wow', 'sad', 'angry'], []);
-  
-  // Filtered users based on search query
+    // Get users for current tab
   const filteredUsers = useMemo(() => {
-    const users = reactions[activeTab] || [];
-    if (!searchQuery.trim()) return users;
-    
-    return users.filter(user => 
-      user.username.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [reactions, activeTab, searchQuery]);
+    return reactions[activeTab] || [];
+  }, [reactions, activeTab]);
   
   // Get paginated users
   const paginatedUsers = useMemo(() => {
@@ -103,17 +94,6 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {
     setCurrentPage(page);
   };
   
-  // Handle search input change
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1); // Reset to first page when searching
-  };
-  
-  // Clear search query
-  const clearSearch = () => {
-    setSearchQuery('');
-    setCurrentPage(1);
-  };
   
   // Handle follow/unfollow users
   const handleFollowToggle = async (userId) => {
@@ -166,38 +146,9 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {
     >      <Modal.Header closeButton className="border-bottom-0">
         <Modal.Title className="fw-bold">
           <div>Người thả reaction</div>
-          {!loading && reactions.all && (
-            <div className="reaction-summary d-flex align-items-center mt-1">
-              {reactionTypes.map(type => 
-                type !== 'all' && reactions[type]?.length > 0 ? (
-                  <span key={type} className="reaction-icon me-2" title={`${reactions[type]?.length} ${type}`}>
-                    {getReactionEmoji(type)}
-                  </span>
-                ) : null
-              )}
-              <small className="text-muted ms-1">
-                {reactions.all?.length || 0} người dùng
-              </small>
-            </div>
-          )}
         </Modal.Title>
       </Modal.Header>
-      
-      <Tab.Container activeKey={activeTab} onSelect={handleTabSelect} id="reactions-tabs">
-        <div className="px-3 mb-2">
-          <InputGroup className="search-reactions-input">
-            <Form.Control
-              placeholder="Tìm kiếm người dùng..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="border-right-0"
-            />
-            <Button variant="outline-secondary" onClick={clearSearch}>
-              {searchQuery ? <FaTimes /> : <FaSearch />}
-            </Button>
-          </InputGroup>
-        </div>
-        
+        <Tab.Container activeKey={activeTab} onSelect={handleTabSelect} id="reactions-tabs">
         <Nav variant="pills" className="reaction-tabs flex-nowrap px-2 mb-2" style={{ overflowX: 'auto' }}>
           {reactionTypes.map(type => (
             <Nav.Item key={type} className="mx-1">
@@ -221,14 +172,9 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {
               ) : error ? (
                 <div className="text-center p-4 text-danger">
                   <p>{error}</p>
-                </div>
-              ) : filteredUsers.length === 0 ? (
+                </div>              ) : filteredUsers.length === 0 ? (
                 <div className="text-center p-4 text-muted">
-                  {searchQuery ? (
-                    <p>Không tìm thấy người dùng nào phù hợp</p>
-                  ) : (
-                    <p>Không có reaction nào</p>
-                  )}
+                  <p>Không có reaction nào</p>
                 </div>
               ) : (
                 <>                  <div className="reaction-users-list">
