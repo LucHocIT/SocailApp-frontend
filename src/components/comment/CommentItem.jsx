@@ -171,12 +171,8 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
               <Link to={`/profile/${comment.username}`} className={styles.username}>
                 {comment.username}
                 {comment.isVerified && <Badge bg="primary" className={styles.verifiedBadge}>✓</Badge>}
-              </Link>
-              <span className={styles.timestamp}>
+              </Link>              <span className={styles.timestamp}>
                 <TimeAgo date={convertUtcToLocal(comment.createdAt)} />
-                {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
-                  <span className={styles.edited}> (đã chỉnh sửa)</span>
-                )}
               </span>
             </div>
             

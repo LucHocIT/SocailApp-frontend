@@ -5,7 +5,7 @@ import CommentItem from './CommentItem';
 import commentService from '../../services/commentService';
 import styles from './styles/CommentList.module.scss';
 
-const CommentList = ({ postId, commentsCount }) => {
+const CommentList = ({ postId }) => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
