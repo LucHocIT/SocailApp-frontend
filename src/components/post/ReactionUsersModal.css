@@ -1,0 +1,146 @@
+.reaction-users-modal .modal-content {
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.reaction-users-modal .modal-header {
+  padding-bottom: 0;
+}
+
+.reaction-tabs {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-primary) transparent;
+}
+
+.reaction-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.reaction-tabs::-webkit-scrollbar-thumb {
+  background-color: var(--bs-primary);
+  border-radius: 4px;
+}
+
+.reaction-tabs .nav-link {
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.reaction-tabs .nav-link.active {
+  background-color: var(--bs-primary);
+  transform: scale(1.05);
+}
+
+.reaction-user-item {
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.hover-effect:hover {
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+  transform: translateY(-2px);
+}
+
+.reaction-user-avatar {
+  object-fit: cover;
+}
+
+.reaction-type-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: transform 0.2s;
+}
+
+.reaction-user-item:hover .reaction-type-badge {
+  transform: scale(1.2);
+}
+
+.search-reactions-input {
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.search-reactions-input .form-control {
+  border-radius: 20px 0 0 20px;
+  padding-left: 15px;
+}
+
+.search-reactions-input .btn {
+  border-radius: 0 20px 20px 0;
+}
+
+.reaction-users-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.reaction-users-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.reaction-users-list::-webkit-scrollbar-thumb {
+  background-color: var(--bs-primary);
+  border-radius: 4px;
+}
+
+.disabled-tab {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination .page-link {
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+.online-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #42b72a;
+  border-radius: 50%;
+  position: relative;
+}
+
+.online-indicator::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 12px;
+  height: 12px;
+  background-color: rgba(66, 183, 42, 0.2);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.reaction-summary {
+  font-size: 0.85rem;
+}
+
+.reaction-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}

@@ -1,16 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Tab, Nav, Image, Spinner, Badge } from 'react-bootstrap';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Modal, Tab, Nav, Image, Spinner, Badge, Form, InputGroup, Button } from 'react-bootstrap';
 import postService from '../../services/postService';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ReactionUsersSkeleton from './ReactionUsersSkeleton';
+import './ReactionUsersModal.css';
+import { FaSearch, FaTimes } from 'react-icons/fa';
 
-const ReactionUsersModal = ({ show, onHide, postId }) => {  const [loading, setLoading] = useState(true);
+const ReactionUsersModal = ({ show, onHide, postId }) => {
+  const [loading, setLoading] = useState(true);
   const [reactions, setReactions] = useState({});
   const [activeTab, setActiveTab] = useState('all');
   const [error, setError] = useState(null);
-  // Sử dụng useMemo để tránh tạo lại mảng mỗi lần render
-  const reactionTypes = React.useMemo(() => ['all', 'love', 'like', 'haha', 'wow', 'sad', 'angry'], []);
-    useEffect(() => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [followStatus, setFollowStatus] = useState({});
+  const [processingFollow, setProcessingFollow] = useState({});
+  const usersPerPage = 10;  // Sử dụng useMemo để tránh tạo lại mảng mỗi lần render
+  const reactionTypes = useMemo(() => ['all', 'love', 'like', 'haha', 'wow', 'sad', 'angry'], []);
+  
+  // Filtered users based on search query
+  const filteredUsers = useMemo(() => {
+    const users = reactions[activeTab] || [];
+    if (!searchQuery.trim()) return users;
+    
+    return users.filter(user => 
+      user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [reactions, activeTab, searchQuery]);
+  
+  // Get paginated users
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * usersPerPage;
+    return filteredUsers.slice(startIndex, startIndex + usersPerPage);
+  }, [filteredUsers, currentPage, usersPerPage]);    useEffect(() => {
     const fetchReactionUsers = async () => {
       if (!postId || !show) return;
       
@@ -40,6 +63,13 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {  const [loading, setL
           }
         });
         
+        // Cập nhật trạng thái theo dõi cho mỗi người dùng
+        const followStatusMap = {};
+        response.users.forEach(user => {
+          followStatusMap[user.id] = user.isFollowing || false;
+        });
+        setFollowStatus(followStatusMap);
+        
         setReactions(reactionData);
         setError(null);
       } catch (err) {
@@ -59,9 +89,55 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {  const [loading, setL
   const handleTabSelect = (tab) => {
     setActiveTab(tab);
   };
-
   const getReactionUsers = () => {
-    return reactions[activeTab] || [];
+    return paginatedUsers;
+  };
+  
+  // Total number of pages for pagination
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredUsers.length / usersPerPage);
+  }, [filteredUsers, usersPerPage]);
+
+  // Handle pagination
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+  
+  // Clear search query
+  const clearSearch = () => {
+    setSearchQuery('');
+    setCurrentPage(1);
+  };
+  
+  // Handle follow/unfollow users
+  const handleFollowToggle = async (userId) => {
+    try {
+      setProcessingFollow(prev => ({ ...prev, [userId]: true }));
+      
+      const isCurrentlyFollowing = followStatus[userId];
+      const userService = await import('../../services/userService').then(m => m.default);
+      
+      if (isCurrentlyFollowing) {
+        await userService.unfollowUser(userId);
+        setFollowStatus(prev => ({ ...prev, [userId]: false }));
+        toast.success('Đã bỏ theo dõi người dùng');
+      } else {
+        await userService.followUser(userId);
+        setFollowStatus(prev => ({ ...prev, [userId]: true }));
+        toast.success('Đã bắt đầu theo dõi người dùng');
+      }
+    } catch (err) {
+      toast.error('Không thể thực hiện thao tác. Vui lòng thử lại sau.');
+      console.error('Error toggling follow status:', err);
+    } finally {
+      setProcessingFollow(prev => ({ ...prev, [userId]: false }));
+    }
   };
 
   const getReactionEmoji = (type) => {
@@ -80,25 +156,54 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {  const [loading, setL
       </>
     );
   };
-
   return (
     <Modal 
       show={show} 
       onHide={onHide}
       centered
       className="reaction-users-modal"
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Người thả reaction</Modal.Title>
+      size="md"
+    >      <Modal.Header closeButton className="border-bottom-0">
+        <Modal.Title className="fw-bold">
+          <div>Người thả reaction</div>
+          {!loading && reactions.all && (
+            <div className="reaction-summary d-flex align-items-center mt-1">
+              {reactionTypes.map(type => 
+                type !== 'all' && reactions[type]?.length > 0 ? (
+                  <span key={type} className="reaction-icon me-2" title={`${reactions[type]?.length} ${type}`}>
+                    {getReactionEmoji(type)}
+                  </span>
+                ) : null
+              )}
+              <small className="text-muted ms-1">
+                {reactions.all?.length || 0} người dùng
+              </small>
+            </div>
+          )}
+        </Modal.Title>
       </Modal.Header>
       
       <Tab.Container activeKey={activeTab} onSelect={handleTabSelect} id="reactions-tabs">
-        <Nav variant="tabs" className="reaction-tabs">
+        <div className="px-3 mb-2">
+          <InputGroup className="search-reactions-input">
+            <Form.Control
+              placeholder="Tìm kiếm người dùng..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="border-right-0"
+            />
+            <Button variant="outline-secondary" onClick={clearSearch}>
+              {searchQuery ? <FaTimes /> : <FaSearch />}
+            </Button>
+          </InputGroup>
+        </div>
+        
+        <Nav variant="pills" className="reaction-tabs flex-nowrap px-2 mb-2" style={{ overflowX: 'auto' }}>
           {reactionTypes.map(type => (
-            <Nav.Item key={type}>
+            <Nav.Item key={type} className="mx-1">
               <Nav.Link 
                 eventKey={type} 
-                className={`d-flex align-items-center ${reactions[type]?.length === 0 ? 'disabled-tab' : ''}`}
+                className={`d-flex align-items-center rounded-pill ${reactions[type]?.length === 0 ? 'disabled-tab' : ''}`}
                 disabled={reactions[type]?.length === 0}
               >
                 {getTabTitle(type)}
@@ -107,51 +212,173 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {  const [loading, setL
           ))}
         </Nav>
 
-        <Modal.Body>
+        <Modal.Body className="pt-0">
           <Tab.Content>
-            <Tab.Pane eventKey={activeTab}>
-              {loading ? (
-                <div className="text-center p-4">
-                  <Spinner animation="border" variant="primary" />
-                  <p className="mt-2">Đang tải...</p>
+            <Tab.Pane eventKey={activeTab}>              {loading ? (
+                <div className="p-2">
+                  <ReactionUsersSkeleton count={5} />
                 </div>
               ) : error ? (
                 <div className="text-center p-4 text-danger">
                   <p>{error}</p>
                 </div>
-              ) : getReactionUsers().length === 0 ? (
+              ) : filteredUsers.length === 0 ? (
                 <div className="text-center p-4 text-muted">
-                  <p>Không có reaction nào</p>
+                  {searchQuery ? (
+                    <p>Không tìm thấy người dùng nào phù hợp</p>
+                  ) : (
+                    <p>Không có reaction nào</p>
+                  )}
                 </div>
               ) : (
-                <div className="reaction-users-list">
-                  {getReactionUsers().map(user => (
-                    <div key={user.id} className="reaction-user-item d-flex align-items-center p-2">
-                      <Link to={`/profile/${user.username}`} className="d-flex align-items-center text-decoration-none">
-                        <Image 
-                          src={user.profilePictureUrl || '/images/default-avatar.png'} 
-                          roundedCircle 
-                          className="reaction-user-avatar"
-                          width={40}
-                          height={40}
-                        />
-                        <div className="ms-2">
-                          <div className="d-flex align-items-center">
-                            <span className="reaction-user-name">{user.username}</span>
-                            {user.isVerified && (
-                              <Badge bg="primary" className="ms-1" style={{ fontSize: '0.6rem' }}>✓</Badge>
-                            )}
-                          </div>
-                          {activeTab === 'all' && (
-                            <div className="reaction-type-badge">
-                              {getReactionEmoji(user.reactionType)}
+                <>                  <div className="reaction-users-list">
+                    {getReactionUsers().map((user, index) => (
+                        <div
+                          key={user.id}
+                          className="reaction-user-item rounded hover-effect mb-2"
+                          style={{ animationDelay: `${index * 0.05}s` }}
+                        >                          <div className="d-flex align-items-center text-decoration-none p-2">
+                            <Link to={`/profile/${user.username}`} className="d-flex align-items-center text-decoration-none">
+                              <Image 
+                                src={user.profilePictureUrl || '/images/default-avatar.png'} 
+                                roundedCircle 
+                                className="reaction-user-avatar"
+                                width={48}
+                                height={48}
+                                style={{ objectFit: 'cover', border: '2px solid var(--bs-primary)' }}
+                              />
+                              <div className="ms-3">
+                                <div className="d-flex align-items-center">
+                                  <span className="reaction-user-name fw-bold">{user.username}</span>
+                                  {user.isVerified && (
+                                    <Badge bg="primary" className="ms-1">✓</Badge>
+                                  )}
+                                  {user.isOnline && (
+                                    <span className="ms-2 online-indicator"></span>
+                                  )}
+                                </div>
+                                <div className="small text-muted">{user.fullName || user.username}</div>
+                              </div>
+                            </Link>
+                            <div className="ms-auto d-flex align-items-center">
+                              {activeTab === 'all' && (
+                                <div className="reaction-type-badge p-2 me-2">
+                                  {getReactionEmoji(user.reactionType)}
+                                </div>
+                              )}
+                              {user.id !== JSON.parse(localStorage.getItem('user') || '{}').id && (
+                                <Button 
+                                  size="sm"
+                                  variant={followStatus[user.id] ? "outline-secondary" : "primary"}
+                                  className="rounded-pill px-3"
+                                  disabled={processingFollow[user.id]}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleFollowToggle(user.id);
+                                  }}
+                                >
+                                  {processingFollow[user.id] ? (
+                                    <Spinner 
+                                      as="span" 
+                                      animation="border" 
+                                      size="sm" 
+                                      role="status" 
+                                      aria-hidden="true" 
+                                    />
+                                  ) : followStatus[user.id] ? 'Đang theo dõi' : 'Theo dõi'}
+                                </Button>
+                              )}
                             </div>
-                          )}
+                          </div>
                         </div>
-                      </Link>
+                    ))}
+                  </div>
+                    {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="d-flex flex-column align-items-center mt-3">
+                      <ul className="pagination pagination-sm">
+                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                            &laquo;
+                          </button>
+                        </li>
+                        {totalPages <= 5 ? (
+                          // Show all page numbers if 5 or fewer pages
+                          Array.from({ length: totalPages }, (_, i) => (
+                            <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                              <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                                {i + 1}
+                              </button>
+                            </li>
+                          ))
+                        ) : (
+                          // Show limited page numbers for many pages
+                          <>
+                            <li className={`page-item ${currentPage === 1 ? 'active' : ''}`}>
+                              <button className="page-link" onClick={() => handlePageChange(1)}>1</button>
+                            </li>
+                            
+                            {currentPage > 3 && (
+                              <li className="page-item disabled">
+                                <button className="page-link">...</button>
+                              </li>
+                            )}
+                            
+                            {/* Pages around current page */}
+                            {Array.from(
+                              { length: Math.min(3, totalPages) },
+                              (_, i) => {
+                                let pageNum;
+                                if (currentPage <= 2) pageNum = i + 2;
+                                else if (currentPage >= totalPages - 1) pageNum = totalPages - 3 + i;
+                                else pageNum = currentPage - 1 + i;
+                                
+                                if (pageNum > 1 && pageNum < totalPages) {
+                                  return (
+                                    <li key={pageNum} className={`page-item ${currentPage === pageNum ? 'active' : ''}`}>
+                                      <button className="page-link" onClick={() => handlePageChange(pageNum)}>
+                                        {pageNum}
+                                      </button>
+                                    </li>
+                                  );
+                                }
+                                return null;
+                              }
+                            ).filter(Boolean)}
+                            
+                            {currentPage < totalPages - 2 && (
+                              <li className="page-item disabled">
+                                <button className="page-link">...</button>
+                              </li>
+                            )}
+                            
+                            <li className={`page-item ${currentPage === totalPages ? 'active' : ''}`}>
+                              <button className="page-link" onClick={() => handlePageChange(totalPages)}>
+                                {totalPages}
+                              </button>
+                            </li>
+                          </>
+                        )}
+                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                            &raquo;
+                          </button>
+                        </li>
+                      </ul>
+                      
+                      {filteredUsers.length > usersPerPage * 2 && (
+                        <Button 
+                          variant="link" 
+                          size="sm" 
+                          className="mt-2 text-decoration-none"
+                          onClick={() => onHide()}
+                        >
+                          Xem tất cả {filteredUsers.length} người dùng trong trang đầy đủ
+                        </Button>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
             </Tab.Pane>
           </Tab.Content>
