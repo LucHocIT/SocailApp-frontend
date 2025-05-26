@@ -1,13 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { Button, Image, Dropdown, Spinner, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaReply, FaEllipsisH, FaTrash, FaPen, FaFlag, FaHeart } from 'react-icons/fa';
+import { FaReply, FaEllipsisH, FaTrash, FaPen, FaFlag } from 'react-icons/fa';
 import TimeAgo from 'react-timeago';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import commentService from '../../services/commentService';
 import CommentReactionButton from './CommentReactionButton';
+import CommentReactionStack from './CommentReactionStack';
 import CommentForm from './CommentForm';
 import styles from './styles/CommentItem.module.scss';
 
@@ -19,10 +20,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
   const [replyFormVisible, setReplyFormVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editText, setEditText] = useState(comment.content);
-  const [loadingAction, setLoadingAction] = useState(false);
-  const [showMoreActions, setShowMoreActions] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(comment.likesCount || 0);
+  const [loadingAction, setLoadingAction] = useState(false);  const [showMoreActions, setShowMoreActions] = useState(false);
   const commentRef = useRef(null);
 
   const isAuthor = user?.id === comment.userId;
@@ -116,29 +114,9 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
         toast.error('Không thể xóa bình luận: ' + (error.message || 'Lỗi không xác định'));
       } finally {
         setLoadingAction(false);
-      }
-    }
-  };  // Handle quick like action
-  const handleQuickLike = async () => {
-    if (!user) {
-      toast.error('Bạn cần đăng nhập để thích bình luận');
-      return;
-    }
-
-    try {
-      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-      setIsLiked(!isLiked);
-      
-      await commentService.addReaction({
-        commentId: comment.id,
-        reactionType: 'like'
-      });    } catch {
-      // Revert on error
-      setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
-      setIsLiked(!isLiked);
-      toast.error('Không thể thích bình luận');
-    }
+      }    }
   };
+  
   // Handle reporting a comment
   const handleReport = () => {
     // This would be implemented later with a modal for reporting reasons
@@ -155,23 +133,32 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
     if (onCommentDeleted) {
       onCommentDeleted(replyId);
     }
-  };
-
-  // Format any reactions on the comment
-  const formatReactions = () => {
-    if (!comment.reactionCounts || Object.keys(comment.reactionCounts).length === 0) {
-      return null;
+  };  // Handle reaction change with state persistence
+  const handleReactionChange = (newReaction) => {
+    // Update comment reactions state
+    if (comment.userReaction !== newReaction) {
+      comment.userReaction = newReaction;
+      
+      // Update reaction counts
+      if (!comment.reactionCounts) {
+        comment.reactionCounts = {};
+      }
+      
+      // If there was a previous reaction, decrement it
+      if (comment.userReaction && comment.reactionCounts[comment.userReaction]) {
+        comment.reactionCounts[comment.userReaction] = Math.max(0, comment.reactionCounts[comment.userReaction] - 1);
+      }
+      
+      // If new reaction, increment it
+      if (newReaction) {
+        comment.reactionCounts[newReaction] = (comment.reactionCounts[newReaction] || 0) + 1;
+      }
+      
+      // Notify parent component
+      if (onCommentUpdated) {
+        onCommentUpdated({ ...comment, userReaction: newReaction });
+      }
     }
-
-    return (
-      <div className={styles.reactionsList}>
-        {Object.entries(comment.reactionCounts).map(([type, count]) => (
-          <span key={type} className={styles.reactionItem}>
-            {commentService.getReactionEmoji(type)} {count}
-          </span>
-        ))}
-      </div>
-    );
   };
   return (
     <div ref={commentRef} className={`${styles.commentContainer} ${depth > 0 ? styles.nested : ''}`}>
@@ -274,23 +261,12 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
             <div className={styles.commentText}>{comment.content}</div>
           )}
           
-          <div className={styles.commentActions}>
-            <div className={styles.leftActions}>
+          <div className={styles.commentActions}>            <div className={styles.leftActions}>
               <CommentReactionButton 
                 commentId={comment.id} 
                 currentReaction={comment.currentUserReactionType}
+                onReactionChange={handleReactionChange}
               />
-              
-              <Button 
-                variant="link"
-                size="sm"
-                className={styles.quickLikeButton}
-                onClick={handleQuickLike}
-                disabled={!user}
-              >
-                <FaHeart className={isLiked ? styles.liked : ''} />
-                {likeCount > 0 && <span>{likeCount}</span>}
-              </Button>
               
               {canReply && (
                 <Button 
@@ -302,13 +278,16 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
                 >
                   <FaReply /> Phản hồi
                 </Button>
-              )}
-            </div>
+              )}            </div>
             
-            {formatReactions()}
+            <CommentReactionStack 
+              commentId={comment.id}
+              reactionCounts={comment.reactionCounts}
+              maxVisible={3}
+            />
           </div>
           
-          {comment.repliesCount && comment.repliesCount > 0 && (
+          {(comment.repliesCount && Number(comment.repliesCount) > 0) && (
             <Button
               variant="link"
               className={styles.viewRepliesButton}

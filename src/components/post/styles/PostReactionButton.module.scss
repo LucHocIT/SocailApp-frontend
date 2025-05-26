@@ -1,7 +1,9 @@
-/* filepath: e:\SocialApp\frontend\src\components\comment\styles\CommentReactionButton.module.scss */
+/* filepath: e:\SocialApp\frontend\src\components\post\styles\PostReactionButton.module.scss */
 .reactionContainer {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .reactionButton {
@@ -19,7 +21,8 @@
     background-color: #f3f4f6;
     transform: translateY(-1px);
   }
-    &.hasReacted {
+  
+  &.hasReacted {
     font-weight: 600;
     background-color: rgba(24, 119, 242, 0.1);
     -webkit-backdrop-filter: blur(10px);
@@ -71,6 +74,23 @@
   
   .reactionButton:hover & {
     color: var(--bs-primary);
+  }
+}
+
+.reactionCount {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #e5e7eb;
+    color: var(--bs-primary);
+    transform: scale(1.05);
   }
 }
 
@@ -213,8 +233,70 @@
   75% { transform: translateX(2px); }
 }
 
+/* Dark mode support */
+[data-bs-theme="dark"] {
+  .reactionButton {
+    color: #e5e7eb;
+    
+    &:hover {
+      background-color: #374151;
+    }
+    
+    &.hasReacted {
+      background-color: rgba(59, 130, 246, 0.2);
+      
+      &:hover {
+        background-color: rgba(59, 130, 246, 0.3);
+      }
+    }
+  }
+  
+  .defaultReaction {
+    color: #9ca3af;
+    
+    .reactionButton:hover & {
+      color: #60a5fa;
+    }
+  }
+  
+  .reactionCount {
+    background: #374151;
+    color: #d1d5db;
+    
+    &:hover {
+      background: #4b5563;
+      color: #60a5fa;
+    }
+  }
+  
+  .reactionPopover {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .reactionPopoverBody {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  }
+  
+  .reactionOption {
+    &:hover {
+      background-color: #374151;
+    }
+    
+    &.selected {
+      background-color: rgba(59, 130, 246, 0.2);
+    }
+  }
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
+  .reactionButton {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    gap: 4px;
+  }
+  
   .reactionPopoverBody {
     padding: 6px 8px;
     gap: 2px;
@@ -236,12 +318,17 @@
     font-size: 0.65rem;
     padding: 3px 6px;
   }
+  
+  .reactionCount {
+    font-size: 0.8rem;
+    padding: 1px 6px;
+  }
 }
 
 @media (max-width: 576px) {
   .reactionButton {
-    padding: 4px 8px;
-    font-size: 0.8rem;
+    padding: 4px 6px;
+    font-size: 0.75rem;
   }
   
   .reactionPopover {

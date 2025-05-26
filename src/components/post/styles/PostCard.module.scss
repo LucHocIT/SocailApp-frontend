@@ -341,11 +341,23 @@
         }
       }
     }
-  }
-  .cardFooter {
+  }  .cardFooter {
     background-color: white;
     padding: 0.85rem 1.125rem;
     border-top: 1px solid rgba(0,0,0,0.04);
+    
+    // Reaction stack styling specific to posts
+    :global(.reactionStack) {
+      margin-bottom: 0.75rem;
+      background: rgba($primary-color, 0.05);
+      border: 1px solid rgba($primary-color, 0.1);
+      
+      &:hover {
+        background: rgba($primary-color, 0.1);
+        border-color: rgba($primary-color, 0.2);
+        box-shadow: 0 3px 8px rgba($primary-color, 0.15);
+      }
+    }
     
     .actionButtons {
       display: flex;

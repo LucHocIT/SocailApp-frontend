@@ -1,0 +1,229 @@
+.reactionStack {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  background: var(--bs-gray-100);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 4px 0;
+  
+  &:hover {
+    background: var(--bs-gray-200);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.reactionEmojis {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 20px;
+}
+
+.reactionEmoji {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  background: white;
+  border: 2px solid var(--bs-gray-100);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  
+  .reactionStack:hover & {
+    transform: scale(1.1);
+    border-color: var(--bs-primary);
+  }
+}
+
+.moreIndicator {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--bs-gray-600);
+  background: var(--bs-gray-200);
+  border: 2px solid var(--bs-gray-100);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  
+  .reactionStack:hover & {
+    background: var(--bs-gray-300);
+    color: var(--bs-gray-800);
+  }
+}
+
+.reactionCount {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--bs-gray-700);
+  margin-left: 8px;
+  transition: color 0.2s ease;
+  
+  .reactionStack:hover & {
+    color: var(--bs-primary);
+  }
+}
+
+// Dark mode support
+[data-bs-theme="dark"] {
+  .reactionStack {
+    background: var(--bs-gray-800);
+    
+    &:hover {
+      background: var(--bs-gray-700);
+    }
+  }
+  
+  .reactionEmoji {
+    background: var(--bs-gray-900);
+    border-color: var(--bs-gray-800);
+  }
+  
+  .moreIndicator {
+    background: var(--bs-gray-700);
+    border-color: var(--bs-gray-800);
+    color: var(--bs-gray-300);
+    
+    .reactionStack:hover & {
+      background: var(--bs-gray-600);
+      color: var(--bs-gray-100);
+    }
+  }
+  
+  .reactionCount {
+    color: var(--bs-gray-300);
+    
+    .reactionStack:hover & {
+      color: var(--bs-primary);
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .reactionStack {
+    padding: 3px 6px;
+    gap: 6px;
+  }
+  
+  .reactionEmoji,
+  .moreIndicator {
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+  }
+  
+  .reactionEmojis {
+    height: 18px;
+  }
+  
+  .reactionCount {
+    font-size: 11px;
+    margin-left: 6px;
+  }
+}
+
+// Animation for reactions appearing
+@keyframes reactionAppear {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(-15deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.reactionEmoji {
+  animation: reactionAppear 0.3s ease-out;
+}
+
+// Stagger animation for multiple reactions
+.reactionEmoji:nth-child(1) { animation-delay: 0ms; }
+.reactionEmoji:nth-child(2) { animation-delay: 50ms; }
+.reactionEmoji:nth-child(3) { animation-delay: 100ms; }
+.reactionEmoji:nth-child(4) { animation-delay: 150ms; }
+.reactionEmoji:nth-child(5) { animation-delay: 200ms; }
+
+// Additional enhancements for post reactions
+.postSpecific {
+  &.reactionStack {
+    background: rgba(var(--bs-primary-rgb), 0.05);
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.1);
+    
+    &:hover {
+      background: rgba(var(--bs-primary-rgb), 0.1);
+      border-color: rgba(var(--bs-primary-rgb), 0.2);
+      box-shadow: 0 3px 8px rgba(var(--bs-primary-rgb), 0.2);
+    }
+  }
+}
+
+// Enhanced interaction states for posts
+.reactionStack {
+  &.active {
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.3);
+    
+    .reactionCount {
+      color: var(--bs-primary);
+      font-weight: 600;
+    }
+  }
+  
+  &.highlighted {
+    animation: pulseHighlight 1s ease-in-out;
+  }
+}
+
+@keyframes pulseHighlight {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--bs-primary-rgb), 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(var(--bs-primary-rgb), 0);
+  }
+}
+
+// Loading state
+.reactionStack {
+  &.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    
+    .reactionEmojis {
+      animation: loadingPulse 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes loadingPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

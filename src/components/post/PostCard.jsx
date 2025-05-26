@@ -10,6 +10,7 @@ import TimeAgo from 'react-timeago';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import styles from './styles/PostCard.module.scss';
 import PostReactionButton from './PostReactionButton';
+import PostReactionStack from './PostReactionStack';
 import ReactionUsersModal from './ReactionUsersModal';
 import PostModal from './PostModal';
 
@@ -279,12 +280,18 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
             </div>
           )}
         </Card.Body>
-        
-        <Card.Footer className={styles.cardFooter}>
+          <Card.Footer className={styles.cardFooter}>
+          {/* Post reactions stack display */}
+          <PostReactionStack 
+            postId={post.id} 
+            onClick={() => setShowReactionUsersModal(true)}
+            className="mb-2"
+          />
+          
           <div className={styles.actionButtons}>
             <div className={styles.reactionButtonWrapper}>
               <PostReactionButton postId={post.id} onShowUsers={() => setShowReactionUsersModal(true)} />
-            </div>            <Button
+            </div><Button
               variant="link"
               className={styles.actionButton}
               onClick={() => setShowPostModal(true)} 

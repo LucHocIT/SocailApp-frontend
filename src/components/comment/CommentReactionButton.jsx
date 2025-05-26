@@ -12,6 +12,7 @@ const CommentReactionButton = ({ commentId, currentReaction, onReactionChange })
   const [loading, setLoading] = useState(false);
   const [selectedReaction, setSelectedReaction] = useState(currentReaction);
   const [animatingReaction, setAnimatingReaction] = useState(null);
+  const [persistedReaction, setPersistedReaction] = useState(currentReaction);
   const target = useRef(null);
   const timeoutRef = useRef(null);
 
@@ -24,12 +25,13 @@ const CommentReactionButton = ({ commentId, currentReaction, onReactionChange })
     { name: 'sad', emoji: '😢', label: 'Buồn', color: '#f39c12' },
     { name: 'angry', emoji: '😠', label: 'Tức giận', color: '#e74c3c' }
   ];
-
-  // Update selected reaction when prop changes
+  // Update selected reaction when prop changes and persist state
   useEffect(() => {
     setSelectedReaction(currentReaction);
+    setPersistedReaction(currentReaction);
   }, [currentReaction]);
-  // Handle reaction click
+
+  // Handle reaction click with improved switching logic
   const handleReaction = async (type) => {
     if (!user) {
       toast.error('Bạn cần đăng nhập để thả cảm xúc');
@@ -41,9 +43,19 @@ const CommentReactionButton = ({ commentId, currentReaction, onReactionChange })
       setLoading(true);
       setAnimatingReaction(type);
       
+      // Improved reaction switching logic
+      let newReaction;
+      if (selectedReaction === type) {
+        // If clicking the same reaction, remove it
+        newReaction = null;
+      } else {
+        // If clicking different reaction, switch to it
+        newReaction = type;
+      }
+      
       // Optimistic update
-      const newReaction = selectedReaction === type ? null : type;
       setSelectedReaction(newReaction);
+      setPersistedReaction(newReaction);
       
       // Send reaction to API
       await commentService.addReaction({
@@ -65,16 +77,25 @@ const CommentReactionButton = ({ commentId, currentReaction, onReactionChange })
       
     } catch (error) {
       // Revert optimistic update on error
-      setSelectedReaction(currentReaction);
+      setSelectedReaction(persistedReaction);
       toast.error('Không thể thả cảm xúc: ' + (error.message || 'Lỗi không xác định'));
     } finally {
       setLoading(false);
     }
+  };  // Handle showing reactions with persisted state and smooth transitions
+  const handleShowReactions = () => {
+    if (selectedReaction) {
+      // If user has reacted, toggle the reaction (remove it)
+      handleReaction(selectedReaction);
+    } else {
+      // If no reaction, show reaction picker
+      setShowReactions(!showReactions);
+    }
   };
 
-  // Handle quick like (double click)
-  const handleQuickLike = () => {
-    handleReaction('like');
+  // Handle long press for reaction picker (on mobile)
+  const handleLongPress = () => {
+    setShowReactions(true);
   };
 
   // Cleanup timeout on unmount
@@ -96,9 +117,12 @@ const CommentReactionButton = ({ commentId, currentReaction, onReactionChange })
         ref={target}
         variant="link"
         size="sm"
-        className={`${styles.reactionButton} ${selectedReaction ? styles.hasReacted : ''}`}
-        onClick={() => selectedReaction ? handleReaction(selectedReaction) : setShowReactions(!showReactions)}
-        onDoubleClick={handleQuickLike}
+        className={`${styles.reactionButton} ${selectedReaction ? styles.hasReacted : ''}`}        onClick={handleShowReactions}
+        onDoubleClick={() => handleReaction('like')}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          handleLongPress();
+        }}
         disabled={loading || !user}
         style={{
           color: selectedReaction ? getCurrentReaction()?.color : undefined

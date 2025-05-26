@@ -1,16 +1,18 @@
-import React, { useState, useRef } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { reactionAnimationProps } from '../../utils/animationHelpers';
+import React, { useState, useRef, useEffect } from 'react';
+import { Overlay, Popover, Button } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import { FaThumbsUp } from 'react-icons/fa';
 import postService from '../../services/postService';
 import usePostReactions from '../../hooks/usePostReactions';
-import { toast } from 'react-toastify';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import styles from './styles/PostReactionButton.module.scss';
 
-const PostReactionButton = ({ postId, onShowUsers }) => {
+const PostReactionButton = ({ postId, onShowUsers, onReactionChange }) => {
   const [showReactions, setShowReactions] = useState(false);
-  const [hoveringReaction, setHoveringReaction] = useState(null);  
-  const buttonRef = useRef(null);
+  const [animatingReaction, setAnimatingReaction] = useState(null);
+  const [persistedReaction, setPersistedReaction] = useState(null);
+  const target = useRef(null);
   const timeoutRef = useRef(null);
+  
   const { 
     loading,
     currentReaction, 
@@ -18,237 +20,173 @@ const PostReactionButton = ({ postId, onShowUsers }) => {
     handleReaction,
     removeReaction
   } = usePostReactions(postId);
-  
-  const reactionTypes = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
-  
-  React.useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-  
-  const handleReactionSelect = async (type) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setShowReactions(false);
-    
-    const result = await handleReaction({ reactionType: type });
-    if (!result.success && result.message) {
-      toast.error(result.message);
-    }
-  };    
-  
-  const handleButtonClick = async () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-    if (currentReaction) {
-      // If user already reacted, remove the reaction when clicked again
-      const result = await removeReaction();
+  // Available reaction types with enhanced emojis
+  const reactionTypes = [
+    { name: 'like', emoji: '👍', label: 'Thích', color: '#1877f2' },
+    { name: 'love', emoji: '❤️', label: 'Yêu thích', color: '#e74c3c' },
+    { name: 'haha', emoji: '😆', label: 'Haha', color: '#f39c12' },
+    { name: 'wow', emoji: '😮', label: 'Wow', color: '#f39c12' },
+    { name: 'sad', emoji: '😢', label: 'Buồn', color: '#f39c12' },
+    { name: 'angry', emoji: '😠', label: 'Tức giận', color: '#e74c3c' }
+  ];
+
+  // Update persisted reaction when current reaction changes
+  useEffect(() => {
+    setPersistedReaction(currentReaction);
+  }, [currentReaction]);
+
+  // Handle enhanced reaction logic with persistence and switching
+  const handleReactionClick = async (type) => {
+    try {
+      setAnimatingReaction(type);
+      
+      // Enhanced switching logic
+      let result;
+      if (currentReaction === type) {
+        // If clicking the same reaction, remove it
+        result = await removeReaction();
+      } else {
+        // If clicking different reaction, switch to it
+        result = await handleReaction({ reactionType: type });
+      }
+      
       if (!result.success && result.message) {
         toast.error(result.message);
+      } else {
+        // Update persisted state on success
+        const newReaction = currentReaction === type ? null : type;
+        setPersistedReaction(newReaction);
+        
+        // Notify parent component if provided
+        if (onReactionChange) {
+          onReactionChange(newReaction);
+        }
       }
-    } else {
-      // If no reaction yet, add a default 'love' reaction
-      await handleReaction({ reactionType: 'love' });
+      
+      setShowReactions(false);
+      
+      // Clear animation after delay
+      timeoutRef.current = setTimeout(() => {
+        setAnimatingReaction(null);
+      }, 600);      
+    } catch (error) {
+      // Revert to persisted state on error
+      if (persistedReaction !== currentReaction) {
+        // Could add rollback logic here if needed
+      }
+      toast.error('Không thể thả cảm xúc: ' + (error.message || 'Lỗi không xác định'));
     }
   };
-  
-  // Xử lý sự kiện click vào số lượng reaction để hiển thị modal
+
+  // Handle showing reactions with enhanced logic
+  const handleShowReactions = () => {
+    if (currentReaction) {
+      // If user has reacted, toggle the reaction
+      handleReactionClick(currentReaction);
+    } else {
+      // If no reaction, show reaction picker
+      setShowReactions(!showReactions);
+    }
+  };
+
+  // Handle long press for reaction picker (mobile)
+  const handleLongPress = () => {
+    setShowReactions(true);
+  };
+
+  // Handle reaction count click to show users modal
   const handleReactionCountClick = (e) => {
     e.stopPropagation();
     if (totalReactions > 0 && onShowUsers) {
       onShowUsers();
     }
   };
-  
-  const animProps = reactionAnimationProps({
-    type: currentReaction || 'love',
-    isActive: !!currentReaction
-  });
 
-  const getReactionLabel = (type) => {
-    const labels = {
-      like: 'Like',
-      love: 'Love',
-      haha: 'Haha',
-      wow: 'Wow',
-      sad: 'Sad',
-      angry: 'Angry'
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
-    return labels[type] || 'Like';
-  };
-  
+  }, []);
+
+  // Get current reaction details
+  const getCurrentReaction = () => {
+    return reactionTypes.find(r => r.name === currentReaction);
+  };  
   return (
-    <div className="reaction-container" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-      <div ref={buttonRef} className="reaction-button-wrapper" style={{ position: 'relative', zIndex: 1 }}>
-        <div
-          className="reaction-button"
-          onClick={handleButtonClick}
-          onMouseEnter={() => {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-            setShowReactions(true);
-          }}
-          onMouseLeave={() => {
-            timeoutRef.current = setTimeout(() => {
-              const selectorElement = document.querySelector('.reaction-selector');
-              if (selectorElement && !selectorElement.matches(':hover')) {
-                setShowReactions(false);
-              }
-            }, 300);
-          }}
-          style={{
-            ...animProps.style,
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '6px 12px',
-            borderRadius: '20px',
-            transition: 'all 0.2s ease',
-            background: currentReaction ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent',
-            fontWeight: currentReaction ? 600 : 400,
-            transform: 'translateZ(0)',
-            willChange: 'transform',
-          }}
-        >          
-          {currentReaction ? (
-            <>
-              <span 
-                className="reaction-emoji heartbeat"
-                style={{ 
-                  fontSize: '1.2rem', 
-                  marginRight: '4px',
-                  animation: 'heartbeat 1.2s ease-in-out',
-                }}
-              >
-                {currentReaction === 'love' ? (
-                  <FaHeart color="var(--red-color)" />
-                ) : (
-                  postService.getReactionEmoji(currentReaction)
-                )}
-              </span>
-              <span className="reaction-text" style={{ color: currentReaction === 'love' ? 'var(--red-color)' : 'inherit' }}>
-                {getReactionLabel(currentReaction)}
-              </span>
-            </>
-          ) : (
-            <>              
-              <FaRegHeart 
-                className="reaction-emoji"  
-                style={{ 
-                  fontSize: '1.2rem', 
-                  marginRight: '4px',
-                  color: 'var(--red-color)' 
-                }}
-              />
-              <span className="reaction-text" style={{ color: 'var(--red-color)' }}>Like</span>
-            </>
-          )}
-        </div>
-        
-        <AnimatePresence>
-          {showReactions && (
-            <div
-              className="reaction-selector"
-              onMouseEnter={() => {
-                if (timeoutRef.current) clearTimeout(timeoutRef.current);
-              }}
-              onMouseLeave={() => {
-                setShowReactions(false);
-                setHoveringReaction(null);
-              }}
-              style={{
-                position: 'absolute',
-                bottom: '100%',
-                left: 0,
-                padding: '8px',
-                borderRadius: '40px',
-                background: 'var(--card-bg)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                display: 'flex',
-                gap: '8px',
-                marginBottom: '8px',
-                zIndex: 100,
-                animation: 'fadeInUp 0.3s forwards',
-              }}
-            >
-              {reactionTypes.map((type) => (
-                <button
-                  key={type}
-                  className={`reaction-icon-button ${currentReaction === type ? 'active-reaction' : ''}`}
-                  onClick={() => handleReactionSelect(type)}
-                  onMouseEnter={() => setHoveringReaction(type)}
-                  onMouseLeave={() => setHoveringReaction(null)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    fontSize: '28px',
-                    cursor: 'pointer',
-                    padding: '6px',
-                    transform: currentReaction === type ? 'scale(1.2)' : 'scale(1)',
-                    boxShadow: currentReaction === type ? '0 0 0 2px var(--primary-color)' : 'none',
-                    borderRadius: '50%',
-                    position: 'relative',
-                    transition: 'all 0.2s ease-in-out',
-                    willChange: 'transform',
-                    '&:hover': {
-                      transform: 'scale(1.3) translateY(-5px)'
-                    }
-                  }}
-                  aria-label={getReactionLabel(type)}
-                >
-                  {postService.getReactionEmoji(type)}
-                  
-                  {hoveringReaction === type && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '-24px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: 'rgba(0,0,0,0.7)',
-                        color: '#fff',
-                        padding: '3px 8px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontWeight: '500',
-                        whiteSpace: 'nowrap',
-                        zIndex: 101,
-                        animation: 'fadeIn 0.2s forwards'
-                      }}
-                    >
-                      {getReactionLabel(type)}
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
-      
+    <div className={styles.reactionContainer}>
+      <Button
+        ref={target}
+        variant="link"
+        size="sm"
+        className={`${styles.reactionButton} ${currentReaction ? styles.hasReacted : ''}`}
+        onClick={handleShowReactions}
+        onDoubleClick={() => handleReactionClick('like')}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          handleLongPress();
+        }}
+        disabled={loading}
+        style={{
+          color: currentReaction ? getCurrentReaction()?.color : undefined
+        }}
+      >
+        {currentReaction ? (
+          <span className={`${styles.reactionDisplay} ${animatingReaction === currentReaction ? styles.animating : ''}`}>
+            {postService.getReactionEmoji(currentReaction)} 
+            <span className={styles.reactionLabel}>
+              {getCurrentReaction()?.label || currentReaction.charAt(0).toUpperCase() + currentReaction.slice(1)}
+            </span>
+          </span>
+        ) : (
+          <span className={styles.defaultReaction}>
+            <FaThumbsUp /> Thích
+          </span>
+        )}
+      </Button>
+
+      {/* Reaction count display */}
       {totalReactions > 0 && (
         <span 
-          className="reaction-count"
+          className={styles.reactionCount}
           onClick={handleReactionCountClick}
-          style={{ 
-            fontSize: '0.875rem', 
-            marginLeft: '8px',
-            fontWeight: '500',
-            color: 'var(--text-muted)',
-            display: 'flex',
-            alignItems: 'center',
-            background: 'rgba(0,0,0,0.05)',
-            padding: '2px 8px',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              background: 'rgba(0,0,0,0.1)',
-            }
-          }}
         >
           {loading ? '...' : totalReactions}
         </span>
       )}
+
+      <Overlay
+        target={target.current}
+        show={showReactions && !loading}
+        placement="top"
+        rootClose
+        onHide={() => setShowReactions(false)}
+      >
+        <Popover className={styles.reactionPopover}>
+          <Popover.Body className={styles.reactionPopoverBody}>
+            {reactionTypes.map((reaction) => (
+              <Button
+                key={reaction.name}
+                variant="link"
+                className={`${styles.reactionOption} ${currentReaction === reaction.name ? styles.selected : ''}`}
+                onClick={() => handleReactionClick(reaction.name)}
+                disabled={loading}
+                title={reaction.label}
+              >
+                <span className={styles.reactionEmoji}>
+                  {reaction.emoji}
+                </span>
+                <span className={styles.reactionTooltip}>
+                  {reaction.label}
+                </span>
+              </Button>
+            ))}
+          </Popover.Body>
+        </Popover>
+      </Overlay>
     </div>
   );
 };
