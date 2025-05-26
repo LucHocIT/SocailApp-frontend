@@ -1,20 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Form, Button, Image, Spinner } from 'react-bootstrap';
-import { FaRegPaperPlane } from 'react-icons/fa';
+import { FaRegPaperPlane, FaRegSmile } from 'react-icons/fa';
+import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
 import commentService from '../../services/commentService';
-import EmojiPickerComponent from '../shared/EmojiPicker';
 import styles from './styles/CommentForm.module.scss';
 
 const CommentForm = ({ postId, onCommentAdded, placeholder = "Viết bình luận..." }) => {
   const { user } = useAuth();
   const [commentText, setCommentText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);  const textareaRef = useRef(null);
-  
-  // Function để chèn emoji vào vị trí cursor
-  const handleEmojiClick = (emoji) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const textareaRef = useRef(null);
+    // Function để chèn emoji vào vị trí cursor
+  const handleEmojiClick = (emojiData) => {
+    const emoji = emojiData.emoji;
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -31,6 +33,11 @@ const CommentForm = ({ postId, onCommentAdded, placeholder = "Viết bình luậ
       textarea.selectionEnd = newCursorPos;
       textarea.focus();
     }, 0);
+  };
+
+  // Toggle emoji picker
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker(!showEmojiPicker);
   };
   
   // Auto-resize textarea
@@ -120,11 +127,23 @@ const CommentForm = ({ postId, onCommentAdded, placeholder = "Viết bình luậ
           aria-label={placeholder}
           aria-describedby="character-count"
         />        <div className={styles.inputActions}>
-          <EmojiPickerComponent
-            onEmojiClick={handleEmojiClick}
+          <button
+            type="button"
+            onClick={toggleEmojiPicker}
+            className={styles.emojiButton}
             disabled={loading}
-            buttonClassName={styles.emojiButton}
-          />
+          >
+            <FaRegSmile />
+          </button>
+          {showEmojiPicker && (
+            <div className={styles.emojiPickerContainer}>
+              <EmojiPicker
+                onEmojiClick={handleEmojiClick}
+                width={300}
+                height={350}
+              />
+            </div>
+          )}
           <Button 
             variant="primary"
             type="submit"

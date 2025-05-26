@@ -6,6 +6,7 @@
   background-color: var(--bs-white);
   border-top: 1px solid var(--bs-border-color);
   transition: all 0.2s ease;
+  overflow: visible;
   
   &.focused {
     background-color: #fafbfc;
@@ -31,6 +32,7 @@
   flex-direction: column;
   flex: 1;
   position: relative;
+  overflow: visible;
 }
 
 .commentInput {
@@ -62,6 +64,18 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.emojiPickerContainer {
+  position: absolute;
+  bottom: 45px;
+  right: 0;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .emojiButton {

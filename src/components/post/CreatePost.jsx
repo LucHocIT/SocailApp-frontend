@@ -1,26 +1,50 @@
 import React, { useState, useRef } from 'react';
 import { Card, Form, Button, Image, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaMapMarkerAlt, FaAt, FaHashtag } from 'react-icons/fa';
+import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile } from 'react-icons/fa';
+import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
 import postService from '../../services/postService';
-import EmojiPickerComponent from '../shared/EmojiPicker';
 import styles from './styles/CreatePost.module.scss';
 
 const CreatePost = ({ onPostCreated }) => {
-  const { user } = useAuth();
-  const [content, setContent] = useState('');
+  const { user } = useAuth();  const [content, setContent] = useState('');
   const [mediaFile, setMediaFile] = useState(null);
   const [mediaPreview, setMediaPreview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mediaType, setMediaType] = useState(null);
   const [location, setLocation] = useState('');
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const mediaInputRef = useRef(null);
   const textareaRef = useRef(null);
 
   const handleContentChange = (e) => {
     setContent(e.target.value);
+  };
+
+  const handleEmojiClick = (emojiData) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = content;
+    const before = text.substring(0, start);
+    const after = text.substring(end, text.length);
+    
+    setContent(before + emojiData.emoji + after);
+    setShowEmojiPicker(false);
+    
+    // Focus lại textarea và đặt cursor sau emoji
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = start + emojiData.emoji.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 10);
+  };
+
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker(!showEmojiPicker);
   };
 
   // Thêm function để lấy vị trí
@@ -68,7 +92,6 @@ const CreatePost = ({ onPostCreated }) => {
       }
     );
   };
-
   // Function để chèn text vào vị trí cursor
   const insertTextAtCursor = (textToInsert) => {
     const textarea = textareaRef.current;
@@ -87,10 +110,6 @@ const CreatePost = ({ onPostCreated }) => {
       textarea.selectionEnd = newCursorPos;
       textarea.focus();
     }, 0);
-  };
-  // Thêm các function cho icon
-  const handleEmojiClick = (emoji) => {
-    insertTextAtCursor(emoji);
   };
 
   const insertMention = () => {
@@ -210,7 +229,6 @@ const CreatePost = ({ onPostCreated }) => {
       setIsSubmitting(false);
     }
   };
-
   if (!user) {
     return null;
   }
@@ -235,14 +253,24 @@ const CreatePost = ({ onPostCreated }) => {
                 className={styles.textarea}
                 rows={mediaPreview ? 2 : 3}
                 disabled={isSubmitting}
-              />
-                {/* Content tools - Icons trong textarea */}
+              />              {/* Content tools - Icons trong textarea */}
               <div className={styles.contentTools}>
-                <EmojiPickerComponent
-                  onEmojiClick={handleEmojiClick}
-                  disabled={isSubmitting}
-                  buttonClassName={styles.toolButton}
-                />
+                {/* Emoji picker button */}
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>Thêm emoji</Tooltip>}
+                >
+                  <Button
+                    variant="light"
+                    size="sm"
+                    className={styles.toolButton}
+                    onClick={toggleEmojiPicker}
+                    disabled={isSubmitting}
+                    type="button"
+                  >
+                    <FaRegSmile />
+                  </Button>
+                </OverlayTrigger>
                 
                 <OverlayTrigger
                   placement="top"
@@ -276,8 +304,25 @@ const CreatePost = ({ onPostCreated }) => {
                   </Button>
                 </OverlayTrigger>
               </div>
+            </div>          </div>
+
+          {/* Inline Emoji Picker */}
+          {showEmojiPicker && (
+            <div className={styles.emojiPickerContainer}>
+              <EmojiPicker
+                onEmojiClick={handleEmojiClick}
+                autoFocusSearch={false}
+                theme="light"
+                height={350}
+                width={300}
+                previewConfig={{
+                  showPreview: false
+                }}
+                searchPlaceHolder="Tìm kiếm emoji..."
+                skinTonePickerLocation="PREVIEW"
+              />
             </div>
-          </div>
+          )}
 
           {/* Location display */}
           {location && (
