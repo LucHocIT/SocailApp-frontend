@@ -1,29 +1,20 @@
-import React, { useState } from 'react';
-import { Modal, Button, Image, Form, Spinner } from 'react-bootstrap';
+import React from 'react';
+import { Modal, Button, Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaRegPaperPlane } from 'react-icons/fa';
 import TimeAgo from 'react-timeago';
 import { useAuth } from '../../context/hooks';
-import { toast } from 'react-toastify';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import PostReactionButton from './PostReactionButton';
+import { CommentForm, CommentList } from '../../components/comment';
 import styles from './styles/PostModal.module.scss';
 
 const PostModal = ({ show, onHide, post }) => {
   const { user } = useAuth();
-  const [commentText, setCommentText] = useState('');
-  const [loading] = useState(false);
 
-  // Xử lý đăng bình luận
-  const handleSubmitComment = async (e) => {
-    e.preventDefault();
-    
-    if (!commentText.trim()) return;
-    
-    // Placeholder: Sẽ tích hợp API để đăng bình luận sau
-    toast.info('Chức năng đăng bình luận sẽ được triển khai sau');
-    setCommentText('');
-  };  return (
+  // No need to manage comment state as CommentList handles this internally
+  // No longer need comment handlers as the CommentList component handles these internally
+
+  return (
     <Modal 
       show={show} 
       onHide={onHide} 
@@ -83,55 +74,20 @@ const PostModal = ({ show, onHide, post }) => {
               <PostReactionButton postId={post.id} />
             </div>
           </div>
-        </div>
-
-        <div className={styles.commentsSection}>
+        </div>        <div className={styles.commentsSection}>
           <h5 className={styles.commentsSectionTitle}>Bình luận ({post.commentsCount || 0})</h5>
           
-          {post.commentsCount === 0 ? (
-            <div className={styles.emptyComments}>
-              <p>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
-            </div>
-          ) : loading ? (
-            <div className={styles.loadingComments}>
-              <Spinner animation="border" variant="primary" size="sm" />
-              <span>Đang tải bình luận...</span>
-            </div>
-          ) : (
-            <div className={styles.commentsList}>
-              {/* Sẽ tích hợp danh sách bình luận sau */}
-              <div className={styles.commentPlaceholder}>
-                <p>Chức năng hiển thị bình luận sẽ được triển khai sau.</p>
-              </div>
-            </div>
-          )}
+          <CommentList 
+            postId={post.id} 
+            commentsCount={post.commentsCount} 
+          />
         </div>
-      </Modal.Body>
-
-      <Modal.Footer className={styles.modalFooter}>
+      </Modal.Body>      <Modal.Footer className={styles.modalFooter}>
         {user ? (
-          <Form onSubmit={handleSubmitComment} className={styles.commentForm}>
-            <Image
-              src={user?.profilePictureUrl || '/images/default-avatar.png'}
-              roundedCircle
-              className={styles.commentAvatar}
-            />
-            <Form.Control
-              type="text"
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Viết bình luận..."
-              className={styles.commentInput}
-            />
-            <Button 
-              variant="primary"
-              type="submit"
-              className={styles.commentSubmit}
-              disabled={!commentText.trim() || loading}
-            >
-              <FaRegPaperPlane />
-            </Button>
-          </Form>
+          <CommentForm 
+            postId={post.id} 
+            onCommentAdded={() => {}} 
+          />
         ) : (
           <div className={styles.loginPrompt}>
             <p>Vui lòng đăng nhập để bình luận</p>

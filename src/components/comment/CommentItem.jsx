@@ -1,0 +1,349 @@
+import React, { useState } from 'react';
+import { Button, Image, Dropdown, Spinner, Badge } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { FaReply, FaEllipsisH, FaTrash, FaPen, FaFlag } from 'react-icons/fa';
+import TimeAgo from 'react-timeago';
+import { toast } from 'react-toastify';
+import { useAuth } from '../../context/hooks';
+import { convertUtcToLocal } from '../../utils/dateUtils';
+import commentService from '../../services/commentService';
+import CommentReactionButton from './CommentReactionButton';
+import styles from './styles/CommentItem.module.scss';
+
+const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) => {
+  const { user } = useAuth();
+  const [showReplies, setShowReplies] = useState(false);
+  const [replies, setReplies] = useState([]);
+  const [loadingReplies, setLoadingReplies] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [replyFormVisible, setReplyFormVisible] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editText, setEditText] = useState(comment.content);
+  const [loadingAction, setLoadingAction] = useState(false);
+  const [showMoreActions, setShowMoreActions] = useState(false);
+  
+  // Toggle replies visibility and load replies if needed
+  const toggleReplies = async () => {
+    if (!showReplies && replies.length === 0) {
+      try {
+        setLoadingReplies(true);
+        const repliesData = await commentService.getReplies(comment.id);
+        setReplies(repliesData);
+      } catch (error) {
+        toast.error('Không thể tải phản hồi: ' + (error.message || 'Lỗi không xác định'));
+      } finally {
+        setLoadingReplies(false);
+      }
+    }
+    setShowReplies(!showReplies);
+  };
+
+  // Handle reply submission
+  const handleReplySubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!replyText.trim()) return;
+    
+    try {
+      setLoadingAction(true);
+      
+      const newReply = await commentService.createComment({
+        content: replyText,
+        postId: postId,
+        parentCommentId: comment.id
+      });
+      
+      setReplies([...replies, newReply]);
+      setReplyText('');
+      setReplyFormVisible(false);
+      toast.success('Đã đăng phản hồi');
+      
+      // Show replies if not already visible
+      if (!showReplies) {
+        setShowReplies(true);
+      }
+      
+      // Notify parent component about the update
+      if (onCommentUpdated) {
+        onCommentUpdated(newReply);
+      }
+    } catch (error) {
+      toast.error('Không thể đăng phản hồi: ' + (error.message || 'Lỗi không xác định'));
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+  // Handle editing comment
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!editText.trim() || editText === comment.content) {
+      setEditMode(false);
+      return;
+    }
+    
+    try {
+      setLoadingAction(true);
+      
+      const updatedComment = await commentService.updateComment(comment.id, {
+        content: editText
+      });
+      
+      // Update local state
+      comment.content = updatedComment.content;
+      comment.updatedAt = updatedComment.updatedAt;
+      
+      setEditMode(false);
+      toast.success('Đã cập nhật bình luận');
+      
+      // Notify parent component about the update
+      if (onCommentUpdated) {
+        onCommentUpdated(updatedComment);
+      }
+    } catch (error) {
+      toast.error('Không thể cập nhật bình luận: ' + (error.message || 'Lỗi không xác định'));
+      setEditText(comment.content);  // Reset to original content on error
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+  // Handle comment deletion
+  const handleDelete = async () => {
+    if (window.confirm('Bạn có chắc muốn xóa bình luận này không?')) {
+      try {
+        setLoadingAction(true);
+        
+        await commentService.deleteComment(comment.id);
+        
+        toast.success('Đã xóa bình luận');
+        
+        // Notify parent component about deletion
+        if (onCommentDeleted) {
+          onCommentDeleted(comment.id);
+        }
+      } catch (error) {
+        toast.error('Không thể xóa bình luận: ' + (error.message || 'Lỗi không xác định'));
+      } finally {
+        setLoadingAction(false);
+      }
+    }
+  };
+
+  // Handle reporting a comment
+  const handleReport = () => {
+    // This would be implemented later with a modal for reporting reasons
+    toast.info('Chức năng báo cáo bình luận sẽ được triển khai sau');
+  };
+
+  // Format any reactions on the comment
+  const formatReactions = () => {
+    if (!comment.reactionCounts || Object.keys(comment.reactionCounts).length === 0) {
+      return null;
+    }
+
+    return (
+      <div className={styles.reactionsList}>
+        {Object.entries(comment.reactionCounts).map(([type, count]) => (
+          <span key={type} className={styles.reactionItem}>
+            {commentService.getReactionEmoji(type)} {count}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className={styles.commentContainer}>
+      <div className={styles.comment}>
+        <Link to={`/profile/${comment.username}`} className={styles.commentAvatar}>
+          <Image 
+            src={comment.profilePictureUrl || '/images/default-avatar.png'} 
+            roundedCircle 
+            className={styles.avatarImage}
+          />
+        </Link>
+        
+        <div className={styles.commentContent}>
+          <div className={styles.commentHeader}>
+            <div className={styles.commentInfo}>
+              <Link to={`/profile/${comment.username}`} className={styles.username}>
+                {comment.username}
+                {comment.isVerified && <Badge bg="primary" className={styles.verifiedBadge}>✓</Badge>}
+              </Link>
+              <span className={styles.timestamp}>
+                <TimeAgo date={convertUtcToLocal(comment.createdAt)} />
+                {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
+                  <span className={styles.edited}> (đã chỉnh sửa)</span>
+                )}
+              </span>
+            </div>
+            
+            {user && (
+              <Dropdown 
+                show={showMoreActions}
+                onToggle={(isOpen) => setShowMoreActions(isOpen)}
+                className={styles.actionsDropdown}
+              >
+                <Dropdown.Toggle 
+                  as="button" 
+                  className={styles.actionButton}
+                  disabled={loadingAction}
+                >
+                  <FaEllipsisH />
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu align="end">
+                  {user.id === comment.userId && (
+                    <>
+                      <Dropdown.Item onClick={() => setEditMode(true)}>
+                        <FaPen /> Chỉnh sửa
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={handleDelete}>
+                        <FaTrash /> Xóa
+                      </Dropdown.Item>
+                      <Dropdown.Divider />
+                    </>
+                  )}
+                  <Dropdown.Item onClick={handleReport}>
+                    <FaFlag /> Báo cáo
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
+          </div>
+          
+          {editMode ? (
+            <form onSubmit={handleEditSubmit} className={styles.editForm}>
+              <textarea 
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                className={styles.editInput}
+                disabled={loadingAction}
+                autoFocus
+                rows="3"
+              />
+              <div className={styles.editActions}>
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={() => {
+                    setEditMode(false);
+                    setEditText(comment.content);
+                  }}
+                  disabled={loadingAction}
+                >
+                  Hủy
+                </Button>
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  type="submit"
+                  disabled={!editText.trim() || editText === comment.content || loadingAction}
+                >
+                  {loadingAction ? <Spinner as="span" animation="border" size="sm" /> : 'Lưu'}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className={styles.commentText}>{comment.content}</div>
+          )}
+          
+          <div className={styles.commentActions}>
+            <div className={styles.leftActions}>
+              <CommentReactionButton 
+                commentId={comment.id} 
+                currentReaction={comment.currentUserReactionType}
+              />
+              
+              <Button 
+                variant="link" 
+                size="sm" 
+                className={styles.replyButton} 
+                onClick={() => setReplyFormVisible(!replyFormVisible)}
+                disabled={!user}
+              >
+                <FaReply /> Phản hồi
+              </Button>
+            </div>
+            
+            {formatReactions()}
+          </div>
+          
+          {comment.replies && comment.replies.length > 0 && (
+            <Button
+              variant="link"
+              className={styles.viewRepliesButton}
+              onClick={toggleReplies}
+              disabled={loadingReplies}
+            >
+              {loadingReplies ? (
+                <><Spinner as="span" animation="border" size="sm" /> Đang tải</>
+              ) : (
+                <>{showReplies ? 'Ẩn' : 'Xem'} {comment.replies.length} phản hồi</>
+              )}
+            </Button>
+          )}
+          
+          {replyFormVisible && user && (
+            <form onSubmit={handleReplySubmit} className={styles.replyForm}>
+              <Image
+                src={user.profilePictureUrl || '/images/default-avatar.png'}
+                roundedCircle
+                className={styles.replyAvatar}
+              />
+              <div className={styles.replyInputContainer}>
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder={`Phản hồi ${comment.username}...`}
+                  className={styles.replyInput}
+                  disabled={loadingAction}
+                  rows="1"
+                />
+                <div className={styles.replyActions}>
+                  <Button
+                    variant="light"
+                    size="sm"
+                    onClick={() => {
+                      setReplyFormVisible(false);
+                      setReplyText('');
+                    }}
+                    disabled={loadingAction}
+                  >
+                    Hủy
+                  </Button>
+                  <Button 
+                    variant="primary" 
+                    size="sm" 
+                    type="submit" 
+                    disabled={!replyText.trim() || loadingAction}
+                  >
+                    {loadingAction ? <Spinner as="span" animation="border" size="sm" /> : 'Gửi'}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          )}
+          
+          {showReplies && replies.length > 0 && (
+            <div className={styles.repliesContainer}>
+              {replies.map(reply => (
+                <CommentItem
+                  key={reply.id}
+                  comment={reply}
+                  postId={postId}
+                  onCommentUpdated={onCommentUpdated}
+                  onCommentDeleted={onCommentDeleted}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CommentItem;

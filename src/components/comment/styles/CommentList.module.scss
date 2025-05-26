@@ -1,0 +1,28 @@
+/* filepath: e:\SocialApp\frontend\src\components\comment\styles\CommentList.module.scss */
+.commentsContainer {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.commentsList {
+  margin-top: 16px;
+}
+
+.loadMoreButton {
+  width: 100%;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.loadingSpinner {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.emptyComments {
+  text-align: center;
+  color: var(--bs-secondary);
+  padding: 20px 0;
+}
