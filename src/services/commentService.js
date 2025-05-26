@@ -60,7 +60,16 @@ const commentService = {
       throw error.response?.data || { message: 'Lỗi khi lấy phản hồi cho bình luận' };
     }
   },
-  
+    // Get detailed reactions for a comment
+  getCommentReactions: async (commentId) => {
+    try {
+      const response = await api.get(`/comments/${commentId}/reactions`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Lỗi khi lấy thông tin cảm xúc bình luận' };
+    }
+  },
+
   // Get reaction emoji
   getReactionEmoji: (type) => {
     switch (type) {

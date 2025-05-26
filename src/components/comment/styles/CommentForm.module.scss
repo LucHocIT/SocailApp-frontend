@@ -1,42 +1,70 @@
 
 .commentForm {
   display: flex;
-  align-items: center;
-  padding: 12px;
+  align-items: flex-start;
+  padding: 16px;
   background-color: var(--bs-white);
   border-top: 1px solid var(--bs-border-color);
+  transition: all 0.2s ease;
+  
+  &.focused {
+    background-color: #fafbfc;
+    border-top-color: var(--bs-primary);
+  }
 }
 
 .commentAvatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   margin-right: 12px;
   flex-shrink: 0;
-  border: 1px solid var(--bs-border-color);
+  border: 2px solid var(--bs-border-color);
+  transition: border-color 0.2s ease;
+  
+  .commentForm.focused & {
+    border-color: var(--bs-primary);
+  }
 }
 
 .inputWrapper {
   display: flex;
+  flex-direction: column;
   flex: 1;
   position: relative;
 }
 
 .commentInput {
-  padding-right: 40px;
-  border-radius: 18px;
+  padding: 12px 80px 12px 16px;
+  border-radius: 20px;
   resize: none;
+  border: 1px solid var(--bs-border-color);
+  transition: all 0.2s ease;
+  min-height: 44px;
+  max-height: 120px;
+  overflow-y: auto;
   
   &:focus {
-    box-shadow: none;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
     border-color: var(--bs-primary);
+    outline: none;
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
   }
 }
 
-.commentSubmit {
+.inputActions {
   position: absolute;
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.emojiButton {
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -44,11 +72,83 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: #f3f4f6;
+    color: var(--bs-primary);
+  }
+}
+
+.commentSubmit {
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  &:disabled {
+    opacity: 0.6;
+  }
+  
+  &:not(:disabled):hover {
+    transform: scale(1.05);
+  }
+}
+
+.characterCount {
+  margin-top: 8px;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #6b7280;
+  
+  .warning {
+    color: #dc3545;
+    font-weight: 500;
+  }
 }
 
 .loginPrompt {
   text-align: center;
-  padding: 16px;
+  padding: 20px;
   color: var(--bs-secondary);
   border-top: 1px solid var(--bs-border-color);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+  .commentForm {
+    padding: 12px;
+  }
+  
+  .commentAvatar {
+    width: 36px;
+    height: 36px;
+    margin-right: 10px;
+  }
+  
+  .commentInput {
+    padding: 10px 60px 10px 12px;
+    border-radius: 18px;
+    min-height: 40px;
+  }
+  
+  .inputActions {
+    right: 6px;
+  }
+  
+  .commentSubmit, .emojiButton {
+    width: 28px;
+    height: 28px;
+  }
 }

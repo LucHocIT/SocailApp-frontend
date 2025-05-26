@@ -1,30 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Form, Button, Image, Spinner } from 'react-bootstrap';
-import { FaRegPaperPlane } from 'react-icons/fa';
+import { FaRegPaperPlane, FaRegSmile } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
 import commentService from '../../services/commentService';
 import styles from './styles/CommentForm.module.scss';
 
-const CommentForm = ({ postId, onCommentAdded }) => {
+const CommentForm = ({ postId, onCommentAdded, placeholder = "Viết bình luận..." }) => {
   const { user } = useAuth();
   const [commentText, setCommentText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const textareaRef = useRef(null);
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+    }
+  }, [commentText]);
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     
-    if (!commentText.trim()) return;
+    if (!commentText.trim()) {
+      toast.warning('Vui lòng nhập nội dung bình luận');
+      return;
+    }
+    
+    if (commentText.trim().length > 1000) {
+      toast.error('Bình luận không được quá 1000 ký tự');
+      return;
+    }
     
     try {
       setLoading(true);
       
       const newComment = await commentService.createComment({
-        content: commentText,
+        content: commentText.trim(),
         postId: postId
       });
       
       setCommentText('');
+      setIsFocused(false);
+      
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
       
       // Notify parent component about the new comment
       if (onCommentAdded) {
@@ -39,6 +62,13 @@ const CommentForm = ({ postId, onCommentAdded }) => {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmitComment(e);
+    }
+  };
+
   if (!user) {
     return (
       <div className={styles.loginPrompt}>
@@ -46,37 +76,57 @@ const CommentForm = ({ postId, onCommentAdded }) => {
       </div>
     );
   }
-
   return (
-    <Form onSubmit={handleSubmitComment} className={styles.commentForm}>
+    <Form onSubmit={handleSubmitComment} className={`${styles.commentForm} ${isFocused ? styles.focused : ''}`}>
       <Image
         src={user?.profilePictureUrl || '/images/default-avatar.png'}
         roundedCircle
         className={styles.commentAvatar}
       />
-      <div className={styles.inputWrapper}>
-        <Form.Control
-          type="text"
+      <div className={styles.inputWrapper}>        <Form.Control
+          ref={textareaRef}
           as="textarea"
           rows={1}
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
-          placeholder="Viết bình luận..."
+          onKeyPress={handleKeyPress}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder={placeholder}
           className={styles.commentInput}
           disabled={loading}
+          maxLength={1000}
+          aria-label={placeholder}
+          aria-describedby="character-count"
         />
-        <Button 
-          variant="primary"
-          type="submit"
-          className={styles.commentSubmit}
-          disabled={!commentText.trim() || loading}
-        >
-          {loading ? (
-            <Spinner animation="border" size="sm" />
-          ) : (
-            <FaRegPaperPlane />
-          )}
-        </Button>
+        <div className={styles.inputActions}>
+          <Button 
+            variant="link"
+            className={styles.emojiButton}
+            type="button"
+            disabled={loading}
+          >
+            <FaRegSmile />
+          </Button>
+          <Button 
+            variant="primary"
+            type="submit"
+            className={styles.commentSubmit}
+            disabled={!commentText.trim() || loading}
+          >
+            {loading ? (
+              <Spinner animation="border" size="sm" />
+            ) : (
+              <FaRegPaperPlane />
+            )}
+          </Button>
+        </div>        {isFocused && (
+          <div id="character-count" className={styles.characterCount}>
+            <span className={commentText.length > 900 ? styles.warning : ''}>
+              {commentText.length}/1000
+            </span>
+          </div>
+        )}
       </div>
     </Form>
   );

@@ -1,26 +1,33 @@
-import React, { useState } from 'react';
-import { Button, Image, Dropdown, Spinner, Badge } from 'react-bootstrap';
+import React, { useState, useRef } from 'react';
+import { Button, Image, Dropdown, Spinner, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaReply, FaEllipsisH, FaTrash, FaPen, FaFlag } from 'react-icons/fa';
+import { FaReply, FaEllipsisH, FaTrash, FaPen, FaFlag, FaHeart } from 'react-icons/fa';
 import TimeAgo from 'react-timeago';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import commentService from '../../services/commentService';
 import CommentReactionButton from './CommentReactionButton';
+import CommentForm from './CommentForm';
 import styles from './styles/CommentItem.module.scss';
 
-const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) => {
+const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, depth = 0 }) => {
   const { user } = useAuth();
   const [showReplies, setShowReplies] = useState(false);
   const [replies, setReplies] = useState([]);
   const [loadingReplies, setLoadingReplies] = useState(false);
-  const [replyText, setReplyText] = useState('');
   const [replyFormVisible, setReplyFormVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editText, setEditText] = useState(comment.content);
   const [loadingAction, setLoadingAction] = useState(false);
   const [showMoreActions, setShowMoreActions] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(comment.likesCount || 0);
+  const commentRef = useRef(null);
+
+  const isAuthor = user?.id === comment.userId;
+  const canReply = depth < 3; // Limit nesting to 3 levels
+  const isEdited = comment.updatedAt && comment.updatedAt !== comment.createdAt;
   
   // Toggle replies visibility and load replies if needed
   const toggleReplies = async () => {
@@ -37,42 +44,22 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
     }
     setShowReplies(!showReplies);
   };
-
-  // Handle reply submission
-  const handleReplySubmit = async (e) => {
-    e.preventDefault();
+  // Handle reply submission  
+  const handleReplyAdded = (newReply) => {
+    setReplies([...replies, newReply]);
+    setReplyFormVisible(false);
     
-    if (!replyText.trim()) return;
+    // Update replies count
+    comment.repliesCount = (comment.repliesCount || 0) + 1;
     
-    try {
-      setLoadingAction(true);
-      
-      const newReply = await commentService.createComment({
-        content: replyText,
-        postId: postId,
-        parentCommentId: comment.id
-      });
-        setReplies([...replies, newReply]);
-      setReplyText('');
-      setReplyFormVisible(false);
-      toast.success('Đã đăng phản hồi');
-      
-      // Update replies count
-      comment.repliesCount = (comment.repliesCount || 0) + 1;
-      
-      // Show replies if not already visible
-      if (!showReplies) {
-        setShowReplies(true);
-      }
-      
-      // Notify parent component about the update
-      if (onCommentUpdated) {
-        onCommentUpdated(newReply);
-      }
-    } catch (error) {
-      toast.error('Không thể đăng phản hồi: ' + (error.message || 'Lỗi không xác định'));
-    } finally {
-      setLoadingAction(false);
+    // Show replies if not already visible
+    if (!showReplies) {
+      setShowReplies(true);
+    }
+    
+    // Notify parent component about the update
+    if (onCommentUpdated) {
+      onCommentUpdated(newReply);
     }
   };
 
@@ -131,6 +118,26 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
         setLoadingAction(false);
       }
     }
+  };  // Handle quick like action
+  const handleQuickLike = async () => {
+    if (!user) {
+      toast.error('Bạn cần đăng nhập để thích bình luận');
+      return;
+    }
+
+    try {
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+      setIsLiked(!isLiked);
+      
+      await commentService.addReaction({
+        commentId: comment.id,
+        reactionType: 'like'
+      });    } catch {
+      // Revert on error
+      setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
+      setIsLiked(!isLiked);
+      toast.error('Không thể thích bình luận');
+    }
   };
   // Handle reporting a comment
   const handleReport = () => {
@@ -166,9 +173,8 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
       </div>
     );
   };
-
   return (
-    <div className={styles.commentContainer}>
+    <div ref={commentRef} className={`${styles.commentContainer} ${depth > 0 ? styles.nested : ''}`}>
       <div className={styles.comment}>
         <Link to={`/profile/${comment.username}`} className={styles.commentAvatar}>
           <Image 
@@ -184,9 +190,18 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
               <Link to={`/profile/${comment.username}`} className={styles.username}>
                 {comment.username}
                 {comment.isVerified && <Badge bg="primary" className={styles.verifiedBadge}>✓</Badge>}
-              </Link>              <span className={styles.timestamp}>
-                <TimeAgo date={convertUtcToLocal(comment.createdAt)} />
-              </span>
+              </Link>              
+              <div className={styles.commentMeta}>
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>{new Date(convertUtcToLocal(comment.createdAt)).toLocaleString()}</Tooltip>}
+                >
+                  <span className={styles.timestamp}>
+                    <TimeAgo date={convertUtcToLocal(comment.createdAt)} />
+                    {isEdited && <span className={styles.editedLabel}> • đã chỉnh sửa</span>}
+                  </span>
+                </OverlayTrigger>
+              </div>
             </div>
             
             {user && (
@@ -204,7 +219,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu align="end">
-                  {user.id === comment.userId && (
+                  {isAuthor && (
                     <>
                       <Dropdown.Item onClick={() => setEditMode(true)}>
                         <FaPen /> Chỉnh sửa
@@ -221,8 +236,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
                 </Dropdown.Menu>
               </Dropdown>
             )}
-          </div>
-          
+          </div>          
           {editMode ? (
             <form onSubmit={handleEditSubmit} className={styles.editForm}>
               <textarea 
@@ -232,6 +246,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
                 disabled={loadingAction}
                 autoFocus
                 rows="3"
+                maxLength={1000}
               />
               <div className={styles.editActions}>
                 <Button 
@@ -267,19 +282,33 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
               />
               
               <Button 
-                variant="link" 
-                size="sm" 
-                className={styles.replyButton} 
-                onClick={() => setReplyFormVisible(!replyFormVisible)}
+                variant="link"
+                size="sm"
+                className={styles.quickLikeButton}
+                onClick={handleQuickLike}
                 disabled={!user}
               >
-                <FaReply /> Phản hồi
+                <FaHeart className={isLiked ? styles.liked : ''} />
+                {likeCount > 0 && <span>{likeCount}</span>}
               </Button>
+              
+              {canReply && (
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  className={styles.replyButton} 
+                  onClick={() => setReplyFormVisible(!replyFormVisible)}
+                  disabled={!user}
+                >
+                  <FaReply /> Phản hồi
+                </Button>
+              )}
             </div>
             
             {formatReactions()}
           </div>
-            {comment.repliesCount && comment.repliesCount > 0 && (
+          
+          {comment.repliesCount && comment.repliesCount > 0 && (
             <Button
               variant="link"
               className={styles.viewRepliesButton}
@@ -294,47 +323,15 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
             </Button>
           )}
           
-          {replyFormVisible && user && (
-            <form onSubmit={handleReplySubmit} className={styles.replyForm}>
-              <Image
-                src={user.profilePictureUrl || '/images/default-avatar.png'}
-                roundedCircle
-                className={styles.replyAvatar}
-              />
-              <div className={styles.replyInputContainer}>
-                <textarea
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder={`Phản hồi ${comment.username}...`}
-                  className={styles.replyInput}
-                  disabled={loadingAction}
-                  rows="1"
-                />
-                <div className={styles.replyActions}>
-                  <Button
-                    variant="light"
-                    size="sm"
-                    onClick={() => {
-                      setReplyFormVisible(false);
-                      setReplyText('');
-                    }}
-                    disabled={loadingAction}
-                  >
-                    Hủy
-                  </Button>
-                  <Button 
-                    variant="primary" 
-                    size="sm" 
-                    type="submit" 
-                    disabled={!replyText.trim() || loadingAction}
-                  >
-                    {loadingAction ? <Spinner as="span" animation="border" size="sm" /> : 'Gửi'}
-                  </Button>
-                </div>
-              </div>
-            </form>
+          {replyFormVisible && user && canReply && (
+            <CommentForm
+              postId={postId}
+              onCommentAdded={handleReplyAdded}
+              placeholder={`Phản hồi ${comment.username}...`}
+            />
           )}
-            {showReplies && replies.length > 0 && (
+          
+          {showReplies && replies.length > 0 && (
             <div className={styles.repliesContainer}>
               {replies.map(reply => (
                 <CommentItem
@@ -343,6 +340,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted }) =>
                   postId={postId}
                   onCommentUpdated={onCommentUpdated}
                   onCommentDeleted={handleReplyDeleted}
+                  depth={depth + 1}
                 />
               ))}
             </div>

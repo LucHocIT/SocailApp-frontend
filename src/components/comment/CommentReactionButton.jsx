@@ -1,26 +1,34 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Overlay, Popover, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import { FaHeart, FaThumbsUp } from 'react-icons/fa';
 import { useAuth } from '../../context/hooks';
 import commentService from '../../services/commentService';
 import styles from './styles/CommentReactionButton.module.scss';
 
-const CommentReactionButton = ({ commentId, currentReaction }) => {
+const CommentReactionButton = ({ commentId, currentReaction, onReactionChange }) => {
   const { user } = useAuth();
   const [showReactions, setShowReactions] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedReaction, setSelectedReaction] = useState(currentReaction);
+  const [animatingReaction, setAnimatingReaction] = useState(null);
   const target = useRef(null);
+  const timeoutRef = useRef(null);
 
-  // Available reaction types
+  // Available reaction types with enhanced emojis
   const reactionTypes = [
-    { name: 'like', emoji: '👍' },
-    { name: 'love', emoji: '❤️' },
-    { name: 'haha', emoji: '😆' },
-    { name: 'wow', emoji: '😮' },
-    { name: 'sad', emoji: '😢' },
-    { name: 'angry', emoji: '😠' }
+    { name: 'like', emoji: '👍', label: 'Thích', color: '#1877f2' },
+    { name: 'love', emoji: '❤️', label: 'Yêu thích', color: '#e74c3c' },
+    { name: 'haha', emoji: '😆', label: 'Haha', color: '#f39c12' },
+    { name: 'wow', emoji: '😮', label: 'Wow', color: '#f39c12' },
+    { name: 'sad', emoji: '😢', label: 'Buồn', color: '#f39c12' },
+    { name: 'angry', emoji: '😠', label: 'Tức giận', color: '#e74c3c' }
   ];
 
+  // Update selected reaction when prop changes
+  useEffect(() => {
+    setSelectedReaction(currentReaction);
+  }, [currentReaction]);
   // Handle reaction click
   const handleReaction = async (type) => {
     if (!user) {
@@ -31,6 +39,11 @@ const CommentReactionButton = ({ commentId, currentReaction }) => {
 
     try {
       setLoading(true);
+      setAnimatingReaction(type);
+      
+      // Optimistic update
+      const newReaction = selectedReaction === type ? null : type;
+      setSelectedReaction(newReaction);
       
       // Send reaction to API
       await commentService.addReaction({
@@ -38,36 +51,76 @@ const CommentReactionButton = ({ commentId, currentReaction }) => {
         reactionType: type
       });
       
+      // Notify parent component
+      if (onReactionChange) {
+        onReactionChange(newReaction);
+      }
+      
       setShowReactions(false);
+      
+      // Clear animation after delay
+      timeoutRef.current = setTimeout(() => {
+        setAnimatingReaction(null);
+      }, 600);
+      
     } catch (error) {
+      // Revert optimistic update on error
+      setSelectedReaction(currentReaction);
       toast.error('Không thể thả cảm xúc: ' + (error.message || 'Lỗi không xác định'));
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle quick like (double click)
+  const handleQuickLike = () => {
+    handleReaction('like');
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Get current reaction details
+  const getCurrentReaction = () => {
+    return reactionTypes.find(r => r.name === selectedReaction);
+  };
   return (
     <div className={styles.reactionContainer}>
       <Button
         ref={target}
         variant="link"
         size="sm"
-        className={`${styles.reactionButton} ${currentReaction ? styles.hasReacted : ''}`}
-        onClick={() => currentReaction ? handleReaction(currentReaction) : setShowReactions(!showReactions)}
+        className={`${styles.reactionButton} ${selectedReaction ? styles.hasReacted : ''}`}
+        onClick={() => selectedReaction ? handleReaction(selectedReaction) : setShowReactions(!showReactions)}
+        onDoubleClick={handleQuickLike}
         disabled={loading || !user}
+        style={{
+          color: selectedReaction ? getCurrentReaction()?.color : undefined
+        }}
       >
-        {currentReaction ? (
-          <>
-            {commentService.getReactionEmoji(currentReaction)} {currentReaction.charAt(0).toUpperCase() + currentReaction.slice(1)}
-          </>
+        {selectedReaction ? (
+          <span className={`${styles.reactionDisplay} ${animatingReaction === selectedReaction ? styles.animating : ''}`}>
+            {commentService.getReactionEmoji(selectedReaction)} 
+            <span className={styles.reactionLabel}>
+              {getCurrentReaction()?.label || selectedReaction.charAt(0).toUpperCase() + selectedReaction.slice(1)}
+            </span>
+          </span>
         ) : (
-          'Thích'
+          <span className={styles.defaultReaction}>
+            <FaThumbsUp /> Thích
+          </span>
         )}
       </Button>
 
       <Overlay
         target={target.current}
-        show={showReactions}
+        show={showReactions && !loading}
         placement="top"
         rootClose
         onHide={() => setShowReactions(false)}
@@ -78,11 +131,17 @@ const CommentReactionButton = ({ commentId, currentReaction }) => {
               <Button
                 key={reaction.name}
                 variant="link"
-                className={styles.reactionOption}
+                className={`${styles.reactionOption} ${selectedReaction === reaction.name ? styles.selected : ''}`}
                 onClick={() => handleReaction(reaction.name)}
                 disabled={loading}
+                title={reaction.label}
               >
-                {reaction.emoji}
+                <span className={styles.reactionEmoji}>
+                  {reaction.emoji}
+                </span>
+                <span className={styles.reactionTooltip}>
+                  {reaction.label}
+                </span>
               </Button>
             ))}
           </Popover.Body>
