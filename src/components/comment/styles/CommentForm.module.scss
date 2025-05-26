@@ -65,6 +65,8 @@
 }
 
 .emojiButton {
+  border: none !important;
+  background: none !important;
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -76,8 +78,13 @@
   transition: all 0.2s ease;
   
   &:hover {
-    background-color: #f3f4f6;
+    background-color: #f3f4f6 !important;
     color: var(--bs-primary);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
   }
 }
 

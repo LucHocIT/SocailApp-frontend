@@ -1,17 +1,38 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Form, Button, Image, Spinner } from 'react-bootstrap';
-import { FaRegPaperPlane, FaRegSmile } from 'react-icons/fa';
+import { FaRegPaperPlane } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
 import commentService from '../../services/commentService';
+import EmojiPickerComponent from '../shared/EmojiPicker';
 import styles from './styles/CommentForm.module.scss';
 
 const CommentForm = ({ postId, onCommentAdded, placeholder = "Viết bình luận..." }) => {
   const { user } = useAuth();
   const [commentText, setCommentText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const textareaRef = useRef(null);
+  const [isFocused, setIsFocused] = useState(false);  const textareaRef = useRef(null);
+  
+  // Function để chèn emoji vào vị trí cursor
+  const handleEmojiClick = (emoji) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const newText = commentText.substring(0, start) + emoji + commentText.substring(end);
+    
+    setCommentText(newText);
+    
+    // Đặt lại vị trí cursor sau emoji
+    setTimeout(() => {
+      const newCursorPos = start + emoji.length;
+      textarea.selectionStart = newCursorPos;
+      textarea.selectionEnd = newCursorPos;
+      textarea.focus();
+    }, 0);
+  };
+  
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
@@ -98,16 +119,12 @@ const CommentForm = ({ postId, onCommentAdded, placeholder = "Viết bình luậ
           maxLength={1000}
           aria-label={placeholder}
           aria-describedby="character-count"
-        />
-        <div className={styles.inputActions}>
-          <Button 
-            variant="link"
-            className={styles.emojiButton}
-            type="button"
+        />        <div className={styles.inputActions}>
+          <EmojiPickerComponent
+            onEmojiClick={handleEmojiClick}
             disabled={loading}
-          >
-            <FaRegSmile />
-          </Button>
+            buttonClassName={styles.emojiButton}
+          />
           <Button 
             variant="primary"
             type="submit"
@@ -120,7 +137,7 @@ const CommentForm = ({ postId, onCommentAdded, placeholder = "Viết bình luậ
               <FaRegPaperPlane />
             )}
           </Button>
-        </div>        {isFocused && (
+        </div>{isFocused && (
           <div id="character-count" className={styles.characterCount}>
             <span className={commentText.length > 900 ? styles.warning : ''}>
               {commentText.length}/1000
