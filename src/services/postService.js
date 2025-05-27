@@ -63,24 +63,39 @@ const postService = {
     } catch (error){
       throw error.response?.data || { message: 'Error toggling reaction' };
     }
-  },
-  // Upload media for a post
-  uploadMedia: async (mediaFile, mediaType = "image") => {
+  },  // Upload multiple media files for a post
+  uploadMultipleMedia: async (mediaFiles, mediaTypes) => {
     try {
       const formData = new FormData();
-      formData.append('Media', mediaFile);
-      formData.append('MediaType', mediaType);
       
-      const response = await api.post('/posts/upload-media', formData, {
+      // Add all media files to form data
+      for (let i = 0; i < mediaFiles.length; i++) {
+        formData.append('MediaFiles', mediaFiles[i]);
+      }
+      
+      // Add corresponding media types
+      for (let i = 0; i < mediaTypes.length; i++) {
+        formData.append('MediaTypes', mediaTypes[i]);
+      }
+      
+      const response = await api.post('/posts/upload-multiple-media', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       
-      // Return the response data directly from the server
       return response.data;
     } catch (error) {
-      // If we have a response with data, throw that, otherwise throw a generic error
+      throw error.response?.data || { message: 'Error uploading media files' };
+    }
+  },
+
+  // Legacy: Upload single media for a post (kept for backward compatibility)
+  uploadMedia: async (mediaFile, mediaType = "image") => {
+    try {
+      // Use the multiple media upload endpoint with single file
+      return await postService.uploadMultipleMedia([mediaFile], [mediaType]);
+    } catch (error) {
       throw error.response?.data || { message: 'Error uploading media' };
     }
   },

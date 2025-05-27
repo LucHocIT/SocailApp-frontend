@@ -230,8 +230,8 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
               </div>
             </div>
           )}
-          
-          {post.mediaUrl && (
+            {/* Media display - Legacy single media support */}
+          {post.mediaUrl && (!post.mediaFiles || post.mediaFiles.length === 0) && (
             <div className={`${styles.mediaContainer} ${post.mediaType === 'image' ? styles.imageContainer : ''}`}>            
               {post.mediaType === 'image' ? (
                 <div className={styles.imageWrapper}>
@@ -285,6 +285,86 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
                   </a>
                 </div>
               ) : null}
+            </div>
+          )}
+
+          {/* Multiple media files display */}
+          {post.mediaFiles && post.mediaFiles.length > 0 && (
+            <div className={styles.multipleMediaContainer}>
+              <div className={`${styles.mediaGrid} ${styles[`grid${Math.min(post.mediaFiles.length, 4)}`]}`}>
+                {post.mediaFiles.slice(0, 4).map((media, index) => (
+                  <div key={index} className={styles.mediaItem}>
+                    {media.mediaType === 'image' ? (
+                      <div className={styles.imageWrapper}>
+                        <Image 
+                          src={media.mediaUrl} 
+                          alt={`Post media ${index + 1}`} 
+                          className={styles.gridImage}
+                          loading="lazy"
+                        />
+                        <div className={styles.imageOverlay}>
+                          <div className={styles.imageActions}>
+                            <div 
+                              className={styles.imageAction} 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(media.mediaUrl, '_blank');
+                              }}
+                              title="Xem ảnh đầy đủ"
+                            >
+                              <FaEye />
+                            </div>
+                          </div>
+                        </div>
+                        {index === 3 && post.mediaFiles.length > 4 && (
+                          <div className={styles.moreOverlay}>
+                            <span className={styles.moreText}>+{post.mediaFiles.length - 4}</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : media.mediaType === 'video' ? (
+                      <div className={styles.videoWrapper}>
+                        <video 
+                          className={styles.gridVideo}
+                          controls
+                          poster={media.thumbnailUrl}
+                        >
+                          <source src={media.mediaUrl} type={media.mediaMimeType || 'video/mp4'} />
+                          Your browser does not support the video tag.
+                        </video>
+                        {media.duration && (
+                          <div className={styles.videoDuration}>{media.duration}</div>
+                        )}
+                        {index === 3 && post.mediaFiles.length > 4 && (
+                          <div className={styles.moreOverlay}>
+                            <span className={styles.moreText}>+{post.mediaFiles.length - 4}</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className={styles.fileContainer}>
+                        <a 
+                          href={media.mediaUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.file}
+                        >
+                          <FaFile className={styles.fileIcon} /> 
+                          <span className={styles.fileName}>{media.mediaFilename}</span>
+                          <Badge bg="light" text="dark" className={styles.fileSize}>
+                            {media.mediaFileSize ? `${Math.round(media.mediaFileSize / 1024)} KB` : '0 KB'}
+                          </Badge>
+                        </a>
+                        {index === 3 && post.mediaFiles.length > 4 && (
+                          <div className={styles.moreOverlay}>
+                            <span className={styles.moreText}>+{post.mediaFiles.length - 4}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </Card.Body>

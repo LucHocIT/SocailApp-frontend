@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Card, Form, Button, Image, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile } from 'react-icons/fa';
+import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
@@ -8,13 +8,14 @@ import postService from '../../services/postService';
 import styles from './styles/CreatePost.module.scss';
 
 const CreatePost = ({ onPostCreated }) => {
-  const { user } = useAuth();  const [content, setContent] = useState('');
-  const [mediaFile, setMediaFile] = useState(null);
-  const [mediaPreview, setMediaPreview] = useState('');
+  const { user } = useAuth();
+  
+  const [content, setContent] = useState('');
+  const [mediaFiles, setMediaFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [mediaType, setMediaType] = useState(null);
   const [location, setLocation] = useState('');
-  const [isGettingLocation, setIsGettingLocation] = useState(false);  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const mediaInputRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -35,7 +36,6 @@ const CreatePost = ({ onPostCreated }) => {
     setContent(before + emojiData.emoji + after);
     setShowEmojiPicker(false);
     
-    // Focus lại textarea và đặt cursor sau emoji
     setTimeout(() => {
       textarea.focus();
       const newCursorPos = start + emojiData.emoji.length;
@@ -47,7 +47,6 @@ const CreatePost = ({ onPostCreated }) => {
     setShowEmojiPicker(!showEmojiPicker);
   };
 
-  // Thêm function để lấy vị trí
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
       toast.error('Trình duyệt không hỗ trợ định vị');
@@ -92,7 +91,7 @@ const CreatePost = ({ onPostCreated }) => {
       }
     );
   };
-  // Function để chèn text vào vị trí cursor
+
   const insertTextAtCursor = (textToInsert) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
@@ -103,7 +102,6 @@ const CreatePost = ({ onPostCreated }) => {
     
     setContent(newContent);
     
-    // Đặt lại vị trí cursor
     setTimeout(() => {
       const newCursorPos = start + textToInsert.length;
       textarea.selectionStart = newCursorPos;
@@ -121,42 +119,69 @@ const CreatePost = ({ onPostCreated }) => {
   };
 
   const handleMediaChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File quá lớn. Kích thước tối đa là 10MB');
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    // Validate total files count
+    if (mediaFiles.length + files.length > 10) {
+      toast.error('Tối đa 10 file media cho mỗi bài viết');
       return;
     }
 
-    setMediaFile(file);
+    const validFiles = [];
+    
+    for (const file of files) {
+      // Validate file size
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`File ${file.name} quá lớn. Kích thước tối đa là 10MB`);
+        continue;
+      }
 
-    if (file.type.startsWith('image/')) {
-      setMediaType('image');
-    } else if (file.type.startsWith('video/')) {
-      setMediaType('video');
-    } else {
-      setMediaType('file');
+      // Determine media type
+      let mediaType = 'file';
+      if (file.type.startsWith('image/')) {
+        mediaType = 'image';
+      } else if (file.type.startsWith('video/')) {
+        mediaType = 'video';
+      }
+
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      
+      validFiles.push({
+        file,
+        mediaType,
+        previewUrl,
+        filename: file.name
+      });
     }
 
-    const previewUrl = URL.createObjectURL(file);
-    setMediaPreview(previewUrl);
+    if (validFiles.length > 0) {
+      setMediaFiles(prev => [...prev, ...validFiles]);
+    }
+    
+    // Reset input
+    if (mediaInputRef.current) {
+      mediaInputRef.current.value = '';
+    }
   };
   
   const triggerMediaUpload = (acceptTypes) => {
     if (mediaInputRef.current) {
       mediaInputRef.current.accept = acceptTypes;
+      mediaInputRef.current.multiple = true; // Enable multiple selection
       mediaInputRef.current.click();
     }
   };
 
-  const removeMedia = () => {
-    setMediaFile(null);
-    setMediaPreview('');
-    setMediaType(null);
-    if (mediaInputRef.current) {
-      mediaInputRef.current.value = '';
-    }
+  const removeMediaFile = (index) => {
+    setMediaFiles(prev => {
+      const newFiles = [...prev];
+      // Revoke object URL to free memory
+      URL.revokeObjectURL(newFiles[index].previewUrl);
+      newFiles.splice(index, 1);
+      return newFiles;
+    });
   };
 
   const removeLocation = () => {
@@ -167,162 +192,140 @@ const CreatePost = ({ onPostCreated }) => {
     e.preventDefault();
     if (isSubmitting) return;
 
-    if (!content.trim()) {
-      toast.error('Nội dung bài viết không được để trống');
+    if (!content.trim() && mediaFiles.length === 0) {
+      toast.error('Vui lòng thêm nội dung hoặc media cho bài viết');
       return;
     }
 
     try {
       setIsSubmitting(true);
 
-      let mediaUrl = null;
-      let mediaType = null;
-      let mediaPublicId = null;
+      let uploadedMediaFiles = [];
 
-      if (mediaFile) {
-        let uploadMediaType = "file";
-        if (mediaFile.type.startsWith('image/')) {
-          uploadMediaType = "image";
-        } else if (mediaFile.type.startsWith('video/')) {
-          uploadMediaType = "video";
-        } else {
-          uploadMediaType = "file";
-        }
+      // Upload multiple media files if any
+      if (mediaFiles.length > 0) {
+        const mediaFilesToUpload = mediaFiles.map(m => m.file);
+        const mediaTypes = mediaFiles.map(m => m.mediaType);
         
-        const uploadResult = await postService.uploadMedia(mediaFile, uploadMediaType);
+        const uploadResult = await postService.uploadMultipleMedia(mediaFilesToUpload, mediaTypes);
         
-        if (uploadResult && uploadResult.mediaUrl) {
-          mediaUrl = uploadResult.mediaUrl;
-          mediaType = uploadMediaType;
-          mediaPublicId = uploadResult.publicId;
+        if (uploadResult && uploadResult.success) {
+          uploadedMediaFiles = uploadResult.results.map((result, index) => ({
+            mediaUrl: result.mediaUrl,
+            mediaType: result.mediaType || mediaTypes[index],
+            mediaPublicId: result.publicId,
+            mediaMimeType: result.mediaType,
+            mediaFilename: result.mediaFilename,
+            mediaFileSize: result.fileSize,
+            width: result.width,
+            height: result.height,
+            duration: result.duration,
+            orderIndex: index
+          }));
         } else {
-          throw new Error(uploadResult.message || 'Không thể tải lên media');
+          throw new Error(uploadResult?.message || 'Không thể tải lên media files');
         }
-      }
-
-      const postData = {
-        content,
-        mediaUrl,
-        mediaType,
-        mediaPublicId,
-        location: location || null
+      }      const postData = {
+        content: content.trim(),
+        location: location || null,
+        mediaFiles: uploadedMediaFiles
       };
       
       const newPost = await postService.createPost(postData);
       
       // Reset form
       setContent('');
-      setMediaFile(null);
-      setMediaPreview('');
-      setMediaType(null);
+      setMediaFiles([]);
       setLocation('');
+      setShowEmojiPicker(false);
       
-      if (onPostCreated) {
+      // Revoke all object URLs
+      mediaFiles.forEach(media => URL.revokeObjectURL(media.previewUrl));
+      
+      toast.success('Bài viết đã được đăng thành công!');
+        if (onPostCreated) {
         onPostCreated(newPost);
       }
-      
-      toast.success('Bài viết đã được tạo thành công!');
     } catch (error) {
-      console.error('Failed to create post:', error);
-      toast.error(error.message || 'Không thể tạo bài viết. Vui lòng thử lại sau.');
+      console.error('Error creating post:', error);
+      toast.error(error.message || 'Không thể đăng bài viết. Vui lòng thử lại sau.');
     } finally {
       setIsSubmitting(false);
     }
   };
-  if (!user) {
-    return null;
-  }
 
   return (
-    <Card className={`${styles.createPostCard} ${styles.animate}`} data-aos="fade-in">
-      <Card.Body className="p-0">
-        <Form className={styles.postForm} onSubmit={handleSubmit}>
-          <div className={styles.userSection}>
-            <Image 
-              src={user.profilePictureUrl || '/images/default-avatar.png'} 
+    <Card className={styles.createPostCard}>
+      <Card.Body className={styles.cardBody}>
+        <Form onSubmit={handleSubmit} className={styles.form}>
+          {/* User info */}
+          <div className={styles.userInfo}>
+            <Image
+              src={user?.profilePictureUrl || '/images/default-avatar.png'}
+              alt={user?.username}
               className={styles.avatar}
-              roundedCircle 
+              roundedCircle
             />
-            <div className={styles.textareaWrapper}>
-              <Form.Control
-                ref={textareaRef}
-                as="textarea"
-                placeholder={`Bạn đang nghĩ gì, ${user.firstName || user.username}?`}
-                value={content}
-                onChange={handleContentChange}
-                className={styles.textarea}
-                rows={mediaPreview ? 2 : 3}
-                disabled={isSubmitting}
-              />              {/* Content tools - Icons trong textarea */}
-              <div className={styles.contentTools}>
-                {/* Emoji picker button */}
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip>Thêm emoji</Tooltip>}
-                >
-                  <Button
-                    variant="light"
-                    size="sm"
-                    className={styles.toolButton}
-                    onClick={toggleEmojiPicker}
-                    disabled={isSubmitting}
-                    type="button"
-                  >
-                    <FaRegSmile />
-                  </Button>
-                </OverlayTrigger>
-                
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip>Nhắc đến ai đó</Tooltip>}
-                >
-                  <Button
-                    variant="light"
-                    size="sm"
-                    className={styles.toolButton}
-                    onClick={insertMention}
-                    disabled={isSubmitting}
-                    type="button"
-                  >
-                    <FaAt />
-                  </Button>
-                </OverlayTrigger>
-                
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip>Thêm hashtag</Tooltip>}
-                >
-                  <Button
-                    variant="light"
-                    size="sm"
-                    className={styles.toolButton}
-                    onClick={insertHashtag}
-                    disabled={isSubmitting}
-                    type="button"
-                  >
-                    <FaHashtag />
-                  </Button>
-                </OverlayTrigger>
-              </div>
-            </div>          </div>
-
-          {/* Inline Emoji Picker */}
-          {showEmojiPicker && (
-            <div className={styles.emojiPickerContainer}>
-              <EmojiPicker
-                onEmojiClick={handleEmojiClick}
-                autoFocusSearch={false}
-                theme="light"
-                height={350}
-                width={300}
-                previewConfig={{
-                  showPreview: false
-                }}
-                searchPlaceHolder="Tìm kiếm emoji..."
-                skinTonePickerLocation="PREVIEW"
-              />
+            <div className={styles.userDetails}>
+              <span className={styles.username}>{user?.username}</span>
             </div>
-          )}
+          </div>
+
+          {/* Content textarea */}
+          <div className={styles.textareaContainer}>
+            <Form.Control
+              as="textarea"
+              ref={textareaRef}
+              value={content}
+              onChange={handleContentChange}
+              placeholder="Bạn đang nghĩ gì?"
+              className={styles.textarea}
+              rows={3}
+              disabled={isSubmitting}
+            />
+            
+            {/* Content tools */}
+            <div className={styles.contentTools}>
+              <Button
+                variant="link"
+                className={styles.toolButton}
+                onClick={insertMention}
+                type="button"
+                disabled={isSubmitting}
+              >
+                <FaAt />
+              </Button>
+              <Button
+                variant="link"
+                className={styles.toolButton}
+                onClick={insertHashtag}
+                type="button"
+                disabled={isSubmitting}
+              >
+                <FaHashtag />
+              </Button>
+              <Button
+                variant="link"
+                className={styles.toolButton}
+                onClick={toggleEmojiPicker}
+                type="button"
+                disabled={isSubmitting}
+              >
+                <FaRegSmile />
+              </Button>
+            </div>
+
+            {/* Emoji picker */}
+            {showEmojiPicker && (
+              <div className={styles.emojiPickerContainer}>
+                <EmojiPicker
+                  onEmojiClick={handleEmojiClick}
+                  width={300}
+                  height={400}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Location display */}
           {location && (
@@ -343,45 +346,51 @@ const CreatePost = ({ onPostCreated }) => {
             </div>
           )}
 
-          {/* Media preview */}
-          {mediaPreview && (
+          {/* Media previews */}
+          {mediaFiles.length > 0 && (
             <div className={styles.mediaPreviewContainer}>
-              {mediaType === 'image' ? (
-                <Image 
-                  src={mediaPreview} 
-                  alt="Preview" 
-                  className={styles.mediaPreview}
-                />
-              ) : mediaType === 'video' ? (
-                <video 
-                  className={styles.videoPreview}
-                  controls
-                >
-                  <source src={mediaPreview} type={mediaFile.type} />
-                  Your browser does not support the video tag.
-                </video>
-              ) : mediaType === 'file' ? (
-                <div className={styles.filePreview}>
-                  <div>
-                    <FaFile className={styles.fileIcon} />
-                    <p className={styles.fileName}>{mediaFile.name}</p>
-                    <small className={styles.fileSize}>({Math.round(mediaFile.size / 1024)} KB)</small>
+              <div className={styles.mediaGrid}>
+                {mediaFiles.map((media, index) => (
+                  <div key={index} className={styles.mediaItem}>
+                    {media.mediaType === 'image' ? (
+                      <Image 
+                        src={media.previewUrl} 
+                        alt="Preview" 
+                        className={styles.mediaPreview}
+                      />
+                    ) : media.mediaType === 'video' ? (
+                      <video 
+                        className={styles.videoPreview}
+                        controls
+                      >
+                        <source src={media.previewUrl} type={media.file.type} />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <div className={styles.filePreview}>
+                        <div>
+                          <FaFile className={styles.fileIcon} />
+                          <p className={styles.fileName}>{media.filename}</p>
+                          <small className={styles.fileSize}>({Math.round(media.file.size / 1024)} KB)</small>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      variant="light"
+                      className={styles.removeButton}
+                      onClick={() => removeMediaFile(index)}
+                      type="button"
+                    >
+                      <FaTimes className={styles.closeIcon} />
+                    </Button>
                   </div>
-                </div>
-              ) : null}
-              
-              <Button 
-                variant="light"
-                className={styles.removeButton}
-                onClick={removeMedia}
-                type="button"
-              >
-                <FaTimes className={styles.closeIcon} />
-              </Button>
+                ))}
+              </div>
             </div>
           )}
 
-          {/* Form footer với các nút */}
+          {/* Form footer */}
           <div className={styles.formFooter}>
             <div className={styles.mediaButtons}>
               {/* Image upload button */}
@@ -393,7 +402,7 @@ const CreatePost = ({ onPostCreated }) => {
                   variant="light" 
                   className={`${styles.mediaButton} ${styles.imageBtn}`}
                   onClick={() => triggerMediaUpload('image/*')}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || mediaFiles.length >= 10}
                   type="button"
                 >
                   <FaImage className={styles.mediaIcon} />
@@ -409,7 +418,7 @@ const CreatePost = ({ onPostCreated }) => {
                   variant="light" 
                   className={`${styles.mediaButton} ${styles.videoBtn}`}
                   onClick={() => triggerMediaUpload('video/*')}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || mediaFiles.length >= 10}
                   type="button"
                 >
                   <FaVideo className={styles.mediaIcon} />
@@ -425,10 +434,26 @@ const CreatePost = ({ onPostCreated }) => {
                   variant="light" 
                   className={`${styles.mediaButton} ${styles.fileBtn}`}
                   onClick={() => triggerMediaUpload('.pdf,.doc,.docx,.xls,.xlsx,.txt')}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || mediaFiles.length >= 10}
                   type="button"
                 >
                   <FaFile className={styles.mediaIcon} />
+                </Button>
+              </OverlayTrigger>
+
+              {/* Multiple files upload button */}
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip>Tải lên nhiều file</Tooltip>}
+              >
+                <Button 
+                  variant="light" 
+                  className={`${styles.mediaButton} ${styles.multipleBtn}`}
+                  onClick={() => triggerMediaUpload('*/*')}
+                  disabled={isSubmitting || mediaFiles.length >= 10}
+                  type="button"
+                >
+                  <FaPlus className={styles.mediaIcon} />
                 </Button>
               </OverlayTrigger>
 
@@ -444,30 +469,15 @@ const CreatePost = ({ onPostCreated }) => {
                   disabled={isSubmitting || isGettingLocation}
                   type="button"
                 >
-                  {isGettingLocation ? (
-                    <Spinner as="span" animation="border" size="sm" />
-                  ) : (
-                    <FaMapMarkerAlt className={styles.mediaIcon} />
-                  )}
+                  <FaMapMarkerAlt className={styles.mediaIcon} />
                 </Button>
               </OverlayTrigger>
-              
-              {/* Hidden file input */}
-              <Form.Control
-                ref={mediaInputRef}
-                type="file"
-                onChange={handleMediaChange}
-                className={styles.hiddenInput}
-                accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
-                disabled={isSubmitting}
-              />
             </div>
-            
+
             <Button 
               type="submit" 
-              variant="primary" 
-              className={styles.postButton}
-              disabled={isSubmitting || (!content.trim() && !mediaFile)}
+              className={styles.submitButton}
+              disabled={isSubmitting || (!content.trim() && mediaFiles.length === 0)}
             >
               {isSubmitting ? (
                 <>
@@ -483,6 +493,15 @@ const CreatePost = ({ onPostCreated }) => {
             </Button>
           </div>
         </Form>
+
+        {/* Hidden file input */}
+        <input
+          type="file"
+          ref={mediaInputRef}
+          onChange={handleMediaChange}
+          style={{ display: 'none' }}
+          multiple
+        />
       </Card.Body>
     </Card>
   );
