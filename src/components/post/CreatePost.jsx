@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, Form, Button, Image, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
@@ -13,11 +13,29 @@ const CreatePost = ({ onPostCreated }) => {
   const [content, setContent] = useState('');
   const [mediaFiles, setMediaFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [location, setLocation] = useState('');
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [location, setLocation] = useState('');  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
   const mediaInputRef = useRef(null);
   const textareaRef = useRef(null);
+  const emojiButtonRef = useRef(null);
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showEmojiPicker && 
+          emojiButtonRef.current && 
+          !emojiButtonRef.current.contains(event.target) &&
+          !event.target.closest('.EmojiPickerReact')) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   const handleContentChange = (e) => {
     setContent(e.target.value);
@@ -42,8 +60,30 @@ const CreatePost = ({ onPostCreated }) => {
       textarea.setSelectionRange(newCursorPos, newCursorPos);
     }, 10);
   };
-
   const toggleEmojiPicker = () => {
+    if (!showEmojiPicker && emojiButtonRef.current) {
+      const buttonRect = emojiButtonRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const windowWidth = window.innerWidth;
+      
+      // Calculate position for emoji picker
+      let top = buttonRect.bottom + 10;
+      let left = buttonRect.left;
+      
+      // Adjust if picker would go outside viewport
+      const pickerWidth = 300;
+      const pickerHeight = 400;
+      
+      if (left + pickerWidth > windowWidth) {
+        left = windowWidth - pickerWidth - 20;
+      }
+      
+      if (top + pickerHeight > windowHeight) {
+        top = buttonRect.top - pickerHeight - 10;
+      }
+      
+      setEmojiPickerPosition({ top, left });
+    }
     setShowEmojiPicker(!showEmojiPicker);
   };
 
@@ -135,14 +175,17 @@ const CreatePost = ({ onPostCreated }) => {
       if (file.size > 10 * 1024 * 1024) {
         toast.error(`File ${file.name} quá lớn. Kích thước tối đa là 10MB`);
         continue;
-      }
-
-      // Determine media type
+      }      // Determine media type
       let mediaType = 'file';
       if (file.type.startsWith('image/')) {
         mediaType = 'image';
       } else if (file.type.startsWith('video/')) {
         mediaType = 'video';
+        // Additional validation for video files
+        if (file.size > 50 * 1024 * 1024) { // 50MB limit for videos
+          toast.error(`Video ${file.name} quá lớn. Kích thước tối đa cho video là 50MB`);
+          continue;
+        }
       }
 
       // Create preview URL
@@ -200,14 +243,16 @@ const CreatePost = ({ onPostCreated }) => {
     try {
       setIsSubmitting(true);
 
-      let uploadedMediaFiles = [];
-
-      // Upload multiple media files if any
+      let uploadedMediaFiles = [];      // Upload multiple media files if any
       if (mediaFiles.length > 0) {
         const mediaFilesToUpload = mediaFiles.map(m => m.file);
         const mediaTypes = mediaFiles.map(m => m.mediaType);
         
+        console.log('Uploading media files:', mediaFilesToUpload.length, 'files');
+        console.log('Media types:', mediaTypes);
+        
         const uploadResult = await postService.uploadMultipleMedia(mediaFilesToUpload, mediaTypes);
+        console.log('Upload result:', uploadResult);
         
         if (uploadResult && uploadResult.success) {
           uploadedMediaFiles = uploadResult.results.map((result, index) => ({
@@ -222,10 +267,12 @@ const CreatePost = ({ onPostCreated }) => {
             duration: result.duration,
             orderIndex: index
           }));
+          console.log('Processed uploaded files:', uploadedMediaFiles);
         } else {
+          console.error('Upload failed:', uploadResult);
           throw new Error(uploadResult?.message || 'Không thể tải lên media files');
         }
-      }      const postData = {
+      }const postData = {
         content: content.trim(),
         location: location || null,
         mediaFiles: uploadedMediaFiles
@@ -303,29 +350,37 @@ const CreatePost = ({ onPostCreated }) => {
                 disabled={isSubmitting}
               >
                 <FaHashtag />
-              </Button>
-              <Button
+              </Button>              <Button
                 variant="link"
                 className={styles.toolButton}
                 onClick={toggleEmojiPicker}
                 type="button"
                 disabled={isSubmitting}
+                ref={emojiButtonRef}
               >
                 <FaRegSmile />
               </Button>
             </div>
-
-            {/* Emoji picker */}
-            {showEmojiPicker && (
-              <div className={styles.emojiPickerContainer}>
-                <EmojiPicker
-                  onEmojiClick={handleEmojiClick}
-                  width={300}
-                  height={400}
-                />
-              </div>
-            )}
           </div>
+
+          {/* Emoji picker - moved outside textareaContainer */}
+          {showEmojiPicker && (
+            <div 
+              className={styles.emojiPickerContainer}
+              style={{
+                position: 'fixed',
+                top: `${emojiPickerPosition.top}px`,
+                left: `${emojiPickerPosition.left}px`,
+                zIndex: 9999
+              }}
+            >
+              <EmojiPicker
+                onEmojiClick={handleEmojiClick}
+                width={300}
+                height={400}
+              />
+            </div>
+          )}
 
           {/* Location display */}
           {location && (

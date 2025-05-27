@@ -65,16 +65,33 @@ const PostModal = ({ show, onHide, post }) => {
                   alt="Post media" 
                   className={styles.postImage}
                   fluid 
-                />
-              ) : post.mediaType === 'video' ? (
-                <video 
-                  className={styles.postVideo}
-                  controls
-                  poster={post.thumbnailUrl}
-                >
-                  <source src={post.mediaUrl} type={post.mediaMimeType || 'video/mp4'} />
-                  Your browser does not support the video tag.
-                </video>
+                />              ) : post.mediaType === 'video' ? (
+                <>
+                  <video 
+                    className={styles.postVideo}
+                    controls
+                    preload="metadata"
+                    poster={post.thumbnailUrl}
+                    onError={(e) => {
+                      console.error('Video load error in modal:', e);
+                      e.target.style.display = 'none';
+                      const fallback = e.target.parentNode.querySelector('.video-fallback');
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  >
+                    <source src={post.mediaUrl} type={post.mediaMimeType || 'video/mp4'} />
+                    <source src={post.mediaUrl} type="video/webm" />
+                    Your browser does not support the video tag.
+                  </video>
+                  <div className="video-fallback" style={{display: 'none', alignItems: 'center', justifyContent: 'center', height: '300px', background: '#f0f0f0'}}>
+                    <div style={{textAlign: 'center'}}>
+                      <p>Video không thể phát được</p>
+                      <a href={post.mediaUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                        Tải xuống video
+                      </a>
+                    </div>
+                  </div>
+                </>
               ) : null}
             </div>
           )}

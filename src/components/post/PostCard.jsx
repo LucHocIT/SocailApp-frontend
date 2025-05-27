@@ -256,31 +256,46 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
                       </div>
                     </div>
                   </div>
-                </div>
-              ) : post.mediaType === 'video' ? (
+                </div>              ) : post.mediaType === 'video' ? (
                 <div className={styles.videoWrapper}>
                   <video 
                     className={styles.video}
                     controls
+                    preload="metadata"
                     poster={post.thumbnailUrl}
+                    onError={(e) => {
+                      console.error('Video load error:', e);
+                      e.target.style.display = 'none';
+                      // Show fallback content
+                      const fallback = e.target.parentNode.querySelector('.video-fallback');
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
                   >
                     <source src={post.mediaUrl} type={post.mediaMimeType || 'video/mp4'} />
+                    <source src={post.mediaUrl} type="video/webm" />
                     Your browser does not support the video tag.
                   </video>
+                  <div className="video-fallback" style={{display: 'none', alignItems: 'center', justifyContent: 'center', height: '200px', background: '#f0f0f0'}}>
+                    <span>Video không thể phát. <a href={post.mediaUrl} target="_blank" rel="noopener noreferrer">Tải xuống</a></span>
+                  </div>
                   <div className={styles.videoDuration}>{post.duration || '00:00'}</div>
-                </div>
-              ) : post.mediaType === 'file' ? (
+                </div>              ) : post.mediaType === 'file' ? (
                 <div className={styles.fileContainer}>
                   <a 
                     href={post.mediaUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.file}
+                    onClick={() => {
+                      // Add click tracking and error handling
+                      console.log('File download attempt:', post.mediaFilename);
+                    }}
+                    title={post.mediaFilename || 'Tải xuống file'}
                   >
                     <FaFile className={styles.fileIcon} /> 
-                    <span>{post.mediaFilename}</span>
+                    <span>{post.mediaFilename || 'Tải xuống file'}</span>
                     <Badge bg="light" text="dark" className={styles.fileSize}>
-                      {post.mediaFileSize || '0 KB'}
+                      {post.mediaFileSize ? `${Math.round(post.mediaFileSize / 1024)} KB` : 'N/A'}
                     </Badge>
                   </a>
                 </div>
@@ -321,17 +336,27 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
                             <span className={styles.moreText}>+{post.mediaFiles.length - 4}</span>
                           </div>
                         )}
-                      </div>
-                    ) : media.mediaType === 'video' ? (
+                      </div>                    ) : media.mediaType === 'video' ? (
                       <div className={styles.videoWrapper}>
                         <video 
                           className={styles.gridVideo}
                           controls
+                          preload="metadata"
                           poster={media.thumbnailUrl}
+                          onError={(e) => {
+                            console.error('Video load error:', e);
+                            e.target.style.display = 'none';
+                            const fallback = e.target.parentNode.querySelector('.video-fallback');
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
                         >
                           <source src={media.mediaUrl} type={media.mediaMimeType || 'video/mp4'} />
+                          <source src={media.mediaUrl} type="video/webm" />
                           Your browser does not support the video tag.
                         </video>
+                        <div className="video-fallback" style={{display: 'none', alignItems: 'center', justifyContent: 'center', height: '100%', background: '#f0f0f0', fontSize: '12px', padding: '10px', textAlign: 'center'}}>
+                          <span>Video lỗi. <a href={media.mediaUrl} target="_blank" rel="noopener noreferrer">Tải xuống</a></span>
+                        </div>
                         {media.duration && (
                           <div className={styles.videoDuration}>{media.duration}</div>
                         )}
