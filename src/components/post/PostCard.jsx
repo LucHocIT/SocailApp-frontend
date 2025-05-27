@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Button, Image, Badge, Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FaComment, FaEllipsisV, FaTrash, FaPencilAlt, FaFile, 
-  FaShareAlt, FaBookmark, FaRegBookmark, FaEye, FaHeart, FaRegHeart } from 'react-icons/fa';
+  FaShareAlt, FaBookmark, FaRegBookmark, FaEye, FaHeart, FaRegHeart, FaMapMarkerAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/hooks';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
@@ -211,15 +211,23 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
                 </Button>
               </>
             ) : post.content}
-          </Card.Text>
-
-          {post.hashtags && post.hashtags.length > 0 && (
+          </Card.Text>          {post.hashtags && post.hashtags.length > 0 && (
             <div className={styles.hashtagContainer}>
               {post.hashtags.map((tag, index) => (
                 <Badge key={index} bg="light" text="primary" className={styles.hashtag}>
                   #{tag}
                 </Badge>
               ))}
+            </div>
+          )}
+
+          {/* Location display */}
+          {post.location && (
+            <div className={styles.locationContainer}>
+              <div className={styles.locationDisplay}>
+                <FaMapMarkerAlt className={styles.locationIcon} />
+                <span className={styles.locationText}>{post.location}</span>
+              </div>
             </div>
           )}
           

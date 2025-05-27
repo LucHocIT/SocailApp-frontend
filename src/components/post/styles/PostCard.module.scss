@@ -200,8 +200,7 @@
         }
       }
     }
-    
-    .hashtagContainer {
+      .hashtagContainer {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
@@ -220,6 +219,32 @@
         &:hover {
           background-color: rgba($primary-color, 0.15);
           transform: translateY(-2px);
+        }
+      }
+    }
+
+    .locationContainer {
+      margin-bottom: 1rem;
+      
+      .locationDisplay {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background-color: rgba($success-color, 0.05);
+        border: 1px solid rgba($success-color, 0.2);
+        border-radius: 8px;
+        color: $success-color;
+        font-size: 0.9rem;
+        
+        .locationIcon {
+          font-size: 0.85rem;
+          color: $success-color;
+        }
+        
+        .locationText {
+          font-weight: 500;
+          color: $text-dark;
         }
       }
     }
