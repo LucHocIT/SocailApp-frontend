@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
-import styles from './styles/PostCard.module.scss';
+import styles from '../styles/postcard/PostCard.module.scss';
 
 const PostCardSkeleton = () => {
   return (

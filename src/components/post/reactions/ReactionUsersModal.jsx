@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Modal, Tab, Nav, Image, Spinner, Badge, Button } from 'react-bootstrap';
-import postService from '../../services/postService';
+import postService from '../../../services/postService';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ReactionUsersSkeleton from './ReactionUsersSkeleton';
-import '../../styles/ReactionUsersModal.css';
+import '../../../styles/ReactionUsersModal.css';
 
 const ReactionUsersModal = ({ show, onHide, postId }) => {  const [loading, setLoading] = useState(true);
   const [reactions, setReactions] = useState({});
@@ -97,11 +97,9 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {  const [loading, setL
   
   // Handle follow/unfollow users
   const handleFollowToggle = async (userId) => {
-    try {
-      setProcessingFollow(prev => ({ ...prev, [userId]: true }));
-      
-      const isCurrentlyFollowing = followStatus[userId];
-      const userService = await import('../../services/userService').then(m => m.default);
+    try {      setProcessingFollow(prev => ({ ...prev, [userId]: true }));
+        const isCurrentlyFollowing = followStatus[userId];
+      const userService = await import('../../../services/userService').then(m => m.default);
       
       if (isCurrentlyFollowing) {
         await userService.unfollowUser(userId);

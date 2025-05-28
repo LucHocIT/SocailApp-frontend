@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import ReactionUsersModal from './ReactionUsersModal';
-import postService from '../../services/postService';
-import styles from './styles/PostReactionStack.module.scss';
+import postService from '../../../services/postService';
+import styles from '../styles/PostReactionStack.module.scss';
 
 const PostReactionStack = ({ 
   postId, 

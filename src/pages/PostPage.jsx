@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Container, Button, Alert } from 'react-bootstrap';
 import { FaArrowLeft, FaComment, FaHeart } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import PostCard from '../components/post/PostCard';
+import PostCard from '../components/post/postcard/PostCard';
 import postService from '../services/postService';
 import styles from './PostPage.module.scss';
 

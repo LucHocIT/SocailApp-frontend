@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Overlay, Popover, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { FaThumbsUp } from 'react-icons/fa';
-import postService from '../../services/postService';
-import usePostReactions from '../../hooks/usePostReactions';
-import styles from './styles/PostReactionButton.module.scss';
+import postService from '../../../services/postService';
+import usePostReactions from '../../../hooks/usePostReactions';
+import styles from '../styles/PostReactionButton.module.scss';
 
 const PostReactionButton = ({ postId, onShowUsers, onReactionChange }) => {
   const [showReactions, setShowReactions] = useState(false);

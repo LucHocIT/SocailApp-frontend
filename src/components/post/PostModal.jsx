@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import TimeAgo from 'react-timeago';
 import { useAuth } from '../../context/hooks';
 import { convertUtcToLocal } from '../../utils/dateUtils';
-import PostReactionButton from './PostReactionButton';
+import PostReactionButton from './reactions/PostReactionButton';
 import { CommentForm, CommentList } from '../../components/comment';
 import styles from './styles/PostModal.module.scss';
 
