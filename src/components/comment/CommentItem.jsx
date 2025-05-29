@@ -26,14 +26,17 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
   const isAuthor = user?.id === comment.userId;
   const canReply = depth < 3; // Limit nesting to 3 levels
   const isEdited = comment.updatedAt && comment.updatedAt !== comment.createdAt;
-  
-  // Toggle replies visibility and load replies if needed
+    // Toggle replies visibility and load replies if needed
   const toggleReplies = async () => {
     if (!showReplies && replies.length === 0) {
       try {
         setLoadingReplies(true);
         const repliesData = await commentService.getReplies(comment.id);
-        setReplies(repliesData);
+        // Sort replies by createdAt to ensure consistent ordering
+        const sortedReplies = repliesData.sort((a, b) => 
+          new Date(a.createdAt) - new Date(b.createdAt)
+        );
+        setReplies(sortedReplies);
       } catch (error) {
         toast.error('Không thể tải phản hồi: ' + (error.message || 'Lỗi không xác định'));
       } finally {
@@ -41,10 +44,13 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
       }
     }
     setShowReplies(!showReplies);
-  };
-  // Handle reply submission  
+  };// Handle reply submission  
   const handleReplyAdded = (newReply) => {
-    setReplies([...replies, newReply]);
+    // Add new reply and sort by createdAt to match backend ordering
+    const updatedReplies = [...replies, newReply].sort((a, b) => 
+      new Date(a.createdAt) - new Date(b.createdAt)
+    );
+    setReplies(updatedReplies);
     setReplyFormVisible(false);
     
     // Update replies count
@@ -300,10 +306,10 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
               )}
             </Button>
           )}
-          
-          {replyFormVisible && user && canReply && (
+            {replyFormVisible && user && canReply && (
             <CommentForm
               postId={postId}
+              parentCommentId={comment.id}
               onCommentAdded={handleReplyAdded}
               placeholder={`Phản hồi ${comment.username}...`}
             />

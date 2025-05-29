@@ -25,6 +25,157 @@ const PostModal = ({ show, onHide, post }) => {
     }
   };
 
+  // Get media files array - support both new format (MediaFiles) and legacy format (mediaUrl)
+  const getMediaFiles = () => {
+    // Check for new format with multiple media files
+    const mediaFiles = post.MediaFiles || post.mediaFiles || [];
+    if (mediaFiles.length > 0) {
+      return mediaFiles.map((media, index) => ({
+        mediaUrl: media.MediaUrl || media.mediaUrl,
+        mediaType: media.MediaType || media.mediaType,
+        mediaMimeType: media.MediaMimeType || media.mediaMimeType,
+        mediaFilename: media.MediaFilename || media.mediaFilename,
+        orderIndex: media.OrderIndex || media.orderIndex || index
+      })).sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+    }
+    
+    // Fallback to legacy single media format
+    if (post.mediaUrl) {
+      return [{
+        mediaUrl: post.mediaUrl,
+        mediaType: post.mediaType,
+        mediaMimeType: post.mediaMimeType,
+        mediaFilename: post.mediaFilename,
+        orderIndex: 0
+      }];
+    }
+    
+    return [];
+  };
+
+  const mediaFiles = getMediaFiles();
+
+  // Render media files
+  const renderMediaFiles = () => {
+    if (mediaFiles.length === 0) return null;
+
+    return (
+      <div className={styles.mediaContainer}>
+        {mediaFiles.length === 1 ? (
+          // Single media display
+          renderSingleMedia(mediaFiles[0])
+        ) : (
+          // Multiple media grid display
+          <div className={styles.multipleMediaContainer}>
+            <div className={`${styles.mediaGrid} ${styles[`grid${Math.min(mediaFiles.length, 4)}`]}`}>
+              {mediaFiles.slice(0, 4).map((media, index) => (
+                <div key={index} className={styles.mediaItem}>
+                  {renderMediaItem(media, index)}
+                  {index === 3 && mediaFiles.length > 4 && (
+                    <div className={styles.moreOverlay}>
+                      <span className={styles.moreText}>+{mediaFiles.length - 4}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render single media item
+  const renderSingleMedia = (media) => {
+    if (media.mediaType === 'image') {
+      return (
+        <Image 
+          src={media.mediaUrl} 
+          alt="Post media" 
+          className={styles.postImage}
+          fluid={true} 
+        />
+      );
+    } else if (media.mediaType === 'video') {
+      return (
+        <>
+          <video 
+            className={styles.postVideo}
+            controls
+            preload="metadata"
+            onError={(e) => {
+              console.error('Video load error in modal:', e);
+              e.target.style.display = 'none';
+              const fallback = e.target.parentNode.querySelector('.video-fallback');
+              if (fallback) fallback.style.display = 'flex';
+            }}
+          >
+            <source src={media.mediaUrl} type={media.mediaMimeType || 'video/mp4'} />
+            <source src={media.mediaUrl} type="video/webm" />
+            Your browser does not support the video tag.
+          </video>
+          <div className="video-fallback" style={{display: 'none', alignItems: 'center', justifyContent: 'center', height: '300px', background: '#f0f0f0'}}>
+            <div style={{textAlign: 'center'}}>
+              <p>Video không thể phát được</p>
+              <a href={media.mediaUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                Tải xuống video
+              </a>
+            </div>
+          </div>
+        </>
+      );
+    } else {
+      return renderFilePreview(media);
+    }
+  };
+
+  // Render media item for grid
+  const renderMediaItem = (media, index) => {
+    if (media.mediaType === 'image') {
+      return (
+        <Image 
+          src={media.mediaUrl} 
+          alt={`Post media ${index + 1}`} 
+          className={styles.gridImage}
+          loading="lazy"
+        />
+      );
+    } else if (media.mediaType === 'video') {
+      return (
+        <video 
+          className={styles.gridVideo}
+          preload="metadata"
+          muted
+        >
+          <source src={media.mediaUrl} type={media.mediaMimeType || 'video/mp4'} />
+        </video>
+      );
+    } else {
+      return renderFilePreview(media);
+    }
+  };
+
+  // Render file preview
+  const renderFilePreview = (media) => {
+    return (
+      <div className={styles.filePreview}>
+        <FaFile className={styles.fileIcon} />
+        <div className={styles.fileInfo}>
+          <p className={styles.fileName}>{media.mediaFilename || 'File'}</p>
+          <Button 
+            variant="outline-primary" 
+            size="sm"
+            href={media.mediaUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaDownload /> Tải xuống
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (    <Modal 
       show={show} 
       onHide={onHide} 
@@ -52,47 +203,10 @@ const PostModal = ({ show, onHide, post }) => {
         </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body className={styles.modalBody}>
-        <div className={styles.contentSection}>
+      <Modal.Body className={styles.modalBody}>        <div className={styles.contentSection}>
           <p className={styles.postText}>{post.content}</p>
           
-          {post.mediaUrl && (
-            <div className={styles.mediaContainer}>
-              {post.mediaType === 'image' ? (                <Image 
-                  src={post.mediaUrl} 
-                  alt="Post media" 
-                  className={styles.postImage}
-                  fluid={true} 
-                />) : post.mediaType === 'video' ? (
-                <>
-                  <video 
-                    className={styles.postVideo}
-                    controls
-                    preload="metadata"
-                    poster={post.thumbnailUrl}
-                    onError={(e) => {
-                      console.error('Video load error in modal:', e);
-                      e.target.style.display = 'none';
-                      const fallback = e.target.parentNode.querySelector('.video-fallback');
-                      if (fallback) fallback.style.display = 'flex';
-                    }}
-                  >
-                    <source src={post.mediaUrl} type={post.mediaMimeType || 'video/mp4'} />
-                    <source src={post.mediaUrl} type="video/webm" />
-                    Your browser does not support the video tag.
-                  </video>
-                  <div className="video-fallback" style={{display: 'none', alignItems: 'center', justifyContent: 'center', height: '300px', background: '#f0f0f0'}}>
-                    <div style={{textAlign: 'center'}}>
-                      <p>Video không thể phát được</p>
-                      <a href={post.mediaUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                        Tải xuống video
-                      </a>
-                    </div>
-                  </div>
-                </>
-              ) : null}
-            </div>
-          )}
+          {renderMediaFiles()}
 
           <div className={styles.actionsContainer}>
             <div className={styles.reactionContainer}>

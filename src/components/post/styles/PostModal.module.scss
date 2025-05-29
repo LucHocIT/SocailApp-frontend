@@ -226,6 +226,111 @@
   }
 }
 
+/* Multiple media container styles */
+.multipleMediaContainer {
+  position: relative;
+  
+  .mediaGrid {
+    display: grid;
+    gap: 4px;
+    border-radius: 12px;
+    overflow: hidden;
+    
+    &.grid1 {
+      grid-template-columns: 1fr;
+      aspect-ratio: 16/9;
+    }
+    
+    &.grid2 {
+      grid-template-columns: 1fr 1fr;
+      aspect-ratio: 16/9;
+    }
+    
+    &.grid3 {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      aspect-ratio: 16/9;
+      
+      .mediaItem:first-child {
+        grid-row: 1 / -1;
+      }
+    }
+    
+    &.grid4 {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      aspect-ratio: 1;
+    }
+  }
+  
+  .mediaItem {
+    position: relative;
+    overflow: hidden;
+    background: $gray-100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .gridImage,
+    .gridVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+      cursor: pointer;
+      
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+    
+    .moreOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .moreText {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+/* File preview styles */
+.filePreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: $gray-100;
+  border-radius: 8px;
+  text-align: center;
+  min-height: 200px;
+  
+  .fileIcon {
+    font-size: 3rem;
+    color: $primary-color;
+    margin-bottom: 1rem;
+  }
+  
+  .fileInfo {
+    .fileName {
+      font-weight: 500;
+      margin-bottom: 1rem;
+      word-break: break-word;
+    }
+  }
+}
+
 .actionsContainer {
   margin-top: 0.75rem;
   display: flex;

@@ -7,7 +7,7 @@ import { useAuth } from '../../context/hooks';
 import commentService from '../../services/commentService';
 import styles from './styles/CommentForm.module.scss';
 
-const CommentForm = ({ postId, onCommentAdded, placeholder = "Viết bình luận..." }) => {
+const CommentForm = ({ postId, parentCommentId, onCommentAdded, placeholder = "Viết bình luận..." }) => {
   const { user } = useAuth();
   const [commentText, setCommentText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,11 +63,17 @@ const CommentForm = ({ postId, onCommentAdded, placeholder = "Viết bình luậ
     
     try {
       setLoading(true);
-      
-      const newComment = await commentService.createComment({
+        const commentData = {
         content: commentText.trim(),
         postId: postId
-      });
+      };
+      
+      // Add parentCommentId if this is a reply
+      if (parentCommentId) {
+        commentData.parentCommentId = parentCommentId;
+      }
+      
+      const newComment = await commentService.createComment(commentData);
       
       setCommentText('');
       setIsFocused(false);
