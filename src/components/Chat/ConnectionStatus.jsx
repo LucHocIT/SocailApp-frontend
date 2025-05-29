@@ -10,6 +10,7 @@ const ConnectionStatus = () => {
   if (!connectionState || connectionState === 'Connected') {
     return null; // Don't show when connected
   }
+
   const getStatusIcon = () => {
     switch (connectionState) {
       case 'Connecting':
@@ -37,8 +38,6 @@ const ConnectionStatus = () => {
 
   const getVariant = () => {
     switch (connectionState) {
-      case 'Connected':
-        return 'success';
       case 'Connecting':
       case 'Reconnecting':
         return 'warning';
@@ -53,7 +52,7 @@ const ConnectionStatus = () => {
     <div className={styles.connectionStatus}>
       <Badge bg={getVariant()} className={styles.statusBadge}>
         {getStatusIcon()}
-        <span className="ms-1">{getStatusText()}</span>
+        <span className="ms-2">{getStatusText()}</span>
       </Badge>
     </div>
   );

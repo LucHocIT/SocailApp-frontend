@@ -1,62 +1,69 @@
-// Chat Widget Styles
-.chatToggle {
+.chatWidget {
   position: fixed;
   bottom: 20px;
   right: 20px;
   z-index: 1000;
 }
 
-.toggleButton {
+.chatToggle {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  position: relative;
   font-size: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
   
-  &:hover {
-    transform: scale(1.05);
+  .unreadBadge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 0.7rem;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
-.unreadBadge {
+.conversationsList {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  font-size: 10px;
-  min-width: 20px;
-  height: 20px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-// Conversations Widget
-.conversationsWidget {
-  position: fixed;
-  bottom: 90px;
-  right: 20px;
+  bottom: 80px;
+  right: 0;
   width: 300px;
   max-height: 400px;
-  z-index: 999;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 12px;
+  overflow: hidden;
 }
 
 .conversationsBody {
   padding: 0;
   max-height: 300px;
   overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
 }
 
 .conversationItem {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  padding: 12px;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
   
   &:hover {
     background-color: #f8f9fa;
@@ -75,69 +82,75 @@
   margin-right: 12px;
 }
 
-.conversationInfo {
+.conversationContent {
   flex: 1;
   min-width: 0;
 }
 
 .userName {
   font-weight: 600;
-  font-size: 14px;
-  color: #333;
+  font-size: 0.9rem;
   margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .lastMessage {
-  font-size: 12px;
-  color: #666;
+  font-size: 0.8rem;
+  color: #6c757d;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.messageUnreadBadge {
-  font-size: 10px;
+.conversationBadge {
+  font-size: 0.7rem;
   min-width: 18px;
   height: 18px;
   border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-// Chat Windows
-.chatWindow {
+// Active Chat Windows
+.activeChats {
   position: fixed;
-  bottom: 90px;
-  width: 280px;
+  bottom: 20px;
+  right: 100px;
+  display: flex;
+  gap: 10px;
+  z-index: 999;
+}
+
+.chatWindow {
+  width: 300px;
   height: 400px;
-  z-index: 998;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 12px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  
-  &.position0 {
-    right: 340px;
-  }
-  
-  &.position1 {
-    right: 640px;
-  }
-  
-  &.position2 {
-    right: 940px;
-  }
+}
+
+.chatHeader {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 12px;
+  border-bottom: none;
 }
 
 .chatAvatar {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 8px;
 }
 
 .chatUserName {
-  font-size: 14px;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -148,119 +161,71 @@
 }
 
 .messagesContainer {
-  height: 100%;
+  height: 280px;
   overflow-y: auto;
   padding: 12px;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
 }
 
 .message {
-  margin-bottom: 12px;
-  display: flex;
-  flex-direction: column;
+  max-width: 80%;
+  word-wrap: break-word;
   
   &.sent {
-    align-items: flex-end;
+    align-self: flex-end;
     
     .messageContent {
-      background-color: #2196f3;
+      background-color: #007bff;
       color: white;
-      margin-left: auto;
+      border-radius: 16px 16px 4px 16px;
     }
   }
   
   &.received {
-    align-items: flex-start;
+    align-self: flex-start;
     
     .messageContent {
-      background-color: #f1f3f4;
+      background-color: #e9ecef;
       color: #333;
-      margin-right: auto;
+      border-radius: 16px 16px 16px 4px;
     }
   }
 }
 
 .messageContent {
-  max-width: 80%;
   padding: 8px 12px;
-  border-radius: 12px;
-  font-size: 13px;
-  word-wrap: break-word;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .messageTime {
-  font-size: 10px;
-  color: #666;
+  font-size: 0.7rem;
+  color: #6c757d;
   margin-top: 2px;
+  text-align: right;
+  
+  .received & {
+    text-align: left;
+  }
 }
 
 .chatFooter {
   padding: 8px 12px;
   background-color: #f8f9fa;
   border-top: 1px solid #dee2e6;
-}
-
-// Scrollbar
-.conversationsBody,
-.messagesContainer {
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 2px;
-    
-    &:hover {
-      background: #a8a8a8;
-    }
-  }
-}
-
-// Mobile responsive
-@media (max-width: 768px) {
-  .conversationsWidget {
-    width: calc(100vw - 40px);
-    right: 20px;
-    left: 20px;
-  }
-  
-  .chatWindow {
-    width: calc(100vw - 40px);
-    right: 20px;
-    left: 20px;
-    
-    &.position0,
-    &.position1,
-    &.position2 {
-      right: 20px;
-      left: 20px;
-    }
-  }
-  
-  .chatToggle {
-    bottom: 80px;
-  }
-}
-
-// Animation
-.conversationsWidget,
-.chatWindow {
-  animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }

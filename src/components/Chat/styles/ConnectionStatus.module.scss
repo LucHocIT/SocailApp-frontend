@@ -1,22 +1,31 @@
-// Connection Status Styles
 .connectionStatus {
   position: fixed;
   top: 80px;
   right: 20px;
-  z-index: 1001;
+  z-index: 1050;
+  animation: slideIn 0.3s ease-out;
 }
 
 .statusBadge {
-  display: flex;
-  align-items: center;
+  font-size: 0.85rem;
   padding: 8px 12px;
-  font-size: 12px;
   border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  
+  .pulse {
+    animation: pulse 1.5s infinite;
+  }
 }
 
-.pulse {
-  animation: pulse 1.5s ease-in-out infinite;
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes pulse {
@@ -28,18 +37,5 @@
   }
   100% {
     opacity: 1;
-  }
-}
-
-// Mobile responsive
-@media (max-width: 768px) {
-  .connectionStatus {
-    top: 60px;
-    right: 10px;
-  }
-  
-  .statusBadge {
-    padding: 6px 10px;
-    font-size: 11px;
   }
 }

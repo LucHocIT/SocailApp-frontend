@@ -1,0 +1,733 @@
+@use '../../styles/abstracts/variables' as *;
+
+.messagesContainer {
+  padding: 0;
+  height: calc(100vh - 80px);
+  max-width: 100%;
+}
+
+.messagesRow {
+  height: 100%;
+  margin: 0;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  p {
+    margin-top: 1rem;
+    color: $text-muted;
+  }
+}
+
+// Conversations Sidebar
+.conversationsSidebar {
+  padding: 0;
+  border-right: 1px solid $border-color;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sidebarCard {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+}
+
+.sidebarHeader {
+  background: $white;
+  border-bottom: 1px solid $border-color;
+  padding: 1rem;
+  
+  h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $text-color;
+    
+    .headerIcon {
+      margin-right: 0.5rem;
+      color: $primary-color;
+    }
+  }
+}
+
+.searchGroup {
+  .form-control {
+    border: 1px solid $border-color;
+    
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+    }
+  }
+}
+
+// Friends Section
+.friendsSection {
+  border-bottom: 1px solid $border-color;
+  background: $white;
+  
+  .friendsHeader {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba($border-color, 0.5);
+    
+    h6 {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: $text-color;
+      
+      .friendsIcon {
+        margin-right: 0.5rem;
+        color: $primary-color;
+      }
+    }
+  }
+  
+  .friendsList {
+    padding: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    
+    .loadingFriends {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 1rem;
+      
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid $primary-color;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+    }
+    
+    .friendItem {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 70px;
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.1);
+      }
+      
+      .friendAvatar {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 0.25rem;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        
+        svg {
+          width: 100%;
+          height: 100%;
+          padding: 6px;
+          background: $gray-200;
+          border-radius: 50%;
+          color: $gray-600;
+        }
+      }
+      
+      .friendName {
+        font-size: 0.75rem;
+        color: $text-color;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+    }
+    
+    .moreFriends {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+      color: $text-muted;
+      border-radius: 8px;
+      background: rgba($gray-200, 0.5);
+      min-width: 70px;
+    }
+  }
+}
+
+.conversationsList {
+  height: calc(100% - 200px); // Adjusted to account for friends section
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: $gray-100;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $gray-400;
+    border-radius: 3px;
+  }
+}
+
+.conversationItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid $border-color;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: $bg-light;
+  }
+  
+  &.active {
+    background-color: rgba($primary-color, 0.1);
+    border-left: 3px solid $primary-color;
+  }
+  
+  .avatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    svg {
+      width: 100%;
+      height: 100%;
+      padding: 8px;
+      background: $gray-200;
+      border-radius: 50%;
+      color: $gray-600;
+    }
+    
+    .onlineStatus {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 12px;
+      height: 12px;
+      color: $success-color;
+      background: $white;
+      border-radius: 50%;
+    }
+  }
+  
+  .conversationInfo {
+    flex: 1;
+    min-width: 0;
+    
+    .userName {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: $text-color;
+      margin-bottom: 0.25rem;
+      
+      .unreadBadge {
+        margin-left: 0.5rem;
+        font-size: 0.7rem;
+      }
+    }
+    
+    .lastMessage {
+      font-size: 0.85rem;
+      color: $text-muted;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  
+  .timestamp {
+    font-size: 0.75rem;
+    color: $text-muted;
+    white-space: nowrap;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem 1rem;
+  
+  .emptyIcon {
+    font-size: 3rem;
+    color: $gray-400;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+// Chat Area
+.chatArea {
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatCard {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatHeader {
+  background: $white;
+  border-bottom: 1px solid $border-color;
+  padding: 1rem;
+  
+  .chatUserInfo {
+    display: flex;
+    align-items: center;
+    
+    .avatar {
+      width: 40px;
+      height: 40px;
+      margin-right: 1rem;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      
+      svg {
+        width: 100%;
+        height: 100%;
+        padding: 6px;
+        background: $gray-200;
+        border-radius: 50%;
+        color: $gray-600;
+      }
+    }
+    
+    h5 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $text-color;
+    }
+    
+    .onlineStatus {
+      font-size: 0.8rem;
+      color: $success-color;
+      
+      svg {
+        width: 8px;
+        height: 8px;
+        margin-right: 0.25rem;
+      }
+    }
+  }
+}
+
+.messagesArea {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background: $bg-light;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $gray-400;
+    border-radius: 3px;
+  }
+}
+
+.loadingMessages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  
+  .spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  p {
+    margin-top: 0.5rem;
+    color: $text-muted;
+    font-size: 0.9rem;
+  }
+}
+
+.messageItem {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  
+  &.sent {
+    align-items: flex-end;
+    
+    .messageContent {
+      background: $primary-color;
+      color: $white;
+      border-radius: 18px 18px 4px 18px;
+    }
+  }
+  
+  &.received {
+    align-items: flex-start;
+    
+    .messageContent {
+      background: $white;
+      color: $text-color;
+      border: 1px solid $border-color;
+      border-radius: 18px 18px 18px 4px;
+    }
+  }
+  
+  .messageContent {
+    max-width: 70%;
+    padding: 0.75rem 1rem;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  .messageTime {
+    font-size: 0.7rem;
+    color: $text-muted;
+    margin-top: 0.25rem;
+    padding: 0 0.5rem;
+  }
+}
+
+.messageInput {
+  background: $white;
+  border-top: 1px solid $border-color;
+  padding: 1rem;
+  position: relative;
+  z-index: 1;
+  
+  form {
+    margin: 0;
+  }
+}
+
+.noConversationSelected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 2rem;
+  
+  .emptyIcon {
+    font-size: 4rem;
+    color: $gray-400;
+    margin-bottom: 1.5rem;
+  }
+  
+  h3 {
+    color: $text-color;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: $text-muted;
+    max-width: 400px;
+  }
+}
+
+// Modern Message Input Styles
+.messageInputContainer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.attachmentSection {
+  position: relative;
+  
+  .attachmentBtn {
+    border: none;
+    color: $primary-color;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    
+    &:hover {
+      color: darken($primary-color, 10%);
+      background: rgba($primary-color, 0.1);
+      border-radius: 50%;
+    }
+  }
+  
+  .attachmentMenu {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: $white;
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    z-index: 1000;
+    
+    .attachmentOption {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.9rem;
+      color: $text-color;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgba($primary-color, 0.1);
+        color: $primary-color;
+      }
+      
+      svg {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+.textInputSection {
+  flex: 1;
+  
+  .messageTextInput {
+    border: 1px solid $border-color;
+    border-radius: 20px;
+    padding: 0.75rem 1rem;
+    resize: none;
+    max-height: 120px;
+    min-height: 40px;
+    width: 100%;
+    cursor: text;
+    
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+      outline: none;
+    }
+    
+    &::placeholder {
+      color: $text-muted;
+    }
+    
+    &:disabled {
+      background-color: rgba($gray-100, 0.5);
+      cursor: not-allowed;
+    }
+    
+    &:not(:disabled) {
+      cursor: text;
+    }
+  }
+}
+
+.emojiBtn {
+  border: none;
+  color: $text-muted;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  
+  &:hover {
+    color: $primary-color;
+    background: rgba($primary-color, 0.1);
+    border-radius: 50%;
+  }
+}
+
+.sendBtn {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  
+  &:disabled {
+    opacity: 0.6;
+  }
+  
+  svg {
+    font-size: 0.9rem;
+  }
+}
+
+.selectedFilesPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba($border-color, 0.3);
+  margin-bottom: 0.75rem;
+  
+  .filePreviewItem {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba($gray-100, 0.8);
+    border-radius: 8px;
+    padding: 0.5rem;
+    max-width: 150px;
+    
+    .imagePreview {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    
+    .fileIcon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      
+      svg {
+        font-size: 1.5rem;
+        color: $primary-color;
+      }
+      
+      span {
+        font-size: 0.7rem;
+        color: $text-muted;
+        text-align: center;
+        word-break: break-all;
+        max-width: 80px;
+      }
+    }
+    
+    .removeFileBtn {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: $danger-color;
+      color: $white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      cursor: pointer;
+      
+      &:hover {
+        background: darken($danger-color, 10%);
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .messagesContainer {
+    height: calc(100vh - 60px);
+  }
+  
+  .conversationsSidebar {
+    display: none;
+    
+    &.show {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1050;
+      background: $white;
+    }
+  }
+  
+  .chatArea {
+    width: 100%;
+  }
+  
+  .messageItem {
+    .messageContent {
+      max-width: 85%;
+    }
+  }
+  
+  .chatHeader {
+    .chatUserInfo {
+      h5 {
+        font-size: 1rem;
+      }
+    }
+  }
+}

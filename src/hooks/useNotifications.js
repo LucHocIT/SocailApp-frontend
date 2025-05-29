@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const useNotifications = () => {
-  const [permission, setPermission] = useState(Notification.permission);
+  const [permission, setPermission] = useState(
+    typeof window !== 'undefined' && 'Notification' in window 
+      ? Notification.permission 
+      : 'default'
+  );
 
   useEffect(() => {
     if ('Notification' in window) {
@@ -10,30 +14,30 @@ const useNotifications = () => {
   }, []);
 
   const requestPermission = useCallback(async () => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      const result = await Notification.requestPermission();
-      setPermission(result);
-      return result;
+    if (!('Notification' in window)) {
+      console.warn('This browser does not support notifications');
+      return 'denied';
     }
-    return permission;
+
+    if (permission === 'granted') {
+      return 'granted';
+    }
+
+    const result = await Notification.requestPermission();
+    setPermission(result);
+    return result;
   }, [permission]);
 
   const showNotification = useCallback((title, options = {}) => {
-    if (permission === 'granted') {
-      const notification = new Notification(title, {
-        icon: '/logo.svg',
-        badge: '/logo.svg',
-        ...options
-      });
-
-      // Auto close after 5 seconds
-      setTimeout(() => {
-        notification.close();
-      }, 5000);
-
-      return notification;
+    if (permission !== 'granted' || !('Notification' in window)) {
+      return null;
     }
-    return null;
+
+    return new Notification(title, {
+      icon: '/logo.svg',
+      badge: '/logo.svg',
+      ...options
+    });
   }, [permission]);
 
   const showMessageNotification = useCallback((message) => {

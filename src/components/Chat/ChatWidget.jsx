@@ -8,7 +8,8 @@ import useNotifications from '../../hooks/useNotifications';
 import TimeAgo from 'react-timeago';
 import styles from './styles/ChatWidget.module.scss';
 
-const ChatWidget = () => {  const { user } = useAuth();
+const ChatWidget = () => {
+  const { user } = useAuth();
   const { 
     isConnected, 
     onReceiveMessage, 
@@ -46,7 +47,9 @@ const ChatWidget = () => {  const { user } = useAuth();
       // Request notification permission
       requestPermission();
     }
-  }, [user, requestPermission, loadConversations]);  // SignalR message listener
+  }, [user, requestPermission, loadConversations]);
+
+  // SignalR message listener
   useEffect(() => {
     const handleReceiveMessage = (message) => {
       // Update conversations
@@ -102,7 +105,9 @@ const ChatWidget = () => {  const { user } = useAuth();
           return prev;
         }
       });
-    };    if (onReceiveMessage && offReceiveMessage) {
+    };
+
+    if (onReceiveMessage && offReceiveMessage) {
       onReceiveMessage(handleReceiveMessage);
 
       return () => {
@@ -110,6 +115,7 @@ const ChatWidget = () => {  const { user } = useAuth();
       };
     }
   }, [onReceiveMessage, offReceiveMessage, showMessageNotification]);
+
   // Calculate total unread messages
   useEffect(() => {
     const total = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
@@ -206,8 +212,9 @@ const ChatWidget = () => {  const { user } = useAuth();
   };
 
   const scrollToBottom = (userId) => {
-    if (messagesEndRefs.current[userId]) {
-      messagesEndRefs.current[userId].scrollIntoView({ behavior: 'smooth' });
+    const element = messagesEndRefs.current[userId];
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -215,11 +222,11 @@ const ChatWidget = () => {  const { user } = useAuth();
 
   return (
     <>
-      {/* Chat Toggle Button */}
-      <div className={styles.chatToggle}>
+      {/* Chat Widget Button */}
+      <div className={styles.chatWidget}>
         <Button
           variant="primary"
-          className={styles.toggleButton}
+          className={styles.chatToggle}
           onClick={() => setIsOpen(!isOpen)}
         >
           <FaComments />
@@ -229,166 +236,160 @@ const ChatWidget = () => {  const { user } = useAuth();
             </Badge>
           )}
         </Button>
+
+        {/* Conversations List */}
+        {isOpen && (
+          <Card className={styles.conversationsList}>
+            <Card.Header>
+              <div className="d-flex justify-content-between align-items-center">
+                <h6 className="mb-0">Tin nhắn</h6>
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  onClick={() => setIsMinimized(!isMinimized)}
+                  className="p-0"
+                >
+                  <FaMinus />
+                </Button>
+              </div>
+            </Card.Header>
+            
+            {!isMinimized && (
+              <Card.Body className={styles.conversationsBody}>
+                {loading ? (
+                  <div className="text-center">
+                    <Spinner animation="border" size="sm" />
+                  </div>
+                ) : conversations.length === 0 ? (
+                  <p className="text-muted text-center">Chưa có cuộc trò chuyện</p>
+                ) : (
+                  conversations.map(conversation => (
+                    <div
+                      key={conversation.userId}
+                      className={styles.conversationItem}
+                      onClick={() => openChat(conversation)}
+                    >
+                      <img
+                        src={conversation.profilePictureUrl || '/images/default-avatar.png'}
+                        alt={conversation.userName}
+                        className={styles.avatar}
+                      />
+                      <div className={styles.conversationContent}>
+                        <div className={styles.userName}>
+                          {conversation.firstName && conversation.lastName 
+                            ? `${conversation.firstName} ${conversation.lastName}` 
+                            : conversation.userName}
+                        </div>
+                        <div className={styles.lastMessage}>
+                          {conversation.lastMessage}
+                        </div>
+                      </div>
+                      {conversation.unreadCount > 0 && (
+                        <Badge bg="primary" className={styles.conversationBadge}>
+                          {conversation.unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                  ))
+                )}
+              </Card.Body>
+            )}
+          </Card>
+        )}
       </div>
 
-      {/* Conversations List */}
-      {isOpen && (
-        <Card className={styles.conversationsWidget}>
-          <Card.Header className="d-flex justify-content-between align-items-center">
-            <span>Tin nhắn</span>
-            <div>
-              <Button 
-                variant="link" 
-                size="sm" 
-                onClick={() => setIsMinimized(!isMinimized)}
-                className="p-0 me-2"
-              >
-                <FaMinus />
-              </Button>
-              <Button 
-                variant="link" 
-                size="sm" 
-                onClick={() => setIsOpen(false)}
-                className="p-0"
-              >
-                <FaTimes />
-              </Button>
-            </div>
-          </Card.Header>
-          
-          {!isMinimized && (
-            <Card.Body className={styles.conversationsBody}>
-              {loading ? (
-                <div className="text-center">
-                  <Spinner animation="border" size="sm" />
-                </div>
-              ) : conversations.length > 0 ? (
-                conversations.map(conversation => (
-                  <div
-                    key={conversation.userId}
-                    className={styles.conversationItem}
-                    onClick={() => openChat(conversation)}
-                  >
-                    <img 
-                      src={conversation.profilePictureUrl || '/images/default-avatar.png'}
-                      alt={conversation.userName}
-                      className={styles.avatar}
-                    />
-                    <div className={styles.conversationInfo}>
-                      <div className={styles.userName}>
-                        {conversation.firstName && conversation.lastName 
-                          ? `${conversation.firstName} ${conversation.lastName}` 
-                          : conversation.userName}
-                      </div>
-                      <div className={styles.lastMessage}>
-                        {conversation.lastMessage || 'Bắt đầu trò chuyện'}
-                      </div>
-                    </div>
-                    {conversation.unreadCount > 0 && (
-                      <Badge bg="primary" className={styles.messageUnreadBadge}>
-                        {conversation.unreadCount}
-                      </Badge>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-muted">
-                  <p>Chưa có cuộc trò chuyện nào</p>
-                </div>
-              )}
-            </Card.Body>
-          )}
-        </Card>
-      )}
-
       {/* Active Chat Windows */}
-      {activeChats.map((chat, index) => (
-        <Card key={chat.userId} className={`${styles.chatWindow} ${styles[`position${index}`]}`}>
-          <Card.Header className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center">
-              <img 
-                src={chat.profilePictureUrl || '/images/default-avatar.png'}
-                alt={chat.userName}
-                className={styles.chatAvatar}
-              />
-              <span className={styles.chatUserName}>
-                {chat.firstName && chat.lastName 
-                  ? `${chat.firstName} ${chat.lastName}` 
-                  : chat.userName}
-              </span>
-            </div>
-            <div>
-              <Button 
-                variant="link" 
-                size="sm" 
-                onClick={() => minimizeChat(chat.userId)}
-                className="p-0 me-2"
-              >
-                <FaMinus />
-              </Button>
-              <Button 
-                variant="link" 
-                size="sm" 
-                onClick={() => closeChat(chat.userId)}
-                className="p-0"
-              >
-                <FaTimes />
-              </Button>
-            </div>
-          </Card.Header>
-          
-          {!chat.isMinimized && (
-            <>
-              <Card.Body className={styles.chatBody}>
-                <div className={styles.messagesContainer}>
-                  {chat.messages.map(message => (
-                    <div 
-                      key={message.id || message.messageId}
-                      className={`${styles.message} ${
-                        message.senderId === user.id ? styles.sent : styles.received
-                      }`}
-                    >
-                      <div className={styles.messageContent}>
-                        {message.content}
-                      </div>
-                      <div className={styles.messageTime}>
-                        <TimeAgo date={message.sentAt} />
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={el => messagesEndRefs.current[chat.userId] = el} />
-                </div>
-              </Card.Body>
-              
-              <Card.Footer className={styles.chatFooter}>
-                <Form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    sendMessage(chat.userId, chat.newMessage);
-                  }}
-                  className="d-flex"
-                >
-                  <Form.Control
-                    type="text"
-                    placeholder="Nhập tin nhắn..."
-                    value={chat.newMessage || ''}
-                    onChange={(e) => updateMessage(chat.userId, e.target.value)}
-                    className="me-2"
-                    size="sm"
+      <div className={styles.activeChats}>
+        {activeChats.map(chat => (
+          <Card key={chat.userId} className={styles.chatWindow}>
+            <Card.Header className={styles.chatHeader}>
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center">
+                  <img
+                    src={chat.profilePictureUrl || '/images/default-avatar.png'}
+                    alt={chat.userName}
+                    className={styles.chatAvatar}
                   />
+                  <span className={styles.chatUserName}>
+                    {chat.firstName && chat.lastName 
+                      ? `${chat.firstName} ${chat.lastName}` 
+                      : chat.userName}
+                  </span>
+                </div>
+                <div>
                   <Button 
-                    type="submit" 
-                    size="sm"
-                    disabled={!chat.newMessage?.trim() || !isConnected}
+                    variant="link" 
+                    size="sm" 
+                    onClick={() => minimizeChat(chat.userId)}
+                    className="p-0 me-2"
                   >
-                    <FaPaperPlane />
+                    <FaMinus />
                   </Button>
-                </Form>
-              </Card.Footer>
-            </>
-          )}
-        </Card>
-      ))}
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    onClick={() => closeChat(chat.userId)}
+                    className="p-0"
+                  >
+                    <FaTimes />
+                  </Button>
+                </div>
+              </div>
+            </Card.Header>
+            
+            {!chat.isMinimized && (
+              <>
+                <Card.Body className={styles.chatBody}>
+                  <div className={styles.messagesContainer}>
+                    {chat.messages.map(message => (
+                      <div 
+                        key={message.id || message.messageId}
+                        className={`${styles.message} ${
+                          message.senderId === user.id ? styles.sent : styles.received
+                        }`}
+                      >
+                        <div className={styles.messageContent}>
+                          {message.content}
+                        </div>
+                        <div className={styles.messageTime}>
+                          <TimeAgo date={message.sentAt} />
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={el => messagesEndRefs.current[chat.userId] = el} />
+                  </div>
+                </Card.Body>
+                
+                <Card.Footer className={styles.chatFooter}>
+                  <Form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      sendMessage(chat.userId, chat.newMessage);
+                    }}
+                    className="d-flex"
+                  >
+                    <Form.Control
+                      type="text"
+                      placeholder="Nhập tin nhắn..."
+                      value={chat.newMessage || ''}
+                      onChange={(e) => updateMessage(chat.userId, e.target.value)}
+                      className="me-2"
+                      size="sm"
+                    />
+                    <Button 
+                      type="submit" 
+                      size="sm"
+                      disabled={!chat.newMessage?.trim() || !isConnected}
+                    >
+                      <FaPaperPlane />
+                    </Button>
+                  </Form>
+                </Card.Footer>
+              </>
+            )}
+          </Card>
+        ))}
+      </div>
     </>
   );
 };
