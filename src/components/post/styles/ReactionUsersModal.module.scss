@@ -1,5 +1,6 @@
 
 @use '../../../styles/abstracts/variables' as *;
+@use 'sass:color';
 
 /* Global overrides for Bootstrap's modal constraints - similar to PostModal */
 :global {
@@ -60,7 +61,7 @@
 }
 
 .modalHeader {
-  background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%));
+  background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 10%));
   color: $white;
   border-bottom: none;
   padding: $spacing-4 $spacing-5;
@@ -412,11 +413,10 @@
     padding: $spacing-2 $spacing-4;
     border-radius: $border-radius;
     font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    cursor: pointer;    transition: background-color 0.3s ease;
     
     &:hover {
-      background: darken($danger-color, 10%);
+      background: color.adjust($danger-color, $lightness: -10%);
     }
   }
 }

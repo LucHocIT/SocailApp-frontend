@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from 'react-bootstrap';
-import { FaWifi, FaWifiSlash } from 'react-icons/fa';
+import { FaWifi, FaExclamationTriangle } from 'react-icons/fa';
 import { useSignalR } from '../../context/SignalRContext';
 import styles from './styles/ConnectionStatus.module.scss';
 
@@ -10,14 +10,13 @@ const ConnectionStatus = () => {
   if (!connectionState || connectionState === 'Connected') {
     return null; // Don't show when connected
   }
-
   const getStatusIcon = () => {
     switch (connectionState) {
       case 'Connecting':
       case 'Reconnecting':
         return <FaWifi className={styles.pulse} />;
       case 'Disconnected':
-        return <FaWifiSlash />;
+        return <FaExclamationTriangle />;
       default:
         return <FaWifi />;
     }
