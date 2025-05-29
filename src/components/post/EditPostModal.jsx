@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Spinner, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaImage, FaTimes, FaFile, FaVideo, FaSave, FaEdit, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile } from 'react-icons/fa';
+import { FaImage, FaTimes, FaFile, FaVideo, FaSave, FaEdit, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
@@ -8,27 +8,69 @@ import styles from './styles/EditPostModal.module.scss';
 
 const EditPostModal = ({ show, post, onHide, onSave }) => {
   const [content, setContent] = useState('');
-  const [mediaFile, setMediaFile] = useState(null);
-  const [mediaPreview, setMediaPreview] = useState('');
-  const [existingMediaUrl, setExistingMediaUrl] = useState('');
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [existingMediaFiles, setExistingMediaFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [removeExistingMedia, setRemoveExistingMedia] = useState(false);
-  const [mediaType, setMediaType] = useState(null);
   const [location, setLocation] = useState('');
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
   const mediaInputRef = useRef(null);
   const textareaRef = useRef(null);
+  const emojiButtonRef = useRef(null);
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showEmojiPicker && 
+          emojiButtonRef.current && 
+          !emojiButtonRef.current.contains(event.target) &&
+          !event.target.closest('.EmojiPickerReact')) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
   useEffect(() => {
     if (post) {
       setContent(post.content || '');
-      setExistingMediaUrl(post.mediaUrl || '');
-      setMediaFile(null);
-      setMediaPreview('');
-      setRemoveExistingMedia(false);
       setLocation(post.location || '');
-      setMediaType(post.mediaType || null);
       setShowEmojiPicker(false);
+      setMediaFiles([]);
+      
+      // Set existing media files - handle multiple media files
+      const mediaFiles = post.MediaFiles || post.mediaFiles || [];
+      
+      if (mediaFiles.length > 0) {
+        // Handle multiple media files
+        const existingMedia = mediaFiles.map((media, index) => ({
+          mediaUrl: media.mediaUrl || media.MediaUrl,
+          mediaType: media.mediaType || media.MediaType,
+          mediaPublicId: media.mediaPublicId || media.MediaPublicId,
+          mediaMimeType: media.mediaMimeType || media.MediaMimeType,
+          mediaFilename: media.mediaFilename || media.MediaFilename,
+          isExisting: true,
+          orderIndex: index
+        }));
+        setExistingMediaFiles(existingMedia);
+      } else if (post.mediaUrl) {
+        // Legacy support for single media
+        setExistingMediaFiles([{
+          mediaUrl: post.mediaUrl,
+          mediaType: post.mediaType,
+          mediaPublicId: post.mediaPublicId,
+          mediaMimeType: post.mediaMimeType,
+          mediaFilename: post.mediaFilename,
+          isExisting: true,
+          orderIndex: 0
+        }]);
+      } else {
+        setExistingMediaFiles([]);
+      }
     }
   }, [post]);
 
@@ -49,7 +91,6 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
     setContent(before + emojiData.emoji + after);
     setShowEmojiPicker(false);
     
-    // Focus lại textarea và đặt cursor sau emoji
     setTimeout(() => {
       textarea.focus();
       const newCursorPos = start + emojiData.emoji.length;
@@ -58,10 +99,32 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
   };
 
   const toggleEmojiPicker = () => {
+    if (!showEmojiPicker && emojiButtonRef.current) {
+      const buttonRect = emojiButtonRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const windowWidth = window.innerWidth;
+      
+      // Calculate position for emoji picker
+      let top = buttonRect.bottom + 10;
+      let left = buttonRect.left;
+      
+      // Adjust if picker would go outside viewport
+      const pickerWidth = 300;
+      const pickerHeight = 400;
+      
+      if (left + pickerWidth > windowWidth) {
+        left = windowWidth - pickerWidth - 20;
+      }
+      
+      if (top + pickerHeight > windowHeight) {
+        top = buttonRect.top - pickerHeight - 10;
+      }
+      
+      setEmojiPickerPosition({ top, left });
+    }
     setShowEmojiPicker(!showEmojiPicker);
   };
 
-  // Function để lấy vị trí
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
       toast.error('Trình duyệt không hỗ trợ định vị');
@@ -74,7 +137,6 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
         try {
           const { latitude, longitude } = position.coords;
           
-          // Gọi API để lấy tên địa điểm
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
           );
@@ -107,7 +169,6 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
     );
   };
 
-  // Function để chèn text vào vị trí cursor
   const insertTextAtCursor = (textToInsert) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
@@ -118,7 +179,6 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
     
     setContent(newContent);
     
-    // Đặt lại vị trí cursor
     setTimeout(() => {
       const newCursorPos = start + textToInsert.length;
       textarea.selectionStart = newCursorPos;
@@ -139,90 +199,137 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
     setLocation('');
   };
 
-  // New method to trigger file upload with specific types
-  const triggerMediaUpload = (acceptTypes) => {
-    if (mediaInputRef.current) {
-      mediaInputRef.current.accept = acceptTypes;
-      mediaInputRef.current.click();
-    }
-  };
   const handleMediaChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File quá lớn. Kích thước tối đa là 10MB');
+    // Validate total files count including existing
+    const totalFiles = mediaFiles.length + existingMediaFiles.length + files.length;
+    if (totalFiles > 10) {
+      toast.error('Tối đa 10 file media cho mỗi bài viết');
       return;
     }
 
-    setMediaFile(file);
-    setRemoveExistingMedia(true);
+    const validFiles = [];
+    
+    for (const file of files) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`File ${file.name} quá lớn. Kích thước tối đa là 10MB`);
+        continue;
+      }
 
-    // Determine media type
-    if (file.type.startsWith('image/')) {
-      setMediaType('image');
-    } else if (file.type.startsWith('video/')) {
-      setMediaType('video');
-    } else {
-      setMediaType('file');
+      let mediaType = 'file';
+      if (file.type.startsWith('image/')) {
+        mediaType = 'image';
+      } else if (file.type.startsWith('video/')) {
+        mediaType = 'video';
+        if (file.size > 50 * 1024 * 1024) {
+          toast.error(`Video ${file.name} quá lớn. Kích thước tối đa cho video là 50MB`);
+          continue;
+        }
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+      
+      validFiles.push({
+        file,
+        mediaType,
+        previewUrl,
+        filename: file.name,
+        isNew: true
+      });
     }
 
-    // Create preview URL
-    const previewUrl = URL.createObjectURL(file);
-    setMediaPreview(previewUrl);
-  };
-  const handleRemoveMedia = () => {
-    setMediaFile(null);
-    setMediaPreview('');
-    setRemoveExistingMedia(true);
-    setMediaType(null);
+    if (validFiles.length > 0) {
+      setMediaFiles(prev => [...prev, ...validFiles]);
+    }
+    
     if (mediaInputRef.current) {
       mediaInputRef.current.value = '';
+    }
+  };
+  
+  const triggerMediaUpload = (acceptTypes) => {
+    if (mediaInputRef.current) {
+      mediaInputRef.current.accept = acceptTypes;
+      mediaInputRef.current.multiple = true;
+      mediaInputRef.current.click();
+    }
+  };
+
+  const removeMediaFile = (index, isExisting = false) => {
+    if (isExisting) {
+      setExistingMediaFiles(prev => {
+        const newFiles = [...prev];
+        newFiles.splice(index, 1);
+        return newFiles;
+      });
+    } else {
+      setMediaFiles(prev => {
+        const newFiles = [...prev];
+        URL.revokeObjectURL(newFiles[index].previewUrl);
+        newFiles.splice(index, 1);
+        return newFiles;
+      });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!content.trim() && !mediaFile && !existingMediaUrl) {
-      toast.error('Vui lòng thêm nội dung hoặc phương tiện cho bài viết của bạn');
+    if (isSubmitting) return;
+
+    const hasContent = content.trim();
+    const hasNewMedia = mediaFiles.length > 0;
+    const hasExistingMedia = existingMediaFiles.length > 0;
+
+    if (!hasContent && !hasNewMedia && !hasExistingMedia) {
+      toast.error('Vui lòng thêm nội dung hoặc media cho bài viết');
       return;
     }
 
     try {
       setIsSubmitting(true);
-      
-      let mediaUrl = null;
-      let mediaType = null;
-      let mediaPublicId = null;
 
-      // Nếu có file media mới
-      if (mediaFile) {
-        // Xác định loại media để upload
-        let uploadMediaType = "file";
-        if (mediaFile.type.startsWith('image/')) {
-          uploadMediaType = "image";
-        } else if (mediaFile.type.startsWith('video/')) {
-          uploadMediaType = "video";
-        }
+      let uploadedMediaFiles = [];
+
+      // Upload new media files if any
+      if (mediaFiles.length > 0) {
+        const mediaFilesToUpload = mediaFiles.map(m => m.file);
+        const mediaTypes = mediaFiles.map(m => m.mediaType);
         
-        // Upload media mới
-        const uploadResult = await postService.uploadMedia(mediaFile, uploadMediaType);
+        const uploadResult = await postService.uploadMultipleMedia(mediaFilesToUpload, mediaTypes);
         
-        if (uploadResult && uploadResult.mediaUrl) {
-          mediaUrl = uploadResult.mediaUrl;
-          mediaType = uploadMediaType;
-          mediaPublicId = uploadResult.publicId;
+        if (uploadResult && uploadResult.success) {
+          uploadedMediaFiles = uploadResult.results.map((result, index) => ({
+            mediaUrl: result.mediaUrl,
+            mediaType: result.mediaType || mediaTypes[index],
+            mediaPublicId: result.publicId,
+            mediaMimeType: result.mediaType,
+            mediaFilename: result.mediaFilename,
+            mediaFileSize: result.fileSize,
+            width: result.width,
+            height: result.height,
+            duration: result.duration,
+            orderIndex: existingMediaFiles.length + index
+          }));
         } else {
-          throw new Error(uploadResult.message || 'Không thể tải lên media');
+          throw new Error(uploadResult?.message || 'Không thể tải lên media files');
         }
-      }      // Chuẩn bị dữ liệu cập nhật
+      }
+
+      // Combine existing and new media files
+      const allMediaFiles = [
+        ...existingMediaFiles.map((media, index) => ({
+          ...media,
+          orderIndex: index
+        })),
+        ...uploadedMediaFiles
+      ];
+
       const updateData = {
-        content: content,
-        mediaUrl: mediaUrl || (removeExistingMedia ? null : existingMediaUrl),
-        mediaType: mediaType || (removeExistingMedia ? null : post.mediaType),
-        mediaPublicId: mediaPublicId || (removeExistingMedia ? null : post.mediaPublicId),
-        location: location || null
+        content: content.trim(),
+        location: location || null,
+        mediaFiles: allMediaFiles
       };
 
       const updatedPost = await postService.updatePost(post.id, updateData);
@@ -236,12 +343,14 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
       setIsSubmitting(false);
     }
   };  return (
-    <Modal show={show} onHide={onHide} centered size="lg" className={styles.editModal}>
+    <Modal show={show} onHide={onHide} centered size="xl" className={styles.editModal}>
       <Modal.Header closeButton>
         <Modal.Title>
           <FaEdit className={styles.titleIcon} /> Chỉnh sửa bài viết
         </Modal.Title>
-      </Modal.Header>      <Modal.Body className={styles.content}>
+      </Modal.Header>
+
+      <Modal.Body className={styles.content}>
         <Form onSubmit={handleSubmit} className={styles.editorContainer}>
           <div className={styles.textareaWrapper}>
             <Form.Control
@@ -252,75 +361,57 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
               className={styles.textarea}
               placeholder="Bạn đang nghĩ gì?"
               rows={4}
+              disabled={isSubmitting}
             />
             
-            {/* Content tools - Icons trong textarea */}
+            {/* Content tools */}
             <div className={styles.contentTools}>
-              {/* Emoji picker button */}
-              <OverlayTrigger
-                placement="top"
-                overlay={<Tooltip>Thêm emoji</Tooltip>}
+              <Button
+                variant="link"
+                className={styles.toolButton}
+                onClick={insertMention}
+                type="button"
+                disabled={isSubmitting}
               >
-                <Button
-                  variant="light"
-                  size="sm"
-                  className={styles.toolButton}
-                  onClick={toggleEmojiPicker}
-                  disabled={isSubmitting}
-                  type="button"
-                >
-                  <FaRegSmile />
-                </Button>
-              </OverlayTrigger>
-              
-              <OverlayTrigger
-                placement="top"
-                overlay={<Tooltip>Nhắc đến ai đó</Tooltip>}
+                <FaAt />
+              </Button>
+              <Button
+                variant="link"
+                className={styles.toolButton}
+                onClick={insertHashtag}
+                type="button"
+                disabled={isSubmitting}
               >
-                <Button
-                  variant="light"
-                  size="sm"
-                  className={styles.toolButton}
-                  onClick={insertMention}
-                  disabled={isSubmitting}
-                  type="button"
-                >
-                  <FaAt />
-                </Button>
-              </OverlayTrigger>
-              
-              <OverlayTrigger
-                placement="top"
-                overlay={<Tooltip>Thêm hashtag</Tooltip>}
+                <FaHashtag />
+              </Button>
+              <Button
+                variant="link"
+                className={styles.toolButton}
+                onClick={toggleEmojiPicker}
+                type="button"
+                disabled={isSubmitting}
+                ref={emojiButtonRef}
               >
-                <Button
-                  variant="light"
-                  size="sm"
-                  className={styles.toolButton}
-                  onClick={insertHashtag}
-                  disabled={isSubmitting}
-                  type="button"
-                >
-                  <FaHashtag />
-                </Button>
-              </OverlayTrigger>
+                <FaRegSmile />
+              </Button>
             </div>
           </div>
 
-          {/* Inline Emoji Picker */}
+          {/* Emoji picker - positioned absolutely */}
           {showEmojiPicker && (
-            <div className={styles.emojiPickerContainer}>
+            <div 
+              className={styles.emojiPickerContainer}
+              style={{
+                position: 'fixed',
+                top: `${emojiPickerPosition.top}px`,
+                left: `${emojiPickerPosition.left}px`,
+                zIndex: 9999
+              }}
+            >
               <EmojiPicker
                 onEmojiClick={handleEmojiClick}
-                autoFocusSearch={false}
-                theme="light"
-                height={350}
                 width={300}
-                previewConfig={{
-                  showPreview: false
-                }}
-                searchPlaceHolder="Tìm kiếm emoji..."
-                skinTonePickerLocation="PREVIEW"
+                height={400}
               />
             </div>
           )}
@@ -342,73 +433,92 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
                 </Button>
               </div>
             </div>
-          )}          {(mediaFile || existingMediaUrl) && (
+          )}
+
+          {/* Media previews */}
+          {(existingMediaFiles.length > 0 || mediaFiles.length > 0) && (
             <div className={styles.mediaPreviewContainer}>
-              {mediaFile ? (
-                <>
-                  {mediaType === 'image' ? (
-                    <Image src={mediaPreview} alt="Preview" 
-                      className={styles.mediaItem}
-                    />
-                  ) : mediaType === 'video' ? (
-                    <video 
-                      className={styles.videoItem}
-                      controls
-                    >
-                      <source src={mediaPreview} type={mediaFile.type} />
-                      Trình duyệt của bạn không hỗ trợ thẻ video.
-                    </video>
-                  ) : mediaType === 'file' ? (
-                    <div className={styles.filePreview}>
-                      <div>
-                        <FaFile className={styles.fileIcon} />
-                        <p className={styles.fileName}>{mediaFile.name}</p>
-                        <small className={styles.fileSize}>({Math.round(mediaFile.size / 1024)} KB)</small>
-                      </div>
-                    </div>
-                  ) : null}
-                </>
-              ) : existingMediaUrl && !removeExistingMedia ? (
-                <>
-                  {post.mediaType === 'image' ? (
-                    <Image 
-                      src={existingMediaUrl} 
-                      alt="Current media" 
-                      className={styles.mediaItem} 
-                    />
-                  ) : post.mediaType === 'video' ? (
-                    <video 
-                      className={styles.videoItem}
-                      controls
-                    >
-                      <source src={existingMediaUrl} type={post.mediaMimeType || 'video/mp4'} />
-                      Trình duyệt của bạn không hỗ trợ thẻ video.
-                    </video>
-                  ) : (
-                    <div className={styles.filePreview}>
-                      <a 
-                        href={existingMediaUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className={styles.fileLink}
+              <div className={styles.mediaGrid}>
+                {/* Existing media files */}
+                {existingMediaFiles.map((media, index) => (
+                  <div key={`existing-${index}`} className={styles.mediaItem}>
+                    {media.mediaType === 'image' ? (
+                      <Image 
+                        src={media.mediaUrl} 
+                        alt="Existing media" 
+                        className={styles.mediaPreview}
+                      />
+                    ) : media.mediaType === 'video' ? (
+                      <video 
+                        className={styles.videoPreview}
+                        controls
                       >
-                        <FaFile /> {post.mediaFilename || 'Tải xuống tập tin'}
-                      </a>
-                    </div>
-                  )}
-                </>
-              ) : null}
-              {(mediaFile || (existingMediaUrl && !removeExistingMedia)) && (
-                <Button
-                  variant="light"
-                  className={styles.removeButton}
-                  onClick={handleRemoveMedia}
-                >
-                  <FaTimes />
-                </Button>
-              )}
+                        <source src={media.mediaUrl} type={media.mediaMimeType || 'video/mp4'} />
+                        Trình duyệt của bạn không hỗ trợ thẻ video.
+                      </video>
+                    ) : (
+                      <div className={styles.filePreview}>
+                        <div>
+                          <FaFile className={styles.fileIcon} />
+                          <p className={styles.fileName}>{media.mediaFilename || 'File'}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      variant="light"
+                      className={styles.removeButton}
+                      onClick={() => removeMediaFile(index, true)}
+                      type="button"
+                    >
+                      <FaTimes className={styles.closeIcon} />
+                    </Button>
+                  </div>
+                ))}
+
+                {/* New media files */}
+                {mediaFiles.map((media, index) => (
+                  <div key={`new-${index}`} className={styles.mediaItem}>
+                    {media.mediaType === 'image' ? (
+                      <Image 
+                        src={media.previewUrl} 
+                        alt="Preview" 
+                        className={styles.mediaPreview}
+                      />
+                    ) : media.mediaType === 'video' ? (
+                      <video 
+                        className={styles.videoPreview}
+                        controls
+                      >
+                        <source src={media.previewUrl} type={media.file.type} />
+                        Trình duyệt của bạn không hỗ trợ thẻ video.
+                      </video>
+                    ) : (
+                      <div className={styles.filePreview}>
+                        <div>
+                          <FaFile className={styles.fileIcon} />
+                          <p className={styles.fileName}>{media.filename}</p>
+                          <small className={styles.fileSize}>({Math.round(media.file.size / 1024)} KB)</small>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      variant="light"
+                      className={styles.removeButton}
+                      onClick={() => removeMediaFile(index, false)}
+                      type="button"
+                    >
+                      <FaTimes className={styles.closeIcon} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}          <div className={styles.mediaToolbar}>
+          )}
+
+          {/* Form footer */}
+          <div className={styles.formFooter}>
             <div className={styles.mediaButtons}>
               {/* Image upload button */}
               <OverlayTrigger
@@ -417,9 +527,9 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
               >
                 <Button 
                   variant="light" 
-                  className={`${styles.mediaButton} ${styles.imageButton}`}
+                  className={`${styles.mediaButton} ${styles.imageBtn}`}
                   onClick={() => triggerMediaUpload('image/*')}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || (mediaFiles.length + existingMediaFiles.length) >= 10}
                   type="button"
                 >
                   <FaImage className={styles.mediaIcon} />
@@ -433,9 +543,9 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
               >
                 <Button 
                   variant="light" 
-                  className={`${styles.mediaButton} ${styles.videoButton}`}
+                  className={`${styles.mediaButton} ${styles.videoBtn}`}
                   onClick={() => triggerMediaUpload('video/*')}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || (mediaFiles.length + existingMediaFiles.length) >= 10}
                   type="button"
                 >
                   <FaVideo className={styles.mediaIcon} />
@@ -449,12 +559,28 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
               >
                 <Button 
                   variant="light" 
-                  className={`${styles.mediaButton} ${styles.fileButton}`}
+                  className={`${styles.mediaButton} ${styles.fileBtn}`}
                   onClick={() => triggerMediaUpload('.pdf,.doc,.docx,.xls,.xlsx,.txt')}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || (mediaFiles.length + existingMediaFiles.length) >= 10}
                   type="button"
                 >
                   <FaFile className={styles.mediaIcon} />
+                </Button>
+              </OverlayTrigger>
+
+              {/* Multiple files upload button */}
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip>Tải lên nhiều file</Tooltip>}
+              >
+                <Button 
+                  variant="light" 
+                  className={`${styles.mediaButton} ${styles.multipleBtn}`}
+                  onClick={() => triggerMediaUpload('*/*')}
+                  disabled={isSubmitting || (mediaFiles.length + existingMediaFiles.length) >= 10}
+                  type="button"
+                >
+                  <FaPlus className={styles.mediaIcon} />
                 </Button>
               </OverlayTrigger>
 
@@ -465,31 +591,29 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
               >
                 <Button 
                   variant="light" 
-                  className={`${styles.mediaButton} ${styles.locationButton}`}
+                  className={`${styles.mediaButton} ${styles.locationBtn}`}
                   onClick={getCurrentLocation}
                   disabled={isSubmitting || isGettingLocation}
                   type="button"
                 >
-                  {isGettingLocation ? (
-                    <Spinner as="span" animation="border" size="sm" />
-                  ) : (
-                    <FaMapMarkerAlt className={styles.mediaIcon} />
-                  )}
+                  <FaMapMarkerAlt className={styles.mediaIcon} />
                 </Button>
               </OverlayTrigger>
-              
-              <Form.Control
-                type="file"
-                onChange={handleMediaChange}
-                className={styles.hiddenInput}
-                accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
-                ref={mediaInputRef}
-                disabled={isSubmitting}
-              />
             </div>
           </div>
         </Form>
-      </Modal.Body>      <Modal.Footer className={styles.footer}>
+
+        {/* Hidden file input */}
+        <input
+          type="file"
+          ref={mediaInputRef}
+          onChange={handleMediaChange}
+          style={{ display: 'none' }}
+          multiple
+        />
+      </Modal.Body>
+
+      <Modal.Footer className={styles.footer}>
         <Button
           variant="light"
           onClick={onHide}

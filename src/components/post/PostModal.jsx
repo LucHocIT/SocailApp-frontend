@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Modal, Button, Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import TimeAgo from 'react-timeago';
+import { FaFile, FaDownload } from 'react-icons/fa';
 import { useAuth } from '../../context/hooks';
 import { convertUtcToLocal } from '../../utils/dateUtils';
 import PostReactionButton from './reactions/PostReactionButton';
