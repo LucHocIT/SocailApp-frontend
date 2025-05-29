@@ -14,4 +14,27 @@ export default defineConfig({
       }
     }
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Suppress warnings about /*#__PURE__*/ comments in SignalR
+        if (warning.code === 'INVALID_ANNOTATION' && 
+            warning.message?.includes('@microsoft/signalr') &&
+            warning.message?.includes('/*#__PURE__*/')) {
+          return;
+        }
+        warn(warning);
+      },
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          bootstrap: ['react-bootstrap'],
+          icons: ['react-icons'],
+          signalr: ['@microsoft/signalr'],
+          utils: ['lodash-es', 'react-timeago', 'react-toastify']
+        }
+      }
+    }
+  }
 })

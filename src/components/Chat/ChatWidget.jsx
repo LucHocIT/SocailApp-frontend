@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, Form, Button, Badge, Spinner } from 'react-bootstrap';
 import { FaComments, FaTimes, FaMinus, FaPaperPlane } from 'react-icons/fa';
 import { useAuth } from '../../context/hooks';
@@ -24,16 +24,29 @@ const ChatWidget = () => {  const { user } = useAuth();
   const [totalUnread, setTotalUnread] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const messagesEndRefs = useRef({});  // Load conversations on mount
+  const messagesEndRefs = useRef({});
+
+  // Define loadConversations before useEffect
+  const loadConversations = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await messageService.getConversations();
+      setConversations(data.slice(0, 5)); // Show only recent 5
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Load conversations on mount
   useEffect(() => {
     if (user) {
       loadConversations();
       // Request notification permission
       requestPermission();
     }
-  }, [user, requestPermission]);
-
-  // SignalR message listener
+  }, [user, requestPermission, loadConversations]);  // SignalR message listener
   useEffect(() => {
     const handleReceiveMessage = (message) => {
       // Update conversations
@@ -64,45 +77,44 @@ const ChatWidget = () => {  const { user } = useAuth();
         return updated;
       });
 
-      // Update active chat if open
-      setActiveChats(prev => 
-        prev.map(chat => 
-          chat.userId === message.senderId
-            ? { 
-                ...chat, 
-                messages: [...chat.messages, message],
-                unreadCount: (chat.unreadCount || 0) + 1
-              }
-            : chat
-        )
-      );      // Auto-open chat if not open
-      if (!activeChats.find(chat => chat.userId === message.senderId)) {
-        // Show notification or auto-open
-        showMessageNotification(message);
-      }
-    };
+      // Update active chat if open and show notification if needed
+      setActiveChats(prev => {
+        const chatExists = prev.find(chat => chat.userId === message.senderId);
+        
+        if (chatExists) {
+          // Update existing chat
+          return prev.map(chat => 
+            chat.userId === message.senderId
+              ? { 
+                  ...chat, 
+                  messages: [...chat.messages, message],
+                  unreadCount: (chat.unreadCount || 0) + 1
+                }
+              : chat
+          );
+        } else {
+          // Show notification for new message when chat is not open
+          try {
+            showMessageNotification(message);
+          } catch (error) {
+            console.error('Error showing notification:', error);
+          }
+          return prev;
+        }
+      });
+    };    if (onReceiveMessage && offReceiveMessage) {
+      onReceiveMessage(handleReceiveMessage);
 
-    onReceiveMessage(handleReceiveMessage);    return () => {
-      offReceiveMessage(handleReceiveMessage);
-    };
-  }, [activeChats, onReceiveMessage, offReceiveMessage, showMessageNotification]);
-
+      return () => {
+        offReceiveMessage(handleReceiveMessage);
+      };
+    }
+  }, [onReceiveMessage, offReceiveMessage, showMessageNotification]);
   // Calculate total unread messages
   useEffect(() => {
     const total = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
     setTotalUnread(total);
   }, [conversations]);
-
-  const loadConversations = async () => {
-    try {
-      setLoading(true);
-      const data = await messageService.getConversations();
-      setConversations(data.slice(0, 5)); // Show only recent 5
-    } catch (error) {
-      console.error('Error loading conversations:', error);
-    } finally {
-      setLoading(false);
-    }  };
 
   const openChat = async (conversation) => {
     // Check if already open

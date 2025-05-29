@@ -24,6 +24,7 @@ import ProfilePage from './pages/ProfilePage';
 import RequestVerificationPage from './pages/RequestVerificationPage';
 import PostPage from './pages/PostPage';
 import Messages from './pages/Messages/Messages';
+import Friends from './pages/Friends/Friends';
 
 function App() {
   // Initialize AOS animation library
@@ -59,7 +60,8 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/messages" element={<Messages />} />
-            </Route>          </Routes>
+              <Route path="/friends" element={<Friends />} />
+            </Route></Routes>
         </div>
         <ConnectionStatus />
         <ChatWidget />

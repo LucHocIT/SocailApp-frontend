@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const useNotifications = () => {
   const [permission, setPermission] = useState(Notification.permission);
@@ -9,16 +9,16 @@ const useNotifications = () => {
     }
   }, []);
 
-  const requestPermission = async () => {
+  const requestPermission = useCallback(async () => {
     if ('Notification' in window && Notification.permission === 'default') {
       const result = await Notification.requestPermission();
       setPermission(result);
       return result;
     }
     return permission;
-  };
+  }, [permission]);
 
-  const showNotification = (title, options = {}) => {
+  const showNotification = useCallback((title, options = {}) => {
     if (permission === 'granted') {
       const notification = new Notification(title, {
         icon: '/logo.svg',
@@ -34,15 +34,15 @@ const useNotifications = () => {
       return notification;
     }
     return null;
-  };
+  }, [permission]);
 
-  const showMessageNotification = (message) => {
+  const showMessageNotification = useCallback((message) => {
     return showNotification(`Tin nhắn từ ${message.senderName}`, {
       body: message.content,
       tag: `message-${message.senderId}`, // Prevent duplicate notifications
       requireInteraction: false
     });
-  };
+  }, [showNotification]);
 
   return {
     permission,

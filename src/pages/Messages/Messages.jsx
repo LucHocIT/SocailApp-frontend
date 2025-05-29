@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Container, Row, Col, Card, ListGroup, Button, Form, Badge, Spinner } from 'react-bootstrap';
-import { FaSearch, FaPaperPlane, FaCircle, FaArrowLeft } from 'react-icons/fa';
-import { useAuth } from '../../context/hooks';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Container, Row, Col, Card, ListGroup, Button, Form, Badge, Spinner, Tab, Nav } from 'react-bootstrap';
+import { FaSearch, FaPaperPlane, FaCircle, FaArrowLeft, FaUserFriends, FaComments } from 'react-icons/fa';
+import { useAuth, useProfile } from '../../context/hooks';
 import { useSignalR } from '../../context/SignalRContext';
 import messageService from '../../services/messageService';
 import { toast } from 'react-toastify';
@@ -10,6 +10,7 @@ import styles from './styles/Messages.module.scss';
 
 const Messages = () => {
   const { user } = useAuth();
+  const { getFollowers, getFollowing } = useProfile();
   const { 
     isConnected, 
     onReceiveMessage, 
@@ -28,8 +29,12 @@ const Messages = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
-  const [loadingMessages, setLoadingMessages] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [loadingMessages, setLoadingMessages] = useState(false);  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  // Friends states
+  const [friends, setFriends] = useState([]);
+  const [loadingFriends, setLoadingFriends] = useState(true);
+  const [activeTab, setActiveTab] = useState('friends');
 
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
@@ -43,11 +48,13 @@ const Messages = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
   // Load conversations on mount
   useEffect(() => {
     loadConversations();
-  }, []);
+  }, []);  // Load friends data
+  useEffect(() => {
+    fetchFriendsData();
+  }, [fetchFriendsData]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -99,7 +106,6 @@ const Messages = () => {
       offMessageSent(handleMessageSent);
     };
   }, [selectedConversation, onReceiveMessage, offReceiveMessage, onMessageSent, offMessageSent]);
-
   const loadConversations = async () => {    try {
       setLoading(true);
       const data = await messageService.getConversations();
@@ -111,6 +117,32 @@ const Messages = () => {
       setLoading(false);
     }
   };
+  const fetchFriendsData = useCallback(async () => {
+    if (!user) {
+      setLoadingFriends(false);
+      return;
+    }
+    
+    try {
+      setLoadingFriends(true);
+      
+      const [followersData, followingData] = await Promise.all([
+        getFollowers(user.id),
+        getFollowing(user.id)
+      ]);
+      
+      // Create friends list (mutual follows)
+      const followersIds = new Set((followersData || []).map(f => f.id));
+      const mutualFriends = (followingData || []).filter(u => followersIds.has(u.id));
+      setFriends(mutualFriends);
+      
+    } catch (error) {
+      console.error('Error fetching friends data:', error);
+      toast.error('Có lỗi xảy ra khi tải danh sách bạn bè');
+    } finally {
+      setLoadingFriends(false);
+    }
+  }, [user, getFollowers, getFollowing]);
 
   const loadMessages = async (userId) => {
     try {
@@ -190,7 +222,6 @@ const Messages = () => {
       toast.error('Không thể tìm kiếm người dùng');
     }
   };
-
   const startNewConversation = async (user) => {
     // Check if conversation already exists
     const existingConv = conversations.find(conv => conv.userId === user.id);
@@ -218,6 +249,33 @@ const Messages = () => {
     setShowSearch(false);
     setSearchQuery('');
     setSearchResults([]);
+  };
+  const startConversationWithFriend = async (friend) => {
+    // Check if conversation already exists
+    const existingConv = conversations.find(conv => conv.userId === friend.id);
+    
+    if (existingConv) {
+      handleSelectConversation(existingConv);
+    } else {
+      // Create new conversation entry
+      const newConversation = {
+        userId: friend.id,
+        userName: friend.username,
+        firstName: friend.firstName,
+        lastName: friend.lastName,
+        profilePictureUrl: friend.profilePictureUrl,
+        lastMessage: null,
+        lastMessageTime: null,
+        unreadCount: 0
+      };
+      
+      setConversations(prev => [newConversation, ...prev]);
+      setSelectedConversation(newConversation);
+      setMessages([]);
+    }
+    
+    // Switch to conversations tab after starting chat
+    setActiveTab('conversations');
   };
 
   const scrollToBottom = () => {
@@ -259,70 +317,133 @@ const Messages = () => {
         <Col 
           md={4} 
           className={`${styles.conversationsPanel} ${isMobile && selectedConversation ? 'd-none' : ''}`}
-        >
-          <Card className="h-100">
+        >          <Card className="h-100">
             <Card.Header className={styles.conversationsHeader}>
-              <div className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Tin nhắn</h5>
-                <Button 
-                  variant="outline-primary" 
-                  size="sm"
-                  onClick={() => setShowSearch(!showSearch)}
-                >
-                  <FaSearch />
-                </Button>
-              </div>
-            </Card.Header>
+              <Tab.Container activeKey={activeTab} onSelect={setActiveTab}>
+                <Nav variant="tabs" className="justify-content-center">
+                  <Nav.Item>
+                    <Nav.Link eventKey="friends">
+                      <FaUserFriends className="me-1" />
+                      Bạn bè ({friends.length})
+                    </Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link eventKey="conversations">
+                      <FaComments className="me-1" />
+                      Trò chuyện
+                    </Nav.Link>
+                  </Nav.Item>
+                </Nav>
+                
+                <div className="d-flex justify-content-end mt-2">
+                  {activeTab === 'conversations' && (
+                    <Button 
+                      variant="outline-primary" 
+                      size="sm"
+                      onClick={() => setShowSearch(!showSearch)}
+                    >
+                      <FaSearch />
+                    </Button>
+                  )}
+                </div>
+              </Tab.Container>            </Card.Header>
 
-            {showSearch && (
-              <div className={styles.searchPanel}>
-                <Form.Control
-                  type="text"
-                  placeholder="Tìm kiếm người dùng..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    handleSearch(e.target.value);
-                  }}
-                  className="mb-2"
-                />
-                {searchResults.length > 0 && (
-                  <ListGroup className={styles.searchResults}>
-                    {searchResults.map(user => (
-                      <ListGroup.Item 
-                        key={user.id}
-                        action
-                        onClick={() => startNewConversation(user)}
-                        className={styles.searchResultItem}
-                      >
-                        <div className="d-flex align-items-center">
-                          <img 
-                            src={user.profilePictureUrl || '/images/default-avatar.png'}
-                            alt={user.username}
-                            className={styles.avatar}
-                          />
-                          <div className="ms-2">
-                            <div className={styles.userName}>
-                              {user.firstName && user.lastName 
-                                ? `${user.firstName} ${user.lastName}` 
-                                : user.username}
+            <Tab.Container activeKey={activeTab} onSelect={setActiveTab}>
+              <Tab.Content>
+                <Tab.Pane eventKey="friends">
+                  {loadingFriends ? (
+                    <div className="d-flex justify-content-center p-4">
+                      <Spinner animation="border" size="sm" />
+                    </div>
+                  ) : friends.length === 0 ? (
+                    <div className="text-center p-4 text-muted">
+                      <FaUserFriends size={50} className="mb-3" />
+                      <h6>Chưa có bạn bè nào</h6>
+                      <p>Bạn bè là những người mà bạn theo dõi và họ cũng theo dõi lại bạn.</p>
+                    </div>
+                  ) : (
+                    <ListGroup variant="flush" className={styles.friendsList}>
+                      {friends.map(friend => (
+                        <ListGroup.Item 
+                          key={friend.id}
+                          action
+                          onClick={() => startConversationWithFriend(friend)}
+                          className={styles.friendItem}
+                        >
+                          <div className="d-flex align-items-center">
+                            <div className="position-relative">
+                              <img 
+                                src={friend.profilePictureUrl || '/images/default-avatar.png'}
+                                alt={friend.username}
+                                className={styles.avatar}
+                              />
+                              <FaCircle className={styles.onlineIndicator} />
                             </div>
-                            <small className="text-muted">@{user.username}</small>
+                            <div className="flex-grow-1 ms-3">
+                              <div className={styles.userName}>
+                                {friend.firstName && friend.lastName 
+                                  ? `${friend.firstName} ${friend.lastName}` 
+                                  : friend.username}
+                              </div>
+                              <small className="text-muted">@{friend.username}</small>
+                            </div>
                           </div>
-                        </div>
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                )}
-              </div>
-            )}
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  )}
+                </Tab.Pane>
+                
+                <Tab.Pane eventKey="conversations">
+                  {showSearch && (
+                    <div className={styles.searchPanel}>
+                      <Form.Control
+                        type="text"
+                        placeholder="Tìm kiếm người dùng..."
+                        value={searchQuery}
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                          handleSearch(e.target.value);
+                        }}
+                        className="mb-2"
+                      />
+                      {searchResults.length > 0 && (
+                        <ListGroup className={styles.searchResults}>
+                          {searchResults.map(user => (
+                            <ListGroup.Item 
+                              key={user.id}
+                              action
+                              onClick={() => startNewConversation(user)}
+                              className={styles.searchResultItem}
+                            >
+                              <div className="d-flex align-items-center">
+                                <img 
+                                  src={user.profilePictureUrl || '/images/default-avatar.png'}
+                                  alt={user.username}
+                                  className={styles.avatar}
+                                />
+                                <div className="ms-2">
+                                  <div className={styles.userName}>
+                                    {user.firstName && user.lastName 
+                                      ? `${user.firstName} ${user.lastName}` 
+                                      : user.username}
+                                  </div>
+                                  <small className="text-muted">@{user.username}</small>
+                                </div>
+                              </div>
+                            </ListGroup.Item>
+                          ))}
+                        </ListGroup>
+                      )}
+                    </div>
+                  )}
 
-            <ListGroup variant="flush" className={styles.conversationsList}>
-              {conversations.map(conversation => (
-                <ListGroup.Item 
-                  key={conversation.userId}
-                  action
-                  active={selectedConversation?.userId === conversation.userId}
+                  <ListGroup variant="flush" className={styles.conversationsList}>
+                    {conversations.map(conversation => (
+                      <ListGroup.Item 
+                        key={conversation.userId}
+                        action
+                        active={selectedConversation?.userId === conversation.userId}
                   onClick={() => handleSelectConversation(conversation)}
                   className={styles.conversationItem}
                 >
@@ -355,14 +476,16 @@ const Messages = () => {
                         {conversation.unreadCount > 0 && (
                           <Badge bg="primary" className={styles.unreadBadge}>
                             {conversation.unreadCount}
-                          </Badge>
-                        )}
+                          </Badge>                        )}
                       </div>
                     </div>
                   </div>
                 </ListGroup.Item>
               ))}
             </ListGroup>
+                </Tab.Pane>
+              </Tab.Content>
+            </Tab.Container>
           </Card>
         </Col>
 
