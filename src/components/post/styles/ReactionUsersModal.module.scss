@@ -1,0 +1,441 @@
+
+@use '../../../styles/abstracts/variables' as *;
+
+/* Global overrides for Bootstrap's modal constraints - similar to PostModal */
+:global {
+  .modal-dialog.reaction-users-modal {
+    max-width: 548px !important; /* Giảm từ 583px xuống 548px (giảm 6%) */
+    width: 548px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .modal-content.reaction-users-content {
+    margin: 0 auto !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+}
+
+.modalDialog {
+  max-width: 548px !important; /* Giảm từ 583px xuống 548px (giảm 6%) */
+  width: 95%;
+  margin: 0 auto !important;
+  display: flex;
+  justify-content: center !important;
+  align-items: center !important;
+  
+  @media (max-width: 768px) {
+    max-width: 95vw;
+    margin: 1rem auto;
+  }
+  
+  @media (min-width: 576px) {
+    max-width: 548px !important;
+    width: 548px !important;
+    margin: 0 auto !important;
+  }
+}
+
+.modalContent {
+  border: none;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  background: $white;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%));
+  color: $white;
+  border-bottom: none;
+  padding: $spacing-4 $spacing-5;
+  
+  .modalTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    
+    .titleIcon {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.modalBody {
+  padding: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: $bg-light;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 3px;
+  }
+}
+
+// Reaction Filter Tabs
+.reactionTabs {
+  display: flex;
+  background: $bg-light;
+  border-bottom: 1px solid $border-color;
+  padding: 0;
+  margin: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  
+  .reactionTab {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: $spacing-3 $spacing-2;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-1;
+    font-weight: 500;
+    color: $text-muted;
+    
+    &:hover {
+      background: rgba($primary-color, 0.05);
+      color: $primary-color;
+    }
+    
+    &.active {
+      background: $white;
+      color: $primary-color;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: $primary-color;
+        border-radius: 3px 3px 0 0;
+      }
+    }
+  }
+}
+
+.tabContent {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+}
+
+.reactionEmoji {
+  font-size: 1.2rem;
+}
+
+.reactionCount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: rgba($primary-color, 0.1);
+  color: $primary-color;
+  padding: 2px 6px;
+  border-radius: $border-radius-full;
+  min-width: 20px;
+  
+  .active & {
+    background: $primary-color;
+    color: $white;
+  }
+}
+
+// Users List
+.usersList {
+  padding: $spacing-3 0;
+}
+
+.userItem {
+  padding: $spacing-3 $spacing-4;
+  border-bottom: 1px solid rgba($border-color, 0.5);
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background: rgba($primary-color, 0.02);
+  }
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.userLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+  
+  &:hover {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.userAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-full;
+  border: 2px solid $white;
+  box-shadow: $shadow-sm;
+  object-fit: cover;
+}
+
+.userInfo {
+  flex: 1;
+  margin-left: $spacing-3;
+  min-width: 0;
+}
+
+.userDetails {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-bottom: $spacing-1;
+}
+
+.userName {
+  font-weight: 600;
+  color: $text-dark;
+  font-size: 1rem;
+  text-decoration: none;
+  
+  &:hover {
+    color: $primary-color;
+    text-decoration: none;
+  }
+}
+
+.verifiedBadge {
+  background: $primary-color;
+  color: $white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: $border-radius;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.onlineIndicator {
+  width: 8px;
+  height: 8px;
+  background: $success-color;
+  border-radius: $border-radius-full;
+  border: 2px solid $white;
+}
+
+.userFullName {
+  color: $text-muted;
+  font-size: 0.875rem;
+}
+
+.reactionInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+}
+
+// Loading State
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-8;
+  color: $text-muted;
+  
+  .loadingSpinner {
+    font-size: 2rem;
+    color: $primary-color;
+    margin-bottom: $spacing-3;
+    animation: spin 1s linear infinite;
+  }
+  
+  .loadingText {
+    font-size: 1rem;
+    text-align: center;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Empty State
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-8;
+  text-align: center;
+  color: $text-muted;
+  
+  .emptyIcon {
+    font-size: 3rem;
+    margin-bottom: $spacing-3;
+    color: $text-light;
+  }
+  
+  .emptyTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: $spacing-2;
+    color: $text-dark;
+  }
+  
+  .emptyMessage {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+
+// Error State
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-8;
+  text-align: center;
+  
+  .errorIcon {
+    font-size: 3rem;
+    color: $danger-color;
+    margin-bottom: $spacing-3;
+  }
+  
+  .errorTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $danger-color;
+    margin-bottom: $spacing-2;
+  }
+  
+  .errorMessage {
+    font-size: 0.875rem;
+    color: $text-muted;
+    margin-bottom: $spacing-4;
+  }
+  
+  .retryButton {
+    background: $danger-color;
+    color: $white;
+    border: none;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $border-radius;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    
+    &:hover {
+      background: darken($danger-color, 10%);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .modalDialog {
+    margin: 0.5rem;
+  }
+  
+  .modalHeader {
+    padding: $spacing-3 $spacing-4;
+    
+    .modalTitle {
+      font-size: 1.125rem;
+    }
+  }
+  
+  .reactionTabs {
+    .reactionTab {
+      padding: $spacing-2;
+      font-size: 0.875rem;
+    }
+  }
+  
+  .reactionCount {
+    font-size: 0.75rem;
+  }
+  
+  .userItem {
+    padding: $spacing-2 $spacing-3;
+  }
+  
+  .userAvatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .userName {
+    font-size: 0.875rem;
+  }
+  
+  .userFullName {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalDialog {
+    margin: 0.25rem;
+  }
+  
+  .reactionTabs {
+    .reactionTab {
+      padding: $spacing-1;
+      flex-direction: column;
+      gap: 2px;
+    }
+  }
+  
+  .reactionEmoji {
+    font-size: 1rem;
+  }
+  
+  .reactionCount {
+    font-size: 0.6rem;
+    padding: 1px 4px;
+  }
+  
+  .userDetails {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-1;
+  }
+}

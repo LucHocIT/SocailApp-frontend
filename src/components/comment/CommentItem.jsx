@@ -173,11 +173,10 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
         
         <div className={styles.commentContent}>
           <div className={styles.commentHeader}>
-            <div className={styles.commentInfo}>
-              <Link to={`/profile/${comment.username}`} className={styles.username}>
-                {comment.username}
+            <div className={styles.commentInfo}>              <Link to={`/profile/${comment.username}`} className={styles.username}>
+                {comment.firstName && comment.lastName ? `${comment.firstName} ${comment.lastName}` : comment.username}
                 {comment.isVerified && <Badge bg="primary" className={styles.verifiedBadge}>✓</Badge>}
-              </Link>              
+              </Link>
               <div className={styles.commentMeta}>
                 <OverlayTrigger
                   placement="top"

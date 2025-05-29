@@ -20,21 +20,19 @@ const PostCardHeader = ({
   return (
     <Card.Header className={styles.cardHeader}>
       <div className={styles.userInfo}>
-        <Link to={`/profile/${post.username}`} className={styles.avatarLink}>
-          <Image
+        <Link to={`/profile/${post.username}`} className={styles.avatarLink}>          <Image
             src={post.profilePictureUrl || '/images/default-avatar.png'}
             alt={post.username}
             className={styles.avatar}
-            roundedCircle
+            roundedCircle={true}
           />
           {user && post.isVerified && (
             <span className={styles.verifiedBadge} title="Tài khoản đã xác minh">✓</span>
           )}
         </Link>
-        <div>
-          <div className={styles.userHeader}>
+        <div>          <div className={styles.userHeader}>
             <Link to={`/profile/${post.username}`} className={styles.username}>
-              {post.username}
+              {post.firstName && post.lastName ? `${post.firstName} ${post.lastName}` : post.username}
             </Link>
             {post.category && (
               <Badge bg="primary" pill className={styles.categoryBadge}>

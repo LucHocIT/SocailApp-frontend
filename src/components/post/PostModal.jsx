@@ -24,24 +24,22 @@ const PostModal = ({ show, onHide, post }) => {
     }
   };
 
-  return (
-    <Modal 
+  return (    <Modal 
       show={show} 
       onHide={onHide} 
       dialogClassName={styles.modalDialog}
       contentClassName={styles.modalContent}
-      centered
+      centered={true}
       fullscreen="lg-down"
       size="xl" // Ensure Bootstrap uses largest size class
       aria-labelledby="post-modal"
     >
       <Modal.Header closeButton className={styles.modalHeader}>
         <Modal.Title id="post-modal">
-          <Link to={`/profile/${post.username}`} className={styles.headerUserInfo}>
-            <Image 
+          <Link to={`/profile/${post.username}`} className={styles.headerUserInfo}>            <Image 
               src={post.profilePictureUrl || '/images/default-avatar.png'}
               className={styles.headerAvatar} 
-              roundedCircle 
+              roundedCircle={true} 
             />
             <div className={styles.headerUserText}>
               <span className={styles.headerUsername}>{post.username}</span>
@@ -59,13 +57,12 @@ const PostModal = ({ show, onHide, post }) => {
           
           {post.mediaUrl && (
             <div className={styles.mediaContainer}>
-              {post.mediaType === 'image' ? (
-                <Image 
+              {post.mediaType === 'image' ? (                <Image 
                   src={post.mediaUrl} 
                   alt="Post media" 
                   className={styles.postImage}
-                  fluid 
-                />              ) : post.mediaType === 'video' ? (
+                  fluid={true} 
+                />) : post.mediaType === 'video' ? (
                 <>
                   <video 
                     className={styles.postVideo}
