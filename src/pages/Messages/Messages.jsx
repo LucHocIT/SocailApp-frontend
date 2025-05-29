@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Container, Row, Col, Card, ListGroup, Button, Form, Badge, Spinner, Tab, Nav } from 'react-bootstrap';
-import { FaSearch, FaPaperPlane, FaCircle, FaArrowLeft, FaUserFriends, FaComments } from 'react-icons/fa';
-import { useAuth, useProfile } from '../../context/hooks';
+import { Container, Row, Col, Card, ListGroup, Button, Form, Spinner } from 'react-bootstrap';
+import { FaSearch, FaPaperPlane, FaCircle } from 'react-icons/fa';
+import { useAuth } from '../../context/hooks';
 import { useSignalR } from '../../context/SignalRContext';
+import { useProfile } from '../../context/hooks';
 import messageService from '../../services/messageService';
 import { toast } from 'react-toastify';
 import TimeAgo from 'react-timeago';
@@ -10,7 +11,6 @@ import styles from './styles/Messages.module.scss';
 
 const Messages = () => {
   const { user } = useAuth();
-  const { getFollowers, getFollowing } = useProfile();
   const { 
     isConnected, 
     onReceiveMessage, 
@@ -19,59 +19,220 @@ const Messages = () => {
     offMessageSent,
     sendMessage: sendSignalRMessage 
   } = useSignalR();
+  const { getFollowers, getFollowing } = useProfile();
 
+  // State variables
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [showSearch, setShowSearch] = useState(false);
+  const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
-  const [loadingMessages, setLoadingMessages] = useState(false);  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  
-  // Friends states
-  const [friends, setFriends] = useState([]);
-  const [loadingFriends, setLoadingFriends] = useState(true);
-  const [activeTab, setActiveTab] = useState('friends');
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
+  // Load friends list (mutual followers)
+  const loadFriends = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const [followersData, followingData] = await Promise.all([
+        getFollowers(user.id),
+        getFollowing(user.id)
+      ]);
+      const followersIds = new Set((followersData || []).map(f => f.id));
+      const mutualFriends = (followingData || []).filter(u => followersIds.has(u.id));
+      setFriends(mutualFriends);
+    } catch (error) {
+      console.error('Error fetching friends:', error);
+    }
+  }, [user?.id, getFollowers, getFollowing]);
 
-  // Responsive handling
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+  // Load conversations
+  const loadConversations = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await messageService.getConversations();
+      setConversations(data);
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+      toast.error('Không thể tải danh sách cuộc trò chuyện');
+    } finally {
+      setLoading(false);
+    }
+  }, []);  // Load messages for specific user
+  const loadMessages = async (userId, retryCount = 0) => {
+    const maxRetries = 2; // Limit retries to prevent infinite loop
+    
+    try {
+      setLoadingMessages(true);
+      console.log('Loading messages for user:', userId, 'retry:', retryCount);
+        const data = await messageService.getMessages(userId);
+      setMessages(Array.isArray(data) ? data : []);
+      
+      // Only mark as read if we successfully loaded messages
+      if (data) {
+        try {
+          await messageService.markConversationAsRead(userId);
+          setConversations(prev => 
+            prev.map(conv => 
+              conv.userId === userId ? { ...conv, unreadCount: 0 } : conv
+            )
+          );
+        } catch (markReadError) {
+          console.warn('Failed to mark conversation as read:', markReadError);
+          // Don't show error toast for this, as messages still loaded
+        }
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      
+      // Show specific error message based on error type
+      if (error.response?.status === 400 && error.response?.data?.includes('Redis')) {
+        if (retryCount < maxRetries) {
+          console.log(`Retrying message load (${retryCount + 1}/${maxRetries})...`);
+          toast.info('Lỗi kết nối cơ sở dữ liệu. Đang thử lại...');
+          
+          // Retry after a short delay with exponential backoff
+          setTimeout(() => {
+            loadMessages(userId, retryCount + 1);
+          }, 1000 * (retryCount + 1));
+        } else {
+          console.error('Max retries reached for loading messages');
+          toast.error('Không thể kết nối cơ sở dữ liệu sau nhiều lần thử. Vui lòng làm mới trang.');
+          setMessages([]); // Set empty array to show empty state
+        }
+      } else if (error.response?.status === 404) {
+        toast.warning('Cuộc trò chuyện không tồn tại');
+        setMessages([]);
+      } else {
+        toast.error('Không thể tải tin nhắn. Vui lòng thử lại.');
+        setMessages([]); // Set empty array to show empty state
+      }
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  // Load conversations on mount
+  // Select conversation
+  const handleSelectConversation = (conversation) => {
+    setSelectedConversation(conversation);
+    loadMessages(conversation.userId);
+  };  // Send message
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !selectedConversation) return;
+
+    const messageText = newMessage.trim();
+    try {
+      setSendingMessage(true);
+      const existingConv = conversations.find(conv => conv.userId === selectedConversation.userId);
+
+      if (isConnected) {
+        await sendSignalRMessage(selectedConversation.userId, messageText);
+      } else {
+        await messageService.sendMessage(selectedConversation.userId, messageText);
+        // Only reload messages if not using SignalR (SignalR will handle updates automatically)
+        await loadMessages(selectedConversation.userId);
+      }
+
+      // Add new conversation if doesn't exist
+      if (!existingConv) {
+        const newConversation = {
+          ...selectedConversation,
+          lastMessage: messageText,
+          lastMessageTime: new Date().toISOString(),
+          unreadCount: 0
+        };
+        setConversations(prev => [newConversation, ...prev]);
+      }
+
+      setNewMessage('');
+      messageInputRef.current?.focus();    } catch (error) {
+      console.error('Error sending message:', error);
+      
+      if (error.response?.status === 400 && error.response?.data?.includes('Redis')) {
+        toast.error('Lỗi kết nối cơ sở dữ liệu. Vui lòng thử lại sau.');
+      } else if (error.response?.status === 404) {
+        toast.error('Người nhận không tồn tại.');
+      } else {
+        toast.error('Không thể gửi tin nhắn. Vui lòng thử lại.');
+      }
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  // Start new conversation with friend
+  const startNewConversation = (friend) => {
+    const existingConv = conversations.find(conv => conv.userId === friend.id);
+    
+    if (existingConv) {
+      handleSelectConversation(existingConv);
+    } else {
+      const newConversation = {
+        userId: friend.id,
+        userName: friend.username,
+        firstName: friend.firstName,
+        lastName: friend.lastName,
+        profilePictureUrl: friend.profilePictureUrl,
+        lastMessage: null,
+        lastMessageTime: null,
+        unreadCount: 0
+      };
+      setSelectedConversation(newConversation);
+      setMessages([]);
+    }
+    setShowSearch(false);
+  };
+
+  // Handle search (maintenance mode)
+  const handleSearch = () => {
+    toast.info('Chức năng tìm kiếm đang được bảo trì. Vui lòng sử dụng danh sách bạn bè bên dưới.');
+  };
+  // Scroll to bottom
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Format time display
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffDays = Math.floor(Math.abs(now - date) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+      return 'Hôm qua';
+    } else if (diffDays < 7) {
+      return date.toLocaleDateString('vi-VN', { weekday: 'long' });
+    } else {
+      return date.toLocaleDateString('vi-VN');
+    }
+  };// Effects
   useEffect(() => {
     loadConversations();
-  }, []);  // Load friends data
-  useEffect(() => {
-    fetchFriendsData();
-  }, [fetchFriendsData]);
+  }, [loadConversations]);
 
-  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (user?.id) loadFriends();
+  }, [user?.id, loadFriends]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  // SignalR message listeners
+  // SignalR listeners
   useEffect(() => {
-    const handleReceiveMessage = (message) => {
-      // Add to messages if it's for current conversation
-      if (selectedConversation && 
+    const handleReceiveMessage = (message) => {      if (selectedConversation && 
           (message.senderId === selectedConversation.userId || 
            message.receiverId === selectedConversation.userId)) {
-        setMessages(prev => [...prev, message]);
+        setMessages(prev => Array.isArray(prev) ? [...prev, message] : [message]);
       }
 
-      // Update conversations list
       setConversations(prev => 
         prev.map(conv => 
           conv.userId === message.senderId 
@@ -84,223 +245,18 @@ const Messages = () => {
             : conv
         )
       );
-
-      // Mark as read if conversation is open
-      if (selectedConversation && message.senderId === selectedConversation.userId) {
-        markMessageAsRead(message.messageId);
-      }
-    };
-
-    const handleMessageSent = (message) => {
-      // Add to messages for current conversation
+    };    const handleMessageSent = (message) => {
       if (selectedConversation && message.receiverId === selectedConversation.userId) {
-        setMessages(prev => [...prev, message]);
+        setMessages(prev => Array.isArray(prev) ? [...prev, message] : [message]);
       }
     };
 
     onReceiveMessage(handleReceiveMessage);
-    onMessageSent(handleMessageSent);
-
-    return () => {
+    onMessageSent(handleMessageSent);    return () => {
       offReceiveMessage(handleReceiveMessage);
       offMessageSent(handleMessageSent);
     };
   }, [selectedConversation, onReceiveMessage, offReceiveMessage, onMessageSent, offMessageSent]);
-  const loadConversations = async () => {    try {
-      setLoading(true);
-      const data = await messageService.getConversations();
-      setConversations(data);
-    } catch (error) {
-      console.error('Error loading conversations:', error);
-      toast.error('Không thể tải danh sách cuộc trò chuyện');
-    } finally {
-      setLoading(false);
-    }
-  };
-  const fetchFriendsData = useCallback(async () => {
-    if (!user) {
-      setLoadingFriends(false);
-      return;
-    }
-    
-    try {
-      setLoadingFriends(true);
-      
-      const [followersData, followingData] = await Promise.all([
-        getFollowers(user.id),
-        getFollowing(user.id)
-      ]);
-      
-      // Create friends list (mutual follows)
-      const followersIds = new Set((followersData || []).map(f => f.id));
-      const mutualFriends = (followingData || []).filter(u => followersIds.has(u.id));
-      setFriends(mutualFriends);
-      
-    } catch (error) {
-      console.error('Error fetching friends data:', error);
-      toast.error('Có lỗi xảy ra khi tải danh sách bạn bè');
-    } finally {
-      setLoadingFriends(false);
-    }
-  }, [user, getFollowers, getFollowing]);
-
-  const loadMessages = async (userId) => {
-    try {
-      setLoadingMessages(true);
-      const data = await messageService.getMessages(userId);
-      setMessages(data);
-      
-      // Mark conversation as read
-      await messageService.markConversationAsRead(userId);
-        // Update unread count in conversations
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.userId === userId ? { ...conv, unreadCount: 0 } : conv
-        )
-      );
-    } catch (error) {
-      console.error('Error loading messages:', error);
-      toast.error('Không thể tải tin nhắn');
-    } finally {
-      setLoadingMessages(false);
-    }
-  };
-
-  const markMessageAsRead = async (messageId) => {
-    try {
-      await messageService.markAsRead(messageId);
-    } catch (error) {
-      console.error('Error marking message as read:', error);
-    }
-  };
-
-  const handleSelectConversation = (conversation) => {
-    setSelectedConversation(conversation);
-    loadMessages(conversation.userId);
-    if (isMobile) {
-      // Hide conversations list on mobile
-    }
-  };
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    
-    if (!newMessage.trim() || !selectedConversation) return;
-
-    try {
-      setSendingMessage(true);
-      
-      // Send via SignalR for real-time
-      if (isConnected) {
-        await sendSignalRMessage(selectedConversation.userId, newMessage.trim());
-      } else {
-        // Fallback to HTTP if SignalR not connected
-        await messageService.sendMessage(selectedConversation.userId, newMessage.trim());
-        // Reload messages
-        await loadMessages(selectedConversation.userId);
-      }      setNewMessage('');
-      if (messageInputRef.current) {
-        messageInputRef.current.focus();
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('Không thể gửi tin nhắn');
-    } finally {
-      setSendingMessage(false);
-    }
-  };
-
-  const handleSearch = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }    try {
-      const results = await messageService.searchUsers(query);
-      setSearchResults(results);
-    } catch (error) {
-      console.error('Error searching users:', error);
-      toast.error('Không thể tìm kiếm người dùng');
-    }
-  };
-  const startNewConversation = async (user) => {
-    // Check if conversation already exists
-    const existingConv = conversations.find(conv => conv.userId === user.id);
-    
-    if (existingConv) {
-      handleSelectConversation(existingConv);
-    } else {
-      // Create new conversation entry
-      const newConversation = {
-        userId: user.id,
-        userName: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        profilePictureUrl: user.profilePictureUrl,
-        lastMessage: null,
-        lastMessageTime: null,
-        unreadCount: 0
-      };
-      
-      setConversations(prev => [newConversation, ...prev]);
-      setSelectedConversation(newConversation);
-      setMessages([]);
-    }
-    
-    setShowSearch(false);
-    setSearchQuery('');
-    setSearchResults([]);
-  };
-  const startConversationWithFriend = async (friend) => {
-    // Check if conversation already exists
-    const existingConv = conversations.find(conv => conv.userId === friend.id);
-    
-    if (existingConv) {
-      handleSelectConversation(existingConv);
-    } else {
-      // Create new conversation entry
-      const newConversation = {
-        userId: friend.id,
-        userName: friend.username,
-        firstName: friend.firstName,
-        lastName: friend.lastName,
-        profilePictureUrl: friend.profilePictureUrl,
-        lastMessage: null,
-        lastMessageTime: null,
-        unreadCount: 0
-      };
-      
-      setConversations(prev => [newConversation, ...prev]);
-      setSelectedConversation(newConversation);
-      setMessages([]);
-    }
-    
-    // Switch to conversations tab after starting chat
-    setActiveTab('conversations');
-  };
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return date.toLocaleTimeString('vi-VN', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    } else if (diffDays === 1) {
-      return 'Hôm qua';
-    } else if (diffDays < 7) {
-      return date.toLocaleDateString('vi-VN', { weekday: 'long' });
-    } else {
-      return date.toLocaleDateString('vi-VN');
-    }
-  };
 
   if (loading) {
     return (
@@ -311,139 +267,86 @@ const Messages = () => {
   }
 
   return (
-    <Container fluid className={styles.messagesContainer}>
+    <Container fluid className={styles.container}>
       <Row className="h-100">
-        {/* Conversations List */}
-        <Col 
-          md={4} 
-          className={`${styles.conversationsPanel} ${isMobile && selectedConversation ? 'd-none' : ''}`}
-        >          <Card className="h-100">
-            <Card.Header className={styles.conversationsHeader}>
-              <Tab.Container activeKey={activeTab} onSelect={setActiveTab}>
-                <Nav variant="tabs" className="justify-content-center">
-                  <Nav.Item>
-                    <Nav.Link eventKey="friends">
-                      <FaUserFriends className="me-1" />
-                      Bạn bè ({friends.length})
-                    </Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link eventKey="conversations">
-                      <FaComments className="me-1" />
-                      Trò chuyện
-                    </Nav.Link>
-                  </Nav.Item>
-                </Nav>
-                
-                <div className="d-flex justify-content-end mt-2">
-                  {activeTab === 'conversations' && (
-                    <Button 
-                      variant="outline-primary" 
-                      size="sm"
-                      onClick={() => setShowSearch(!showSearch)}
-                    >
-                      <FaSearch />
-                    </Button>
-                  )}
+        {/* Left Panel - Conversations */}
+        <Col md={4} className={styles.leftPanel}>
+          <Card className="h-100">
+            <Card.Header className={styles.header}>
+              <div className="d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">Tin nhắn</h5>
+                <Button 
+                  variant="outline-primary" 
+                  size="sm"
+                  onClick={() => setShowSearch(!showSearch)}
+                >
+                  <FaSearch />
+                </Button>
+              </div>
+            </Card.Header>
+
+            {/* Search Panel */}
+            {showSearch && (
+              <div className={styles.searchPanel}>
+                <div className="alert alert-info mb-3" style={{ fontSize: '0.85rem', padding: '8px 12px' }}>
+                  <strong>🔧 Bảo trì:</strong> Chức năng tìm kiếm đang được nâng cấp.
                 </div>
-              </Tab.Container>            </Card.Header>
+                <Form.Control
+                  type="text"
+                  placeholder="Tìm kiếm (đang bảo trì)..."
+                  onChange={(e) => e.target.value.trim() && handleSearch()}
+                  disabled
+                />
+              </div>
+            )}
 
-            <Tab.Container activeKey={activeTab} onSelect={setActiveTab}>
-              <Tab.Content>
-                <Tab.Pane eventKey="friends">
-                  {loadingFriends ? (
-                    <div className="d-flex justify-content-center p-4">
-                      <Spinner animation="border" size="sm" />
-                    </div>
-                  ) : friends.length === 0 ? (
-                    <div className="text-center p-4 text-muted">
-                      <FaUserFriends size={50} className="mb-3" />
-                      <h6>Chưa có bạn bè nào</h6>
-                      <p>Bạn bè là những người mà bạn theo dõi và họ cũng theo dõi lại bạn.</p>
-                    </div>
-                  ) : (
-                    <ListGroup variant="flush" className={styles.friendsList}>
-                      {friends.map(friend => (
-                        <ListGroup.Item 
-                          key={friend.id}
-                          action
-                          onClick={() => startConversationWithFriend(friend)}
-                          className={styles.friendItem}
-                        >
-                          <div className="d-flex align-items-center">
-                            <div className="position-relative">
-                              <img 
-                                src={friend.profilePictureUrl || '/images/default-avatar.png'}
-                                alt={friend.username}
-                                className={styles.avatar}
-                              />
-                              <FaCircle className={styles.onlineIndicator} />
-                            </div>
-                            <div className="flex-grow-1 ms-3">
-                              <div className={styles.userName}>
-                                {friend.firstName && friend.lastName 
-                                  ? `${friend.firstName} ${friend.lastName}` 
-                                  : friend.username}
-                              </div>
-                              <small className="text-muted">@{friend.username}</small>
-                            </div>
+            {/* Friends List */}
+            <div className={styles.friendsSection}>
+              {friends.length > 0 ? (
+                <ListGroup variant="flush" className={styles.friendsList}>
+                  {friends.map(friend => (
+                    <ListGroup.Item 
+                      key={friend.id}
+                      action
+                      onClick={() => startNewConversation(friend)}
+                      className={styles.friendItem}
+                    >
+                      <div className="d-flex align-items-center">
+                        <div className="position-relative">
+                          <img 
+                            src={friend.profilePictureUrl || '/images/default-avatar.png'}
+                            alt={friend.username}
+                            className={styles.avatar}
+                          />
+                          <FaCircle className={styles.onlineIndicator} />
+                        </div>
+                        <div className="ms-3">
+                          <div className={styles.userName}>
+                            {friend.firstName && friend.lastName 
+                              ? `${friend.firstName} ${friend.lastName}` 
+                              : friend.username}
                           </div>
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
-                  )}
-                </Tab.Pane>
-                
-                <Tab.Pane eventKey="conversations">
-                  {showSearch && (
-                    <div className={styles.searchPanel}>
-                      <Form.Control
-                        type="text"
-                        placeholder="Tìm kiếm người dùng..."
-                        value={searchQuery}
-                        onChange={(e) => {
-                          setSearchQuery(e.target.value);
-                          handleSearch(e.target.value);
-                        }}
-                        className="mb-2"
-                      />
-                      {searchResults.length > 0 && (
-                        <ListGroup className={styles.searchResults}>
-                          {searchResults.map(user => (
-                            <ListGroup.Item 
-                              key={user.id}
-                              action
-                              onClick={() => startNewConversation(user)}
-                              className={styles.searchResultItem}
-                            >
-                              <div className="d-flex align-items-center">
-                                <img 
-                                  src={user.profilePictureUrl || '/images/default-avatar.png'}
-                                  alt={user.username}
-                                  className={styles.avatar}
-                                />
-                                <div className="ms-2">
-                                  <div className={styles.userName}>
-                                    {user.firstName && user.lastName 
-                                      ? `${user.firstName} ${user.lastName}` 
-                                      : user.username}
-                                  </div>
-                                  <small className="text-muted">@{user.username}</small>
-                                </div>
-                              </div>
-                            </ListGroup.Item>
-                          ))}
-                        </ListGroup>
-                      )}
-                    </div>
-                  )}
+                          <small className="text-muted">@{friend.username}</small>
+                        </div>
+                      </div>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              ) : (
+                <div className="text-center text-muted py-3 px-3" style={{ fontSize: '0.85rem' }}>
+                  <div>Chưa có bạn bè nào</div>
+                  <small>Bạn bè là những người bạn theo dõi và họ cũng theo dõi lại bạn</small>
+                </div>
+              )}
+            </div>
 
-                  <ListGroup variant="flush" className={styles.conversationsList}>
-                    {conversations.map(conversation => (
-                      <ListGroup.Item 
-                        key={conversation.userId}
-                        action
-                        active={selectedConversation?.userId === conversation.userId}
+            {/* Conversations List */}
+            <ListGroup variant="flush" className={styles.conversationsList}>
+              {conversations.map(conversation => (
+                <ListGroup.Item 
+                  key={conversation.userId}
+                  action
+                  active={selectedConversation?.userId === conversation.userId}
                   onClick={() => handleSelectConversation(conversation)}
                   className={styles.conversationItem}
                 >
@@ -474,39 +377,25 @@ const Messages = () => {
                           {conversation.lastMessage || 'Bắt đầu cuộc trò chuyện'}
                         </small>
                         {conversation.unreadCount > 0 && (
-                          <Badge bg="primary" className={styles.unreadBadge}>
+                          <span className={styles.unreadBadge}>
                             {conversation.unreadCount}
-                          </Badge>                        )}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
                 </ListGroup.Item>
               ))}
             </ListGroup>
-                </Tab.Pane>
-              </Tab.Content>
-            </Tab.Container>
           </Card>
         </Col>
 
-        {/* Messages Panel */}
-        <Col 
-          md={8} 
-          className={`${styles.messagesPanel} ${isMobile && !selectedConversation ? 'd-none' : ''}`}
-        >
+        {/* Right Panel - Messages */}
+        <Col md={8} className={styles.rightPanel}>
           {selectedConversation ? (
             <Card className="h-100 d-flex flex-column">
               <Card.Header className={styles.messageHeader}>
                 <div className="d-flex align-items-center">
-                  {isMobile && (
-                    <Button 
-                      variant="link" 
-                      onClick={() => setSelectedConversation(null)}
-                      className="me-2 p-0"
-                    >
-                      <FaArrowLeft />
-                    </Button>
-                  )}
                   <img 
                     src={selectedConversation.profilePictureUrl || '/images/default-avatar.png'}
                     alt={selectedConversation.userName}
@@ -523,16 +412,20 @@ const Messages = () => {
                     </small>
                   </div>
                 </div>
-              </Card.Header>
-
-              <Card.Body className={`${styles.messagesBody} flex-grow-1`}>
+              </Card.Header>              <Card.Body className={`${styles.messagesBody} flex-grow-1`}>
                 {loadingMessages ? (
                   <div className="d-flex justify-content-center align-items-center h-100">
                     <Spinner animation="border" />
+                  </div>                ) : Array.isArray(messages) && messages.length === 0 ? (
+                  <div className="d-flex justify-content-center align-items-center h-100">
+                    <div className="text-center text-muted">
+                      <h6>Chưa có tin nhắn nào</h6>
+                      <p>Hãy bắt đầu cuộc trò chuyện bằng cách gửi tin nhắn đầu tiên!</p>
+                    </div>
                   </div>
                 ) : (
                   <div className={styles.messagesContainer}>
-                    {messages.map(message => (
+                    {Array.isArray(messages) && messages.map(message => (
                       <div 
                         key={message.id || message.messageId}
                         className={`${styles.messageItem} ${
@@ -556,19 +449,18 @@ const Messages = () => {
               </Card.Body>
 
               <Card.Footer className={styles.messageFooter}>
-                <Form onSubmit={handleSendMessage} className="d-flex">
-                  <Form.Control
+                <Form onSubmit={handleSendMessage} className="d-flex">                  <Form.Control
                     ref={messageInputRef}
                     type="text"
                     placeholder="Nhập tin nhắn..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    disabled={sendingMessage || !isConnected}
+                    disabled={sendingMessage}
                     className="me-2"
                   />
                   <Button 
                     type="submit" 
-                    disabled={!newMessage.trim() || sendingMessage || !isConnected}
+                    disabled={!newMessage.trim() || sendingMessage}
                     variant="primary"
                   >
                     {sendingMessage ? (
@@ -585,7 +477,7 @@ const Messages = () => {
               <Card.Body className="d-flex justify-content-center align-items-center">
                 <div className="text-center text-muted">
                   <h5>Chọn một cuộc trò chuyện để bắt đầu nhắn tin</h5>
-                  <p>Hoặc tìm kiếm người dùng để bắt đầu cuộc trò chuyện mới</p>
+                  <p>Hoặc chọn bạn bè để bắt đầu cuộc trò chuyện mới</p>
                 </div>
               </Card.Body>
             </Card>

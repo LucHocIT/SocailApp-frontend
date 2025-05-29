@@ -1,38 +1,80 @@
 // Messages styles
-.messagesContainer {
+.container {
   height: calc(100vh - 120px);
   padding: 20px;
 }
 
-.conversationsPanel {
-  border-right: 1px solid #dee2e6;
-  
-  @media (max-width: 768px) {
-    border-right: none;
-  }
+.leftPanel {
+  height: 100%;
 }
 
-.conversationsHeader {
+.rightPanel {
+  height: 100%;
+}
+
+.header {
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
 }
 
+// Search panel
 .searchPanel {
   padding: 1rem;
   border-bottom: 1px solid #dee2e6;
 }
 
-.searchResults {
-  max-height: 300px;
-  overflow-y: auto;
+// Friends section styles
+.friendsSection {
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  
+  h6 {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 }
 
-.searchResultItem {
+.friendsList {
+  max-height: 250px;
+  overflow-y: auto;
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+    
+    &:hover {
+      background: #bbb;
+    }
+  }
+}
+
+.friendItem {
   border: none;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
   
   &:hover {
     background-color: #f8f9fa;
+    transform: translateX(2px);
+  }
+  
+  &:active {
+    background-color: #e9ecef;
   }
 }
 
@@ -95,12 +137,6 @@
 }
 
 // Messages Panel
-.messagesPanel {
-  @media (max-width: 768px) {
-    padding: 0;
-  }
-}
-
 .messageHeader {
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
@@ -120,10 +156,12 @@
   flex-direction: column;
 }
 
+// Message styling
 .messageItem {
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
+  animation: slideInMessage 0.3s ease-out;
   
   &.sent {
     align-items: flex-end;
@@ -174,44 +212,6 @@
   padding: 1rem;
 }
 
-// Friends List
-.friendsList {
-  height: calc(100% - 60px);
-  overflow-y: auto;
-}
-
-.friendItem {
-  border: none;
-  padding: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  
-  &:hover {
-    background-color: #f8f9fa;
-  }
-  
-  &:active {
-    transform: translateY(1px);
-  }
-}
-
-// Responsive
-@media (max-width: 768px) {
-  .messagesContainer {
-    height: calc(100vh - 80px);
-    padding: 0;
-  }
-  
-  .conversationsPanel,
-  .messagesPanel {
-    padding: 0;
-  }
-  
-  .messageContent {
-    max-width: 85%;
-  }
-}
-
 // Scrollbar styling
 .conversationsList,
 .messagesContainer {
@@ -234,10 +234,6 @@
 }
 
 // Animation
-.messageItem {
-  animation: slideInMessage 0.3s ease-out;
-}
-
 @keyframes slideInMessage {
   from {
     opacity: 0;
