@@ -179,31 +179,86 @@
   animation: slideDown 0.3s ease;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.editInputWrapper {
+  position: relative;
+  border: 2px solid var(--bs-primary);
+  border-radius: 12px;
+  background: white;
+  transition: all 0.2s ease;
+  
+  &:focus-within {
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
   }
 }
 
 .editInput {
   width: 100%;
-  border: 2px solid var(--bs-primary);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 8px;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 50px 12px 12px; // Space for emoji button
   font-size: 0.9rem;
   resize: vertical;
   min-height: 80px;
-  transition: all 0.2s ease;
+  background: transparent;
   
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+  }
+  
+  &::placeholder {
+    color: #6c757d;
+  }
+}
+
+.editInputActions {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.emojiButton {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 1.1rem;
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: var(--bs-primary);
+    background-color: rgba(13, 110, 253, 0.1);
+    transform: scale(1.1);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.emojiPickerContainer {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  z-index: 1000;
+  margin-bottom: 8px;
+  
+  // Arrow pointing down
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #fff;
   }
 }
 
@@ -211,34 +266,16 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+  margin-top: 12px;
 }
 
-.actionsDropdown {
-  position: relative;
-}
-
-.actionButton {
-  background: none;
-  border: none;
-  color: var(--bs-secondary);
-  padding: 6px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 32px;
-  height: 32px;
+.saveButton {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
   
-  &:hover {
-    background-color: #e9ecef;
-    color: var(--bs-primary);
-    transform: scale(1.1);
-  }
-  
-  &:after {
-    display: none;
+  svg {
+    font-size: 0.85rem;
   }
 }
 
@@ -270,6 +307,28 @@
   
   .reactionsList {
     align-self: flex-end;
+  }
+  
+  .emojiPickerContainer {
+    right: auto;
+    left: 0;
+    
+    &::after {
+      right: auto;
+      left: 20px;
+    }
+  }
+  
+  .editInputActions {
+    position: static;
+    justify-content: flex-end;
+    margin-top: 8px;
+    padding: 8px 0;
+    border-top: 1px solid #e9ecef;
+  }
+  
+  .editInput {
+    padding: 12px;
   }
 }
 

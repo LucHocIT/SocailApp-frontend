@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button, Image, Dropdown, Spinner, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaReply, FaEllipsisH, FaTrash, FaPen, FaFlag } from 'react-icons/fa';
+import { FaReply, FaEllipsisH, FaTrash, FaPen, FaFlag, FaRegSmile, FaRegPaperPlane } from 'react-icons/fa';
 import TimeAgo from 'react-timeago';
+import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
 import { convertUtcToLocal } from '../../utils/dateUtils';
@@ -17,15 +18,18 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
   const [showReplies, setShowReplies] = useState(false);
   const [replies, setReplies] = useState([]);
   const [loadingReplies, setLoadingReplies] = useState(false);
-  const [replyFormVisible, setReplyFormVisible] = useState(false);
-  const [editMode, setEditMode] = useState(false);
+  const [replyFormVisible, setReplyFormVisible] = useState(false);  const [editMode, setEditMode] = useState(false);
   const [editText, setEditText] = useState(comment.content);
-  const [loadingAction, setLoadingAction] = useState(false);  const [showMoreActions, setShowMoreActions] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false);
+  const [showMoreActions, setShowMoreActions] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const commentRef = useRef(null);
-
+  const editTextareaRef = useRef(null);
   const isAuthor = user?.id === comment.userId;
   const canReply = depth < 3; // Limit nesting to 3 levels
-  const isEdited = comment.updatedAt && comment.updatedAt !== comment.createdAt;
+  // Fix isEdited logic - check if updatedAt is significantly different from createdAt
+  const isEdited = comment.updatedAt && comment.createdAt && 
+    Math.abs(new Date(comment.updatedAt) - new Date(comment.createdAt)) > 1000; // 1 second difference
     // Toggle replies visibility and load replies if needed
   const toggleReplies = async () => {
     if (!showReplies && replies.length === 0) {
@@ -82,13 +86,12 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
       const updatedComment = await commentService.updateComment(comment.id, {
         content: editText
       });
-      
-      // Update local state
+        // Update local state
       comment.content = updatedComment.content;
       comment.updatedAt = updatedComment.updatedAt;
       
       setEditMode(false);
-      toast.success('Đã cập nhật bình luận');
+      setShowEmojiPicker(false);
       
       // Notify parent component about the update
       if (onCommentUpdated) {
@@ -166,6 +169,57 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
       }
     }
   };
+
+  // Handle emoji click for edit mode
+  const handleEmojiClick = (emojiData) => {
+    const emoji = emojiData.emoji;
+    const textarea = editTextareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const newText = editText.substring(0, start) + emoji + editText.substring(end);
+    
+    setEditText(newText);
+    
+    // Set cursor position after emoji
+    setTimeout(() => {
+      const newCursorPos = start + emoji.length;
+      textarea.selectionStart = newCursorPos;
+      textarea.selectionEnd = newCursorPos;
+      textarea.focus();
+    }, 0);
+  };
+
+  // Toggle emoji picker for edit mode
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker(!showEmojiPicker);
+  };
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showEmojiPicker && 
+          commentRef.current && 
+          !commentRef.current.contains(event.target)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
+
+  // Auto-resize textarea in edit mode
+  useEffect(() => {
+    if (editMode && editTextareaRef.current) {
+      editTextareaRef.current.style.height = 'auto';
+      editTextareaRef.current.style.height = `${Math.min(editTextareaRef.current.scrollHeight, 120)}px`;
+    }
+  }, [editText, editMode]);
+
   return (
     <div ref={commentRef} className={`${styles.commentContainer} ${depth > 0 ? styles.nested : ''}`}>
       <div className={styles.comment}>
@@ -228,18 +282,40 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
                 </Dropdown.Menu>
               </Dropdown>
             )}
-          </div>          
-          {editMode ? (
+          </div>            {editMode ? (
             <form onSubmit={handleEditSubmit} className={styles.editForm}>
-              <textarea 
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                className={styles.editInput}
-                disabled={loadingAction}
-                autoFocus
-                rows="3"
-                maxLength={1000}
-              />
+              <div className={styles.editInputWrapper}>
+                <textarea 
+                  ref={editTextareaRef}
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  className={styles.editInput}
+                  disabled={loadingAction}
+                  autoFocus
+                  rows="3"
+                  maxLength={1000}
+                  placeholder="Chỉnh sửa bình luận..."
+                />
+                <div className={styles.editInputActions}>
+                  <button
+                    type="button"
+                    onClick={toggleEmojiPicker}
+                    className={styles.emojiButton}
+                    disabled={loadingAction}
+                  >
+                    <FaRegSmile />
+                  </button>
+                  {showEmojiPicker && (
+                    <div className={styles.emojiPickerContainer}>
+                      <EmojiPicker
+                        onEmojiClick={handleEmojiClick}
+                        width={300}
+                        height={350}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className={styles.editActions}>
                 <Button 
                   variant="secondary" 
@@ -247,6 +323,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
                   onClick={() => {
                     setEditMode(false);
                     setEditText(comment.content);
+                    setShowEmojiPicker(false);
                   }}
                   disabled={loadingAction}
                 >
@@ -257,8 +334,9 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
                   size="sm" 
                   type="submit"
                   disabled={!editText.trim() || editText === comment.content || loadingAction}
+                  className={styles.saveButton}
                 >
-                  {loadingAction ? <Spinner as="span" animation="border" size="sm" /> : 'Lưu'}
+                  {loadingAction ? <Spinner as="span" animation="border" size="sm" /> : <><FaRegPaperPlane /> Lưu</>}
                 </Button>
               </div>
             </form>

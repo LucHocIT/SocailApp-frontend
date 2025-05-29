@@ -82,13 +82,12 @@ const CommentForm = ({ postId, parentCommentId, onCommentAdded, placeholder = "V
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
-      
-      // Notify parent component about the new comment
+        // Notify parent component about the new comment
       if (onCommentAdded) {
         onCommentAdded(newComment);
       }
       
-      toast.success('Đã đăng bình luận');
+      // Don't show toast notification for comment submission
     } catch (error) {
       toast.error('Không thể đăng bình luận: ' + (error.message || 'Lỗi không xác định'));
     } finally {
