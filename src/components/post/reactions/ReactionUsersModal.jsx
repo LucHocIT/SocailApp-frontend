@@ -69,17 +69,52 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {
   const handleTabSelect = (tab) => {
     setActiveTab(tab);
   };
-
   const getReactionEmoji = (type) => {
     return postService.getReactionEmoji(type);
   };
-
+  // Function to get unique reaction types with counts for stacked display
+  const getStackedReactions = () => {
+    const uniqueReactions = [];
+    const seenTypes = new Set();
+    
+    reactionTypes.forEach(type => {
+      if (type !== 'all' && reactions[type]?.length > 0 && !seenTypes.has(type)) {
+        seenTypes.add(type);
+        uniqueReactions.push({
+          type,
+          emoji: getReactionEmoji(type),
+          count: reactions[type].length
+        });
+      }
+    });
+    return uniqueReactions.slice(0, 5); // Show max 5 unique reactions in stack
+  };
   const getTabTitle = (type) => {
     if (type === 'all') {
       return (
         <div className={styles.tabContent}>
           <span>Tất cả</span>
-          <span className={styles.reactionCount}>{reactions.all?.length || 0}</span>
+          <div className={styles.allTabInfo}>
+            {/* Stacked Reactions Display next to count */}
+            {getStackedReactions().length > 0 && (
+              <div className={styles.reactionStack}>
+                {getStackedReactions().map((reaction, index) => (
+                  <div 
+                    key={reaction.type}
+                    className={styles.stackedReaction}
+                    style={{ 
+                      zIndex: getStackedReactions().length - index,
+                      transform: `translateX(${index * -6}px)`
+                    }}
+                    title={`${reaction.count} ${reaction.type} reactions`}
+                  >
+                    {reaction.emoji}
+                  </div>
+                ))}
+              </div>
+            )}
+            <span className={styles.reactionCount}>{reactions.all?.length || 0}</span>
+          </div>
         </div>
       );
     }
@@ -108,10 +143,10 @@ const ReactionUsersModal = ({ show, onHide, postId }) => {
       dialogClassName={`${styles.modalDialog} reaction-users-modal`}
       contentClassName={`${styles.modalContent} reaction-users-content`}
       size="md"
-    ><Modal.Header closeButton className={styles.modalHeader}>
+    >      <Modal.Header closeButton className={styles.modalHeader}>
         <Modal.Title className={styles.modalTitle}>
           <FaHeart className={styles.titleIcon} />
-          <span>Reaction</span>
+          <span>Reactions</span>
         </Modal.Title>
       </Modal.Header>
 

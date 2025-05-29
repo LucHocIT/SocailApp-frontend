@@ -11,8 +11,7 @@ const PostReactionStack = ({
   onClick 
 }) => {
   const [showModal, setShowModal] = useState(false);
-
-  // Filter out reactions with count = 0 and sort by count descending
+  // Filter out reactions with count = 0 and get unique reaction types
   const validReactions = Object.entries(reactionCounts || {})
     .filter(([, count]) => count > 0)
     .sort(([, a], [, b]) => b - a);
@@ -21,9 +20,8 @@ const PostReactionStack = ({
     return null;
   }
 
-  // Get top reactions to display
-  const displayReactions = validReactions.slice(0, maxVisible);
-  const remainingCount = validReactions.length - maxVisible;
+  // Get unique reaction types (no duplicates, just unique emojis)
+  const uniqueReactions = validReactions.slice(0, maxVisible);
   const totalCount = validReactions.reduce((sum, [, count]) => sum + count, 0);
 
   // Create tooltip content
@@ -47,32 +45,25 @@ const PostReactionStack = ({
       <OverlayTrigger
         placement="top"
         overlay={<Tooltip>{getTooltipContent()}</Tooltip>}
-      >
-        <div className={styles.reactionStack} onClick={handleClick}>
-          <div className={styles.reactionEmojis}>
-            {displayReactions.map(([type], index) => (
+      >        <div className={styles.reactionStack} onClick={handleClick}>
+          <div 
+            className={styles.reactionEmojis}
+            style={{ 
+              width: `${Math.max(18, uniqueReactions.length * 8 + 10)}px` 
+            }}
+          >
+            {uniqueReactions.map(([type], index) => (
               <span 
                 key={type}
                 className={styles.reactionEmoji}
                 style={{ 
-                  zIndex: displayReactions.length - index,
-                  left: `${index * 12}px`
+                  zIndex: uniqueReactions.length - index,
+                  left: `${index * 8}px`
                 }}
               >
                 {postService.getReactionEmoji(type)}
               </span>
             ))}
-            {remainingCount > 0 && (
-              <span 
-                className={styles.moreIndicator}
-                style={{ 
-                  left: `${maxVisible * 12}px`,
-                  zIndex: 0
-                }}
-              >
-                +{remainingCount}
-              </span>
-            )}
           </div>
           <span className={styles.reactionCount}>
             {totalCount}

@@ -1,0 +1,210 @@
+// PostCardHeader.module.scss - Header Section & Related Effects
+@use '../../../../styles/abstracts/variables' as *;
+@use '../../../../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ===== HEADER SECTION =====
+.cardHeader {
+  padding: $spacing-4;
+  border-bottom: 1px solid rgba($border-color, 0.3);
+  background: linear-gradient(135deg, rgba($primary-color, 0.02), rgba($primary-color, 0.01));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  flex: 1;
+}
+
+.avatarLink {
+  position: relative;
+  text-decoration: none;
+  
+  &:hover .avatar {
+    transform: scale(1.05);
+  }
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border: 2px solid rgba($primary-color, 0.2);
+  transition: $transition-base;
+  box-shadow: $shadow-sm;
+}
+
+.verifiedBadge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: $primary-color;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+.userHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-bottom: $spacing-1;
+}
+
+.username {
+  font-weight: 600;
+  color: $text-dark;
+  text-decoration: none;
+  transition: $transition-base;
+  
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+.categoryBadge {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.timeInfo {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+.editedBadge {
+  font-size: 10px;
+}
+
+// Header Actions
+.postActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.bookmarkButton {
+  color: $text-muted;
+  border: none;
+  background: none;
+  padding: $spacing-2;
+  border-radius: $border-radius;
+  transition: $transition-base;
+  
+  &:hover {
+    color: $warning-color;
+    background: rgba($warning-color, 0.1);
+  }
+}
+
+.bookmarkIcon {
+  font-size: 18px;
+}
+
+.menuButton {
+  color: $text-muted;
+  border: none;
+  background: none;
+  padding: $spacing-2;
+  border-radius: $border-radius;
+  transition: $transition-base;
+  
+  &:hover {
+    color: $text-dark;
+    background: rgba($text-dark, 0.1);
+  }
+}
+
+.dropdownMenu {
+  border-radius: $border-radius;
+  box-shadow: $shadow-lg;
+}
+
+// ===== ANIMATIONS & EFFECTS =====
+.doubleTapHeart {
+  position: absolute;
+  font-size: 40px;
+  color: $danger-color;
+  pointer-events: none;
+  z-index: 1000;
+  animation: heartAnimation 1s ease-out forwards;
+}
+
+.shimmerEffect {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+// ===== RESPONSIVE DESIGN - HEADER =====
+@media (max-width: $breakpoint-md) {
+  .cardHeader {
+    padding: $spacing-3;
+  }
+  
+  .avatar {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  // Additional responsive styles for small screens
+}
+
+// ===== DARK THEME - HEADER =====
+[data-bs-theme="dark"] {
+  .cardHeader {
+    background: linear-gradient(135deg, rgba($primary-color, 0.05), rgba($primary-color, 0.02));
+    border-color: rgba($border-color, 0.2);
+  }
+  
+  .username {
+    color: $text-light;
+    
+    &:hover {
+      color: $primary-color;
+    }
+  }
+}
+
+// ===== KEYFRAMES =====
+@keyframes heartAnimation {
+  0% {
+    opacity: 1;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5) translateY(-50px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

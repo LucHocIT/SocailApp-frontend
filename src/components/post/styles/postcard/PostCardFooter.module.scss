@@ -1,0 +1,141 @@
+// PostCardFooter.module.scss - Footer Section
+@use '../../../../styles/abstracts/variables' as *;
+@use '../../../../styles/abstracts/color-aliases' as *;
+@use 'sass:color';
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ===== FOOTER SECTION =====
+.cardFooter {
+  padding: $spacing-4;
+  border-top: 1px solid rgba($border-color, 0.3);
+  background: rgba($primary-color, 0.01);
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: $spacing-3;
+}
+
+.leftActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.reactionSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.reactionButtonWrapper {
+  flex-shrink: 0;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  color: $text-muted;
+  border: none;
+  background: none;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $border-radius;
+  transition: $transition-base;
+  font-size: $font-size-sm;  flex-shrink: 0;
+  min-width: auto;
+  
+  &:hover {
+    color: $primary-color;
+    background: rgba($primary-color, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.actionIcon {
+  font-size: 16px;
+}
+
+.actionCount, .actionLabel {
+  font-weight: 500;
+}
+
+.viewCount {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  margin-left: auto;
+}
+
+.viewIcon {
+  font-size: 14px;
+}
+
+// ===== RESPONSIVE DESIGN - FOOTER =====
+@media (max-width: $breakpoint-md) {
+  .cardFooter {
+    padding: $spacing-3;
+  }
+  
+  .actionButtons {
+    gap: $spacing-2;
+  }
+  
+  .leftActions {
+    gap: $spacing-3;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .actionButtons {
+    flex-wrap: wrap;
+    gap: $spacing-2;
+  }
+  
+  .leftActions {
+    gap: $spacing-2;
+    min-width: 0;
+    flex: 1;
+  }
+  
+  .reactionSection {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: $spacing-2;
+  }
+  
+  .viewCount {
+    margin-left: auto;
+    margin-top: 0;
+    justify-content: flex-end;
+  }
+  
+  .actionButton {
+    padding: $spacing-2;
+    
+    .actionLabel, .actionCount {
+      display: none;
+    }
+  }
+}
+
+// ===== DARK THEME - FOOTER =====
+[data-bs-theme="dark"] {
+  .cardFooter {
+    background: rgba($primary-color, 0.02);
+    border-color: rgba($border-color, 0.2);
+  }
+}

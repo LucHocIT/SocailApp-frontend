@@ -11,45 +11,49 @@ const PostCardFooter = ({
   onShare, 
   onShowComments, 
   onShowReactionUsers 
-}) => {
-  return (
-    <Card.Footer className={styles.cardFooter}>
-      {/* Post reactions stack display */}
-      <PostReactionStack 
-        postId={post.id} 
-        onClick={onShowReactionUsers}
-        className="mb-2"
-      />
-      
+}) => {  return (
+    <Card.Footer className={styles.cardFooter}>      
       <div className={styles.actionButtons}>
-        <div className={styles.reactionButtonWrapper}>
-          <PostReactionButton 
-            postId={post.id} 
-            onShowUsers={onShowReactionUsers} 
-          />
+        <div className={styles.leftActions}>
+          <div className={styles.reactionButtonWrapper}>
+            <PostReactionButton 
+              postId={post.id} 
+              onShowUsers={onShowReactionUsers} 
+            />
+          </div>
+
+          <Button
+            variant="link"
+            className={styles.actionButton}
+            onClick={onShowComments} 
+          >
+            <FaComment className={styles.actionIcon} />
+            <span className={styles.actionCount}>{post.commentsCount}</span>
+          </Button>
+            
+          <Button 
+            variant="link" 
+            className={styles.actionButton}
+            onClick={onShare}
+          >
+            <FaShareAlt className={styles.actionIcon} />
+            <span className={styles.actionLabel}>Chia sẻ</span>
+          </Button>
         </div>
 
-        <Button
-          variant="link"
-          className={styles.actionButton}
-          onClick={onShowComments} 
-        >
-          <FaComment className={styles.actionIcon} />
-          <span className={styles.actionCount}>{post.commentsCount}</span>
-        </Button>
-          
-        <Button 
-          variant="link" 
-          className={styles.actionButton}
-          onClick={onShare}
-        >
-          <FaShareAlt className={styles.actionIcon} />
-          <span className={styles.actionLabel}>Chia sẻ</span>
-        </Button>
+        {/* Reaction stack with total count on the right */}
+        <div className={styles.reactionSection}>
+          <PostReactionStack 
+            postId={post.id} 
+            reactionCounts={post.reactionCounts}
+            onClick={onShowReactionUsers}
+            maxVisible={5}
+          />
+        </div>
         
         <div className={styles.viewCount}>
           <FaEye className={styles.viewIcon} />
-          <span>{viewsCount || 0}</span>
+          <span>{viewsCount || 0} lượt xem</span>
         </div>
       </div>
     </Card.Footer>
