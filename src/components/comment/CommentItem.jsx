@@ -11,6 +11,7 @@ import commentService from '../../services/commentService';
 import CommentReactionButton from './CommentReactionButton';
 import CommentReactionStack from './CommentReactionStack';
 import CommentForm from './CommentForm';
+import ReportCommentModal from './ReportCommentModal';
 import styles from './styles/CommentItem.module.scss';
 
 const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, depth = 0 }) => {
@@ -19,10 +20,10 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
   const [replies, setReplies] = useState([]);
   const [loadingReplies, setLoadingReplies] = useState(false);
   const [replyFormVisible, setReplyFormVisible] = useState(false);  const [editMode, setEditMode] = useState(false);
-  const [editText, setEditText] = useState(comment.content);
-  const [loadingAction, setLoadingAction] = useState(false);
+  const [editText, setEditText] = useState(comment.content);  const [loadingAction, setLoadingAction] = useState(false);
   const [showMoreActions, setShowMoreActions] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const commentRef = useRef(null);
   const editTextareaRef = useRef(null);
   const isAuthor = user?.id === comment.userId;
@@ -124,12 +125,6 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
       } finally {
         setLoadingAction(false);
       }    }
-  };
-  
-  // Handle reporting a comment
-  const handleReport = () => {
-    // This would be implemented later with a modal for reporting reasons
-    toast.info('Chức năng báo cáo bình luận sẽ được triển khai sau');
   };
 
   // Handle reply deletion
@@ -262,9 +257,7 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
                   disabled={loadingAction}
                 >
                   <FaEllipsisH />
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu align="end">
+                </Dropdown.Toggle>                <Dropdown.Menu align="end">
                   {isAuthor && (
                     <>
                       <Dropdown.Item onClick={() => setEditMode(true)}>
@@ -276,9 +269,11 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
                       <Dropdown.Divider />
                     </>
                   )}
-                  <Dropdown.Item onClick={handleReport}>
-                    <FaFlag /> Báo cáo
-                  </Dropdown.Item>
+                  {!isAuthor && (
+                    <Dropdown.Item onClick={() => setShowReportModal(true)}>
+                      <FaFlag /> Báo cáo
+                    </Dropdown.Item>
+                  )}
                 </Dropdown.Menu>
               </Dropdown>
             )}
@@ -406,9 +401,16 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
                 />
               ))}
             </div>
-          )}
-        </div>
+          )}        </div>
       </div>
+      
+      <ReportCommentModal
+        show={showReportModal}
+        onHide={() => setShowReportModal(false)}
+        commentId={comment.id}
+        commentContent={comment.content}
+        commentAuthor={comment.firstName && comment.lastName ? `${comment.firstName} ${comment.lastName}` : comment.username}
+      />
     </div>
   );
 };

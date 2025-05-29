@@ -81,6 +81,36 @@ const commentService = {
       case 'angry': return '😠';
       default: return '👍';
     }
+  },
+
+  // Report a comment
+  reportComment: async (reportData) => {
+    try {
+      const response = await api.post('/comments/report', reportData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Lỗi khi báo cáo bình luận' };
+    }
+  },
+
+  // Get comment reports (Admin only)
+  getCommentReports: async (status = 'Pending') => {
+    try {
+      const response = await api.get(`/comments/reports?status=${status}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Lỗi khi lấy danh sách báo cáo' };
+    }
+  },
+
+  // Update comment report status (Admin only)
+  updateReportStatus: async (reportId, statusData) => {
+    try {
+      const response = await api.put(`/comments/report/${reportId}`, statusData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Lỗi khi cập nhật trạng thái báo cáo' };
+    }
   }
 };
 
