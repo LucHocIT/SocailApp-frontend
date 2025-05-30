@@ -15,16 +15,16 @@ import { SignalRProvider } from './context/SignalRContext';
 // Import components
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Navbar from './components/Navbar';
-import ConnectionStatus from './components/Chat/ConnectionStatus';
 import ChatWidget from './components/Chat/ChatWidget';
+import ConnectionStatus from './components/Chat/ConnectionStatus';
 
 // Import pages
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import RequestVerificationPage from './pages/RequestVerificationPage';
 import PostPage from './pages/PostPage';
-import Messages from './pages/Messages/Messages';
-import Friends from './pages/Friends/Friends';
+import Messages from './pages/Messages';
+import Friends from './pages/Friends';
 
 
 function App() {

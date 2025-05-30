@@ -1,0 +1,107 @@
+.friendsPage {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .header {
+    margin-bottom: 30px;
+
+    h1 {
+      font-size: 32px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0;
+    }
+  }
+
+  .content {
+    .loading, .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+      color: #6b7280;
+
+      .emptyIcon {
+        font-size: 64px;
+        margin-bottom: 16px;
+      }
+
+      h2 {
+        margin: 0 0 8px 0;
+        color: #374151;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0;
+        font-size: 16px;
+      }
+    }
+
+    .loading {
+      font-style: italic;
+    }
+
+    .friendsList {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+
+      .friendCard {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+        }
+
+        .avatar {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          margin-bottom: 12px;
+          overflow: hidden;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .avatarPlaceholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 24px;
+          }
+        }
+
+        .friendInfo {
+          h3 {
+            margin: 0 0 4px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+          }
+
+          p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+}

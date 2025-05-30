@@ -1,24 +1,24 @@
 import api from './api';
 
 class MessageService {
-  
   // Get user conversations
-  async getConversations(page = 1, limit = 20) {
+  async getConversations(page = 1, pageSize = 20) {
     try {
-      const response = await api.get('/conversation', {
-        params: { page, limit }
+      const response = await api.get('/message/conversations', {
+        params: { page, pageSize }
       });
       return response.data;
     } catch (error) {
       console.error('Error getting conversations:', error);
       throw error;
     }
-  }
-  // Get or create conversation with user
-  async getOrCreateConversation(userId) {
+  }  // Get or create conversation with a user
+  async getOrCreateConversation(otherUserId) {
     try {
-      const response = await api.post('/conversation/start', {
-        otherUserId: userId
+      const response = await api.post('/message/conversations', otherUserId, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
       return response.data;
     } catch (error) {
@@ -26,35 +26,58 @@ class MessageService {
       throw error;
     }
   }
-  // Get messages in conversation
-  async getMessages(userId, page = 1, limit = 50) {
-    try {
-      // First get or create conversation
-      const conversation = await this.getOrCreateConversation(userId);
-      if (!conversation) {
-        return [];
-      }
 
-      const response = await api.get(`/message/conversations/${conversation.id}/messages`, {
-        params: { page, limit }
-      });
-      return response.data.messages || [];
+  // Get messages in a conversation
+  async getMessages(conversationId, before = null, limit = 50) {
+    try {
+      const params = { limit };
+      if (before) params.before = before;
+      
+      const response = await api.get(`/message/conversations/${conversationId}/messages`, { params });
+      return response.data;
     } catch (error) {
       console.error('Error getting messages:', error);
       throw error;
     }
   }
 
-  // Send message via HTTP (fallback when SignalR is not available)
-  async sendMessage(receiverId, content, files = null) {
+  // For backward compatibility
+  async getConversationMessages(conversationId, before = null, limit = 50) {
+    return this.getMessages(conversationId, before, limit);
+  }
+  // Send message to conversation
+  async sendMessageToConversation(conversationId, content, receiverId, mediaFiles = null) {
     try {
       const formData = new FormData();
-      formData.append('receiverId', receiverId);
-      formData.append('content', content);
+      formData.append('ReceiverId', receiverId);
+      if (content) formData.append('Content', content);
+        if (mediaFiles && mediaFiles.length > 0) {
+        mediaFiles.forEach((file) => {
+          formData.append('MediaFiles', file);        });
+      }
+
+      const response = await api.post('/message/send', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error sending message to conversation:', error);
+      throw error;
+    }
+  }
+
+  // Send message (legacy method - sends to user directly)
+  async sendMessage(receiverId, content, mediaFiles = null) {
+    try {
+      const formData = new FormData();
+      formData.append('ReceiverId', receiverId);
+      if (content) formData.append('Content', content);
       
-      if (files && files.length > 0) {
-        files.forEach(file => {
-          formData.append('attachments', file);
+      if (mediaFiles && mediaFiles.length > 0) {
+        mediaFiles.forEach((file) => {
+          formData.append('MediaFiles', file);
         });
       }
 
@@ -70,19 +93,14 @@ class MessageService {
     }
   }
 
-  // Mark conversation as read
-  async markConversationAsRead(userId) {
+  // Mark messages as read
+  async markMessagesAsRead(conversationId, lastReadMessageId = null) {
     try {
-      // Get conversation first
-      const conversation = await this.getOrCreateConversation(userId);
-      if (!conversation) {
-        return false;
-      }
-
-      const response = await api.post(`/message/conversations/${conversation.id}/mark-read`);
+      const response = await api.post(`/message/conversations/${conversationId}/mark-read`, 
+        lastReadMessageId || '');
       return response.data;
     } catch (error) {
-      console.error('Error marking conversation as read:', error);
+      console.error('Error marking messages as read:', error);
       throw error;
     }
   }
@@ -98,13 +116,13 @@ class MessageService {
     }
   }
 
-  // Get online status of users
+  // Get users online status
   async getUsersOnlineStatus(userIds) {
     try {
       const response = await api.post('/message/users/online-status', userIds);
       return response.data;
     } catch (error) {
-      console.error('Error getting users online status:', error);
+      console.error('Error getting online status:', error);
       return {};
     }
   }
@@ -112,53 +130,11 @@ class MessageService {
   // Delete conversation
   async deleteConversation(conversationId) {
     try {
-      const response = await api.delete(`/conversation/${conversationId}`);
-      return response.data;
+      await api.delete(`/message/conversations/${conversationId}`);
+      return true;
     } catch (error) {
       console.error('Error deleting conversation:', error);
       throw error;
-    }
-  }
-
-  // Get conversation by ID
-  async getConversationById(conversationId) {
-    try {
-      const response = await api.get(`/conversation/${conversationId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error getting conversation:', error);
-      throw error;
-    }
-  }
-
-  // Get messages with pagination
-  async getConversationMessages(conversationId, before = null, limit = 50) {
-    try {
-      const params = { limit };
-      if (before) {
-        params.before = before;
-      }
-
-      const response = await api.get(`/message/conversations/${conversationId}/messages`, {
-        params
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error getting conversation messages:', error);
-      throw error;
-    }
-  }
-
-  // Search conversations
-  async searchConversations(query) {
-    try {
-      const response = await api.get('/conversation/search', {
-        params: { q: query }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error searching conversations:', error);
-      return [];
     }
   }
 }
