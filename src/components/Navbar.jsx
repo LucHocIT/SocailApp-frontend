@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/hooks';
-import { FaChevronDown, FaSignOutAlt, FaUser, FaCog, FaBell, FaHome, FaUsers } from 'react-icons/fa';
+import { FaChevronDown, FaSignOutAlt, FaUser, FaCog, FaBell, FaHome, FaUsers, FaComments } from 'react-icons/fa';
 import AuthModals from './auth/AuthModals';
 import UserSearch from './user/UserSearch';
 import styles from './Navbar.module.scss';
@@ -92,11 +92,15 @@ const Navbar = () => {
             <img src="/logo.svg" alt="SocialApp" />
             SocialApp
           </Link>
-        </div>
-          {user && (
-          <div className={styles.navIcons}>            <Link to="/friends" className={`${styles.navIcon} ${location.pathname === '/friends' ? styles.active : ''}`}>
+        </div>          {user && (
+          <div className={styles.navIcons}>
+            <Link to="/friends" className={`${styles.navIcon} ${location.pathname === '/friends' ? styles.active : ''}`}>
               <FaUsers />
               <span className={styles.iconLabel}>Bạn bè</span>
+            </Link>
+            <Link to="/chat" className={`${styles.navIcon} ${location.pathname === '/chat' ? styles.active : ''}`}>
+              <FaComments />
+              <span className={styles.iconLabel}>Chat</span>
             </Link>
           </div>
         )}

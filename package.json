@@ -8,9 +8,11 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
-  },  "dependencies": {
+  },
+  "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@microsoft/signalr": "^8.0.7",
     "aos": "^2.3.4",
     "axios": "^1.9.0",
     "bootstrap": "^5.3.6",

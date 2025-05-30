@@ -1,0 +1,252 @@
+// UserSearchModal.module.scss
+.userSearchModal {
+  .modal-dialog {
+    max-width: 500px;
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+
+    .btn-close {
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+}
+
+.searchSection {
+  .searchInput {
+    border-radius: 25px;
+    border: 2px solid #e9ecef;
+    padding: 12px 20px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+
+    &:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+  }
+}
+
+.resultsContainer {
+  min-height: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.searchResults {
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.userItem {
+  border: none;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatarContainer {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.userAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e9ecef;
+  transition: all 0.2s ease;
+
+  .userItem:hover & {
+    border-color: #667eea;
+  }
+}
+
+.onlineIndicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background-color: #28a745;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.userDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-weight: 600;
+  font-size: 16px;
+  color: #212529;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userUsername {
+  font-size: 14px;
+  color: #6c757d;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.onlineStatus {
+  font-size: 12px;
+  color: #28a745;
+  font-weight: 500;
+
+  i {
+    font-size: 8px;
+    margin-right: 4px;
+  }
+}
+
+.actionButton {
+  flex-shrink: 0;
+  color: #667eea;
+  font-size: 18px;
+  transition: all 0.2s ease;
+
+  .userItem:hover & {
+    color: #5a6fd8;
+    transform: scale(1.1);
+  }
+}
+
+.searchHint {
+  border-radius: 12px;
+  border: 1px solid #b3d4fc;
+  background-color: #e7f3ff;
+  margin-bottom: 0;
+
+  i {
+    color: #0066cc;
+  }
+}
+
+// Empty states styling
+.searchResults .text-center {
+  i {
+    opacity: 0.5;
+    color: #6c757d;
+  }
+
+  h6 {
+    color: #495057;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: #6c757d;
+    font-size: 14px;
+  }
+}
+
+// Responsive design
+@media (max-width: 576px) {
+  .userSearchModal .modal-dialog {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+
+  .userAvatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .userName {
+    font-size: 15px;
+  }
+
+  .userUsername {
+    font-size: 13px;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .userSearchModal {
+    .modal-content {
+      background-color: #2d3748;
+      color: #e2e8f0;
+    }
+
+    .searchInput {
+      background-color: #4a5568;
+      border-color: #4a5568;
+      color: #e2e8f0;
+
+      &::placeholder {
+        color: #a0aec0;
+      }
+
+      &:focus {
+        background-color: #4a5568;
+        border-color: #667eea;
+        color: #e2e8f0;
+      }
+    }
+
+    .searchResults {
+      background-color: #2d3748;
+      border-color: #4a5568;
+    }
+
+    .userItem {
+      &:hover {
+        background-color: #4a5568;
+      }
+    }
+
+    .userName {
+      color: #e2e8f0;
+    }
+
+    .userUsername {
+      color: #a0aec0;
+    }
+
+    .userAvatar {
+      border-color: #4a5568;
+    }
+  }
+}

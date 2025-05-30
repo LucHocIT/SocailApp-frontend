@@ -1,6 +1,7 @@
 import { AuthProvider } from './auth/AuthContext';
 import { ProfileProvider } from './profile/ProfileContext';
 import { SocialProvider } from './social/SocialContext';
+import { ChatProvider } from './ChatContext';
 
 // Root Provider kết hợp tất cả context khác
 export function AppProvider({ children }) {
@@ -8,7 +9,9 @@ export function AppProvider({ children }) {
     <AuthProvider>
       <ProfileProvider>
         <SocialProvider>
-          {children}
+          <ChatProvider>
+            {children}
+          </ChatProvider>
         </SocialProvider>
       </ProfileProvider>
     </AuthProvider>
