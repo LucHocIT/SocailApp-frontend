@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import styles from './UserSearchModal.module.scss';
 
 function UserSearchModal({ show, onHide }) {
-  const { createChatRoom } = useChat();
+  const { createPrivateChat, selectChat, chatRooms } = useChat();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -32,18 +32,29 @@ function UserSearchModal({ show, onHide }) {
     } else {
       setSearchResults([]);
     }
-  }, [searchTerm, searchUsers]);
-
-  const handleUserSelect = async (user) => {
+  }, [searchTerm, searchUsers]);  const handleUserSelect = async (user) => {
     try {
       setIsCreating(true);
       
-      const chatRoomData = {
-        type: 0, // Private chat
-        memberUserIds: [user.id]
-      };
-
-      await createChatRoom(chatRoomData);
+      // Check if private chat already exists
+      const existingChat = chatRooms.find(room => 
+        room.type === 0 && // Private chat
+        room.members?.some(member => member.userId === user.id)
+      );
+      
+      if (existingChat) {
+        // Chat already exists, just select it
+        selectChat(existingChat);
+        toast.info(`Opened existing chat with ${user.firstName} ${user.lastName}`);
+        handleClose();
+        return;
+      }
+      
+      // Use createPrivateChat which calls getOrCreatePrivateChat to avoid duplicates
+      const chatRoom = await createPrivateChat(user.id);
+      
+      // Automatically select the chat room
+      selectChat(chatRoom);
       
       toast.success(`Started chat with ${user.firstName} ${user.lastName}`);
       handleClose();

@@ -7,8 +7,7 @@ import styles from './CreateChatModal.module.scss';
 
 function CreateChatModal({ show, onHide }) {
   const { createChatRoom } = useChat();
-  
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
     name: '',
     description: '',
     type: 1 // Group chat

@@ -49,13 +49,23 @@ function chatReducer(state, action) {
       return { ...state, error: action.payload, isLoading: false };
     
     case CHAT_ACTIONS.SET_CHAT_ROOMS:
-      return { ...state, chatRooms: action.payload, isLoading: false };
-    
-    case CHAT_ACTIONS.ADD_CHAT_ROOM:
+      return { ...state, chatRooms: action.payload, isLoading: false };    case CHAT_ACTIONS.ADD_CHAT_ROOM: {
+      // Check if chat room already exists to prevent duplicates
+      const existingIndex = state.chatRooms.findIndex(room => room.id === action.payload.id);
+      if (existingIndex !== -1) {
+        // Update existing chat room instead of adding duplicate
+        return {
+          ...state,
+          chatRooms: state.chatRooms.map((room, index) =>
+            index === existingIndex ? { ...room, ...action.payload } : room
+          )
+        };
+      }
       return { 
         ...state, 
         chatRooms: [action.payload, ...state.chatRooms] 
       };
+    }
     
     case CHAT_ACTIONS.UPDATE_CHAT_ROOM:
       return {
@@ -278,22 +288,41 @@ export function ChatProvider({ children }) {
     } catch {
       toast.error('Failed to send message');
     }
-  }, []);
-  const createChatRoom = useCallback(async (chatRoomData) => {
+  }, []);  const createChatRoom = useCallback(async (chatRoomData) => {
     try {
+      // Prevent creating private chats through this method
+      if (chatRoomData.type === 0) {
+        throw new Error('Private chats must be created through createPrivateChat method to prevent duplicates');
+      }
+      
       const newChatRoom = await chatService.createChatRoom(chatRoomData);
-      dispatch({ type: CHAT_ACTIONS.ADD_CHAT_ROOM, payload: newChatRoom });
+      
+      // Check if chat room already exists in state to avoid duplicates
+      const currentState = stateRef.current;
+      const existingChatRoom = currentState.chatRooms.find(cr => cr.id === newChatRoom.id);
+      
+      if (!existingChatRoom) {
+        dispatch({ type: CHAT_ACTIONS.ADD_CHAT_ROOM, payload: newChatRoom });
+      }
+      
       return newChatRoom;
     } catch (error) {
       toast.error('Failed to create chat room');
       throw error;
     }
   }, []);
-
   const createPrivateChat = useCallback(async (otherUserId) => {
     try {
       const chatRoom = await chatService.getOrCreatePrivateChat(otherUserId);
-      dispatch({ type: CHAT_ACTIONS.ADD_CHAT_ROOM, payload: chatRoom });
+      
+      // Check if chat room already exists in state to avoid duplicates
+      const currentState = stateRef.current;
+      const existingChatRoom = currentState.chatRooms.find(cr => cr.id === chatRoom.id);
+      
+      if (!existingChatRoom) {
+        dispatch({ type: CHAT_ACTIONS.ADD_CHAT_ROOM, payload: chatRoom });
+      }
+      
       return chatRoom;
     } catch (error) {
       toast.error('Failed to create private chat');
