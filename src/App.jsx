@@ -10,20 +10,16 @@ import './index.scss';
 
 // Import context providers
 import { AppProvider } from './context';
-import { SignalRProvider } from './context/SignalRContext';
 
 // Import components
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Navbar from './components/Navbar';
-import ChatWidget from './components/Chat/ChatWidget';
-import ConnectionStatus from './components/Chat/ConnectionStatus';
 
 // Import pages
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import RequestVerificationPage from './pages/RequestVerificationPage';
 import PostPage from './pages/PostPage';
-import Messages from './pages/Messages';
 import Friends from './pages/Friends';
 
 
@@ -36,11 +32,9 @@ function App() {
       once: false
     });
   }, []);
-  return (
-    <Router>
+  return (    <Router>
       <AppProvider>
-        <SignalRProvider>
-          <ToastContainer 
+          <ToastContainer
             position="top-right" 
             autoClose={3000} 
             hideProgressBar={false}
@@ -60,12 +54,8 @@ function App() {
             <Route path="/profile/:userId" element={<ProfilePage />} />            {/* Protected routes - require authentication */}
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/messages" element={<Messages />} />
               <Route path="/friends" element={<Friends />} />
-            </Route></Routes>
-        </div>
-        <ConnectionStatus />
-        <ChatWidget />
+            </Route></Routes>        </div>
         <footer className="app-footer">
           <div className="container">
             <div className="row">
@@ -75,9 +65,7 @@ function App() {
               <div className="col-md-6 text-end">
                 <p>Made with ❤️ for social connections</p>
               </div>            </div>
-          </div>
-        </footer>
-        </SignalRProvider>
+          </div>        </footer>
       </AppProvider>
     </Router>
   );
