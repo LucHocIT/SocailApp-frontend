@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Card, Image, Badge, Dropdown, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FaEllipsisV, FaTrash, FaPencilAlt, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import TimeAgo from 'react-timeago';
-import { convertUtcToLocal } from '../../../utils/dateUtils';
+import { parseDate } from '../../../utils/dateUtils';
 import styles from '../styles/postcard/PostCard.module.scss';
 
 const PostCardHeader = ({ 
@@ -41,7 +41,7 @@ const PostCardHeader = ({
             )}
           </div>
           <div className={styles.timeInfo}>
-            <TimeAgo date={convertUtcToLocal(post.createdAt)} title={new Date(post.createdAt).toLocaleString()} />
+            <TimeAgo date={parseDate(post.createdAt)} title={new Date(post.createdAt).toLocaleString()} />
             {post.updatedAt && post.updatedAt !== post.createdAt && (
               <Badge bg="light" text="dark" className={`ms-2 fst-italic ${styles.editedBadge}`}>đã chỉnh sửa</Badge>
             )}

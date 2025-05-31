@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import TimeAgo from 'react-timeago';
 import { FaFile, FaDownload } from 'react-icons/fa';
 import { useAuth } from '../../context/hooks';
-import { convertUtcToLocal } from '../../utils/dateUtils';
+import { parseDate } from '../../utils/dateUtils';
 import PostReactionButton from './reactions/PostReactionButton';
 import { CommentForm, CommentList } from '../../components/comment';
 import styles from './styles/PostModal.module.scss';
@@ -194,9 +194,8 @@ const PostModal = ({ show, onHide, post }) => {
               roundedCircle={true} 
             />
             <div className={styles.headerUserText}>
-              <span className={styles.headerUsername}>{post.username}</span>
-              <span className={styles.headerTime}>
-                <TimeAgo date={convertUtcToLocal(post.createdAt)} />
+              <span className={styles.headerUsername}>{post.username}</span>              <span className={styles.headerTime}>
+                <TimeAgo date={parseDate(post.createdAt)} />
               </span>
             </div>
           </Link>

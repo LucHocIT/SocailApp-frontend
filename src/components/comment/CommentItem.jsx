@@ -6,7 +6,7 @@ import TimeAgo from 'react-timeago';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
-import { convertUtcToLocal } from '../../utils/dateUtils';
+import { parseDate } from '../../utils/dateUtils';
 import commentService from '../../services/commentService';
 import CommentReactionButton from './CommentReactionButton';
 import CommentReactionStack from './CommentReactionStack';
@@ -232,13 +232,12 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
                 {comment.firstName && comment.lastName ? `${comment.firstName} ${comment.lastName}` : comment.username}
                 {comment.isVerified && <Badge bg="primary" className={styles.verifiedBadge}>✓</Badge>}
               </Link>
-              <div className={styles.commentMeta}>
-                <OverlayTrigger
+              <div className={styles.commentMeta}>                <OverlayTrigger
                   placement="top"
-                  overlay={<Tooltip>{new Date(convertUtcToLocal(comment.createdAt)).toLocaleString()}</Tooltip>}
+                  overlay={<Tooltip>{new Date(parseDate(comment.createdAt)).toLocaleString()}</Tooltip>}
                 >
                   <span className={styles.timestamp}>
-                    <TimeAgo date={convertUtcToLocal(comment.createdAt)} />
+                    <TimeAgo date={parseDate(comment.createdAt)} />
                     {isEdited && <span className={styles.editedLabel}> • đã chỉnh sửa</span>}
                   </span>
                 </OverlayTrigger>
