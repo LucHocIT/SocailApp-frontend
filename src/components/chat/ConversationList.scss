@@ -1,0 +1,159 @@
+.conversation-list {
+  flex: 1;
+  overflow-y: auto;
+
+  .list-group {
+    border: none;
+  }
+
+  .conversation-item {
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+
+    &.selected {
+      background-color: #e3f2fd;
+      border-left: 3px solid #1976d2;
+    }
+
+    &.unread {
+      background-color: #fff3e0;
+
+      .user-name {
+        font-weight: 600;
+      }
+
+      .last-message {
+        font-weight: 500;
+      }
+    }
+
+    .conversation-content {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .user-avatar {
+        position: relative;
+        flex-shrink: 0;
+
+        .avatar-img {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #fff;
+        }
+
+        .online-indicator {
+          position: absolute;
+          bottom: 2px;
+          right: 2px;
+          width: 12px;
+          height: 12px;
+          background: #4caf50;
+          border: 2px solid #fff;
+          border-radius: 50%;
+        }
+      }
+
+      .conversation-info {
+        flex: 1;
+        min-width: 0;
+
+        .conversation-header {
+          display: flex;
+          justify-content: between;
+          align-items: center;
+          margin-bottom: 0.25rem;
+
+          .user-name {
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 500;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+          }
+
+          .last-message-time {
+            font-size: 0.75rem;
+            color: #666;
+            flex-shrink: 0;
+            margin-left: 0.5rem;
+          }
+        }
+
+        .last-message-row {
+          display: flex;
+          justify-content: between;
+          align-items: center;
+
+          .last-message {
+            font-size: 0.8rem;
+            color: #666;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            flex: 1;
+
+            .you-indicator {
+              color: #999;
+              font-style: italic;
+            }
+          }
+
+          .unread-badge {
+            background: #1976d2;
+            color: white;
+            border-radius: 12px;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+            margin-left: 0.5rem;
+          }
+        }
+      }
+    }
+  }
+
+  .empty-conversations {
+    padding: 2rem 1rem;
+    text-align: center;
+
+    i {
+      opacity: 0.3;
+    }
+
+    .text-muted {
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+// Scrollbar styling
+.conversation-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.conversation-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.conversation-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.conversation-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

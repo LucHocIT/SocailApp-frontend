@@ -21,6 +21,7 @@ import ProfilePage from './pages/ProfilePage';
 import RequestVerificationPage from './pages/RequestVerificationPage';
 import PostPage from './pages/PostPage';
 import Friends from './pages/Friends';
+import Chat from './pages/Chat';
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
             <Route path="/profile/:userId" element={<ProfilePage />} />            {/* Protected routes - require authentication */}            <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/friends" element={<Friends />} />
+              <Route path="/chat" element={<Chat />} />
             </Route></Routes>        </div>
         <footer className="app-footer">
           <div className="container">

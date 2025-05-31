@@ -1,0 +1,112 @@
+.message-input {
+  position: relative;
+
+  .emoji-picker-container {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    z-index: 1000;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    background: white;
+
+    // Override emoji picker styles
+    .epr-main {
+      border: none;
+    }
+  }
+
+  .message-form {
+    padding: 1rem;
+
+    .input-group {
+      background: #f8f9fa;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid #e5e5e5;
+      transition: all 0.2s ease;
+
+      &:focus-within {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+      }
+
+      .emoji-btn,
+      .file-btn {
+        background: transparent;
+        border: none;
+        color: #666;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.05);
+          color: #333;
+        }
+
+        &:focus {
+          box-shadow: none;
+        }
+      }
+
+      .message-textarea {
+        border: none;
+        background: transparent;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.9rem;
+        line-height: 1.4;
+
+        &:focus {
+          box-shadow: none;
+          background: transparent;
+        }
+
+        &::placeholder {
+          color: #999;
+        }
+      }
+
+      .send-btn {
+        background: #1976d2;
+        border: none;
+        color: white;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0;
+
+        &:hover:not(:disabled) {
+          background: #1565c0;
+        }
+
+        &:focus {
+          box-shadow: none;
+        }
+
+        &:disabled {
+          background: #ccc;
+          opacity: 0.6;
+        }
+      }
+    }
+  }
+}
+
+// Auto-resize textarea
+.message-textarea {
+  overflow-y: hidden;
+  resize: none;
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .message-input {
+    .message-form {
+      padding: 0.75rem;
+    }
+
+    .emoji-picker-container {
+      width: 100vw;
+      left: -1rem;
+    }
+  }
+}
