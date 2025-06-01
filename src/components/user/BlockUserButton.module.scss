@@ -1,0 +1,352 @@
+// Block User Button Styles
+.blockButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .icon {
+    font-size: 14px;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  // Variants
+  &.default {
+    padding: 8px 16px;
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+
+    &:hover:not(:disabled) {
+      background: #e9ecef;
+      border-color: #adb5bd;
+    }
+
+    &.block {
+      &:hover:not(:disabled) {
+        background: #dc3545;
+        color: white;
+        border-color: #dc3545;
+      }
+    }
+
+    &.unblock {
+      background: #dc3545;
+      color: white;
+      border-color: #dc3545;
+
+      &:hover:not(:disabled) {
+        background: #c82333;
+        border-color: #bd2130;
+      }
+    }
+  }
+
+  &.minimal {
+    padding: 4px 8px;
+    background: transparent;
+    color: #6c757d;
+    border: 1px solid transparent;
+
+    &:hover:not(:disabled) {
+      background: #f8f9fa;
+      color: #495057;
+    }
+
+    &.block {
+      &:hover:not(:disabled) {
+        color: #dc3545;
+        background: #f8d7da;
+      }
+    }
+
+    &.unblock {
+      color: #dc3545;
+
+      &:hover:not(:disabled) {
+        background: #f8d7da;
+      }
+    }
+  }
+
+  &.iconOnly {
+    padding: 6px;
+    background: transparent;
+    color: #6c757d;
+    border: 1px solid transparent;
+    border-radius: 50%;
+
+    &:hover:not(:disabled) {
+      background: #f8f9fa;
+    }
+
+    &.block {
+      &:hover:not(:disabled) {
+        color: #dc3545;
+        background: #f8d7da;
+      }
+    }
+
+    &.unblock {
+      color: #dc3545;
+
+      &:hover:not(:disabled) {
+        background: #f8d7da;
+      }
+    }
+  }
+
+  // Sizes
+  &.small {
+    font-size: 12px;
+    padding: 4px 8px;
+
+    .icon {
+      font-size: 12px;
+    }
+
+    &.iconOnly {
+      padding: 4px;
+    }
+  }
+
+  &.medium {
+    font-size: 14px;
+    padding: 6px 12px;
+
+    .icon {
+      font-size: 14px;
+    }
+
+    &.iconOnly {
+      padding: 6px;
+    }
+  }
+
+  &.large {
+    font-size: 16px;
+    padding: 10px 20px;
+
+    .icon {
+      font-size: 16px;
+    }
+
+    &.iconOnly {
+      padding: 10px;
+    }
+  }
+}
+
+// Dialog Styles
+.dialogOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.dialog {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e9ecef;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+  }
+
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+
+    &:hover {
+      background: #f8f9fa;
+      color: #495057;
+    }
+  }
+}
+
+.dialogContent {
+  padding: 20px 24px;
+  flex: 1;
+  overflow-y: auto;
+
+  p {
+    margin: 0 0 12px;
+    color: #495057;
+    line-height: 1.5;
+  }
+
+  .note {
+    font-size: 14px;
+    color: #6c757d;
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+}
+
+.reasonGroup {
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #495057;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+
+    &:focus {
+      outline: none;
+      border-color: #80bdff;
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+  }
+
+  .charCount {
+    display: block;
+    text-align: right;
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 4px;
+  }
+}
+
+.dialogActions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid #e9ecef;
+  justify-content: flex-end;
+
+  button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .cancelButton {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+
+    &:hover:not(:disabled) {
+      background: #e9ecef;
+      border-color: #adb5bd;
+    }
+  }
+
+  .confirmButton {
+    background: #dc3545;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #c82333;
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .dialogOverlay {
+    padding: 10px;
+  }
+
+  .dialog {
+    max-width: none;
+    margin: 0;
+  }
+
+  .dialogHeader,
+  .dialogContent,
+  .dialogActions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .blockButton {
+    &.large {
+      font-size: 14px;
+      padding: 8px 16px;
+    }
+  }
+}
