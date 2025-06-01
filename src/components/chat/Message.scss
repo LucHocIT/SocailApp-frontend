@@ -202,6 +202,119 @@
       opacity: 1;
     }
   }
+
+  // Media content styles
+  .message-media {
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-image {
+      border-radius: 8px;
+      transition: transform 0.2s ease;
+      cursor: pointer;
+
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+
+    .message-video {
+      border-radius: 8px;
+      width: 100%;
+    }
+
+    .message-file {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .file-info {
+        display: flex;
+        align-items: center;
+        flex: 1;
+
+        .file-icon {
+          font-size: 1.5rem;
+          margin-right: 12px;
+          color: #1976d2;
+        }
+
+        .file-details {
+          display: flex;
+          flex-direction: column;
+
+          .file-name {
+            font-weight: 500;
+            word-break: break-word;
+            margin-bottom: 2px;
+          }
+
+          .file-size {
+            font-size: 0.85rem;
+            opacity: 0.7;
+          }
+        }
+      }
+
+      .file-download-btn {
+        color: #1976d2;
+        text-decoration: none;
+        padding: 8px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background: rgba(25, 118, 210, 0.1);
+          color: #1976d2;
+        }
+      }
+    }
+  }
+
+  // Adjust file styles for own messages (white background)
+  .message.own .message-media .message-file {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .file-icon {
+      color: white;
+    }
+
+    .file-download-btn {
+      color: white;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+    }
+  }
+
+  // Adjust file styles for other messages (dark background)
+  .message.other .message-media .message-file {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+  }
 }
 
 @keyframes fadeIn {

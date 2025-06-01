@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, Image } from 'react-bootstrap';
+import { FaFile, FaDownload } from 'react-icons/fa';
 import './Message.scss';
 
 const Message = ({ 
@@ -19,9 +20,72 @@ const Message = ({
   const handleMessageClick = () => {
     setShowTime(!showTime);
   };
-
   const handleReply = () => {
     onReply(message);
+  };
+
+  const renderMediaContent = () => {
+    if (!message.mediaUrl) return null;
+
+    const mediaType = message.mediaType || 'file';
+
+    switch (mediaType.toLowerCase()) {
+      case 'image':
+        return (
+          <div className="message-media">
+            <Image 
+              src={message.mediaUrl} 
+              alt="Shared image" 
+              className="message-image"
+              fluid
+              onClick={() => window.open(message.mediaUrl, '_blank')}
+              style={{ cursor: 'pointer', maxWidth: '300px', maxHeight: '200px' }}
+            />
+          </div>
+        );
+      
+      case 'video':
+        return (
+          <div className="message-media">
+            <video 
+              controls 
+              className="message-video"
+              style={{ maxWidth: '300px', maxHeight: '200px' }}
+            >
+              <source src={message.mediaUrl} type={message.mediaMimeType || 'video/mp4'} />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        );
+      
+      case 'file':
+      default:
+        return (
+          <div className="message-media message-file">
+            <div className="file-info">
+              <FaFile className="file-icon" />
+              <div className="file-details">
+                <span className="file-name">
+                  {message.mediaFilename || 'File'}
+                </span>
+                {message.mediaFileSize && (
+                  <span className="file-size">
+                    {(message.mediaFileSize / 1024).toFixed(1)} KB
+                  </span>
+                )}
+              </div>
+            </div>
+            <a 
+              href={message.mediaUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="file-download-btn"
+            >
+              <FaDownload />
+            </a>
+          </div>
+        );
+    }
   };
 
   return (
@@ -60,14 +124,19 @@ const Message = ({
           )}
 
           {/* Message bubble */}
-          <div className="message-bubble-container">
-            <div 
+          <div className="message-bubble-container">            <div 
               className="message-bubble"
               onClick={handleMessageClick}
             >
-              <div className="message-text">
-                {message.content}
-              </div>
+              {/* Media content */}
+              {renderMediaContent()}
+              
+              {/* Text content (if any) */}
+              {message.content && (
+                <div className="message-text">
+                  {message.content}
+                </div>
+              )}
               
               {/* Message status for own messages */}
               {isOwn && (

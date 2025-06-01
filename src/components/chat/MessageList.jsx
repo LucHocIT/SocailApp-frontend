@@ -113,9 +113,7 @@ const MessageList = ({
             <span className="date-label">
               {formatDateHeader(group.date)}
             </span>
-          </div>
-
-          {/* Messages for this date */}
+          </div>          {/* Messages for this date */}
           {group.messages.map((message, messageIndex) => {
             const prevMessage = messageIndex > 0 ? group.messages[messageIndex - 1] : null;
             const nextMessage = messageIndex < group.messages.length - 1 ? group.messages[messageIndex + 1] : null;
@@ -132,9 +130,12 @@ const MessageList = ({
             const isLastInGroup = !isFollowedBySameSender || 
               (nextMessage && new Date(nextMessage.sentAt) - new Date(message.sentAt) > 300000);
 
+            // Create unique key using message ID and timestamp to avoid React key duplication warnings
+            const uniqueKey = `${message.id}-${new Date(message.sentAt).getTime()}`;
+
             return (
               <Message
-                key={message.id}
+                key={uniqueKey}
                 message={message}
                 isOwn={message.senderId === currentUserId}
                 showAvatar={showAvatar}

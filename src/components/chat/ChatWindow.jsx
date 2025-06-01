@@ -14,6 +14,23 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
   const [replyToMessage, setReplyToMessage] = useState(null);
   const messagesEndRef = useRef(null);
 
+  // Function to remove duplicate messages based on ID and timestamp
+  const removeDuplicateMessages = (messageArray) => {
+    const seen = new Set();
+    return messageArray.filter(message => {
+      // Create unique identifier using ID and timestamp
+      const identifier = `${message.id}-${new Date(message.sentAt).getTime()}`;
+      
+      if (seen.has(identifier)) {
+        console.log('Removing duplicate message:', message.id);
+        return false;
+      }
+      
+      seen.add(identifier);
+      return true;
+    });
+  };
+
   const loadMessages = useCallback(async (reset = false) => {
     if (!conversation) return;
     
@@ -24,13 +41,18 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
         conversation.id, 
         currentPage, 
         50
-      );
-
-      if (reset) {
-        setMessages(response.messages || []);
+      );      if (reset) {
+        // Remove duplicates when setting new messages
+        const uniqueMessages = removeDuplicateMessages(response.messages || []);
+        setMessages(uniqueMessages);
         setPage(2);
       } else {
-        setMessages(prev => [...(response.messages || []), ...prev]);
+        // Remove duplicates when appending messages
+        const newMessages = response.messages || [];
+        setMessages(prev => {
+          const combined = [...newMessages, ...prev];
+          return removeDuplicateMessages(combined);
+        });
         setPage(prev => prev + 1);
       }
 
@@ -47,8 +69,23 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
     // Handle both direct ReceiveMessage and NewMessage events
     if (message.conversationId === conversation?.id || 
         (!message.conversationId && message.type !== 'newMessage')) {
-      // For direct ReceiveMessage events, add to messages
-      setMessages(prev => [...prev, message]);
+      // For direct ReceiveMessage events, add to messages with duplicate prevention
+      setMessages(prev => {
+        // Check if message already exists to prevent duplicates
+        const messageExists = prev.some(existingMsg => 
+          existingMsg.id === message.id || 
+          (existingMsg.content === message.content && 
+           existingMsg.senderId === message.senderId && 
+           Math.abs(new Date(existingMsg.sentAt) - new Date(message.sentAt)) < 1000) // Within 1 second
+        );
+        
+        if (messageExists) {
+          console.log('Duplicate message detected, skipping:', message.id);
+          return prev;
+        }
+        
+        return [...prev, message];
+      });
       
       // If the message is from another user and we're currently viewing this conversation,
       // automatically mark it as read
@@ -241,13 +278,13 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
             <i className="bi bi-x-lg"></i>
           </Button>
         </div>
-      )}
-
-      {/* Message Input */}
+      )}      {/* Message Input */}
       <Card.Footer className="message-input-container p-0">        <MessageInput
           onSendMessage={handleSendMessage}
           disabled={!conversation}
           placeholder={`Nhắn tin cho ${otherUser.name}...`}
+          conversationId={conversation?.id}
+          replyToMessage={replyToMessage}
         />
       </Card.Footer>
     </Card>

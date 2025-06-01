@@ -53,13 +53,53 @@ class ChatService {
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
-    }
-  }
+    }  }
+  
   async markAsRead(conversationId) {
     try {
       await api.post(`/simple-chat/conversations/${conversationId}/read`);
     } catch (error) {
       console.error('Error marking as read:', error);
+      throw error;
+    }
+  }
+
+  async uploadChatMedia(mediaFile, mediaType) {
+    try {
+      const formData = new FormData();
+      formData.append('mediaFile', mediaFile);
+      formData.append('mediaType', mediaType);
+
+      const response = await api.post('/simple-chat/upload-media', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading chat media:', error);
+      throw error.response?.data || { message: 'Error uploading media' };
+    }
+  }
+
+  async sendMediaMessage(conversationId, mediaData, replyToMessageId = null) {
+    try {
+      const messageData = {
+        content: null, // Media-only message
+        replyToMessageId,
+        mediaUrl: mediaData.mediaUrl,
+        mediaType: mediaData.mediaType,
+        mediaPublicId: mediaData.publicId,
+        mediaMimeType: mediaData.mimeType,
+        mediaFilename: mediaData.filename,
+        mediaFileSize: mediaData.fileSize
+      };
+
+      const response = await api.post(`/simple-chat/conversations/${conversationId}/messages`, messageData);
+      return response.data;
+    } catch (error) {
+      console.error('Error sending media message:', error);
       throw error;
     }
   }
