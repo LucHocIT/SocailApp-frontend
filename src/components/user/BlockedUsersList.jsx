@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useUserBlock } from '../../context/UserBlockContext';
 import BlockUserButton from './BlockUserButton';
 import styles from './BlockedUsersList.module.scss';
@@ -8,12 +8,10 @@ const BlockedUsersList = ({ showAsModal = false, onClose = null }) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-
   useEffect(() => {
     loadInitialData();
-  }, []);
-
-  const loadInitialData = async () => {
+  }, [loadInitialData]);
+  const loadInitialData = useCallback(async () => {
     try {
       const result = await loadBlockedUsers(1, 10);
       setHasMore(result.hasMore);
@@ -21,7 +19,7 @@ const BlockedUsersList = ({ showAsModal = false, onClose = null }) => {
     } catch (error) {
       console.error('Error loading blocked users:', error);
     }
-  };
+  }, [loadBlockedUsers]);
 
   const loadMore = async () => {
     if (loadingMore || !hasMore) return;

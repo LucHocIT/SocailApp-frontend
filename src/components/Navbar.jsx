@@ -188,8 +188,7 @@ const Navbar = () => {
                   </span>
                   <FaChevronDown className={`${styles.dropdownIcon} ${dropdownOpen ? styles.open : ''}`} />
                 </button>
-                
-                {dropdownOpen && (
+                  {dropdownOpen && (
                   <div className={styles.dropdown}>
                     <Link to="/profile" className={styles.dropdownItem}>
                       <FaUser /> Hồ sơ

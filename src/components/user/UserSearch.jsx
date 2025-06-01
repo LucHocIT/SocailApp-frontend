@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch, FaUser, FaArrowRight } from 'react-icons/fa';
 import userService from '../../services/userService';
+import BlockStatusIndicator from './BlockStatusIndicator';
 import styles from './UserSearch.module.scss';
 
 const UserSearch = () => {
@@ -152,10 +153,15 @@ const UserSearch = () => {
                 ) : (
                   <FaUser style={{fontSize: '1.5rem'}} />
                 )}
-              </div>
-              <div className={styles.userInfo}>
+              </div>              <div className={styles.userInfo}>
                 <div className={styles.userName}>
                   {user.firstName} {user.lastName}
+                  <BlockStatusIndicator 
+                    userId={user.id} 
+                    variant="badge"
+                    size="small"
+                    className={styles.blockStatus}
+                  />
                 </div>
                 <div className={styles.userUsername}>
                   @{user.username}

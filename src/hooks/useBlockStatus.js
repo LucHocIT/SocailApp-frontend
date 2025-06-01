@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUserBlock } from '../context/UserBlockContext';
 
 /**
@@ -16,9 +16,8 @@ export const useBlockStatus = (userId, autoLoad = true) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
   // Load block status
-  const loadStatus = async () => {
+  const loadStatus = useCallback(async () => {
     if (!userId) return;
 
     try {
@@ -32,14 +31,13 @@ export const useBlockStatus = (userId, autoLoad = true) => {
     } finally {
       setLoading(false);
     }
-  };
-
+  }, [userId, getBlockStatus]);
   // Auto load on mount
   useEffect(() => {
     if (autoLoad && userId) {
       loadStatus();
     }
-  }, [userId, autoLoad]);
+  }, [userId, autoLoad, loadStatus]);
 
   // Update status when cache changes
   useEffect(() => {
@@ -70,8 +68,7 @@ export const useIsUserBlocked = (userId) => {
   const { isUserBlocked } = useUserBlock();
   const [blocked, setBlocked] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const checkBlocked = async () => {
+  const checkBlocked = useCallback(async () => {
     if (!userId) return;
 
     try {
@@ -84,11 +81,11 @@ export const useIsUserBlocked = (userId) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, isUserBlocked]);
 
   useEffect(() => {
     checkBlocked();
-  }, [userId]);
+  }, [checkBlocked]);
 
   return {
     blocked,

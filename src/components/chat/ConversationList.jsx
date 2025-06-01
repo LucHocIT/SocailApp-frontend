@@ -1,5 +1,6 @@
 import React from 'react';
 import { ListGroup } from 'react-bootstrap';
+import BlockStatusIndicator from '../user/BlockStatusIndicator';
 import './ConversationList.scss';
 
 const ConversationList = ({ 
@@ -88,10 +89,15 @@ const ConversationList = ({
                   {isOnline && <div className="online-indicator"></div>}
                 </div>
                 
-                <div className="conversation-info">
-                  <div className="conversation-header">
+                <div className="conversation-info">                  <div className="conversation-header">
                     <span className="user-name">
                       {otherUser.name}
+                      <BlockStatusIndicator 
+                        userId={otherUser.id} 
+                        variant="badge"
+                        size="small"
+                        className="conversation-block-status"
+                      />
                     </span>
                     {conversation.lastMessageTime && (
                       <span className="last-message-time">

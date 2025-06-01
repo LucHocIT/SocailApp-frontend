@@ -1,6 +1,6 @@
 import api from './api';
 
-const API_BASE_URL = '/api/userblock';
+const API_BASE_URL = '/UserBlock';
 
 export const userBlockService = {
   // Block a user

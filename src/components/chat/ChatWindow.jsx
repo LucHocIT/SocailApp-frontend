@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, Form, Button, Dropdown } from 'react-bootstrap';
+import { Card, Form, Button, Dropdown, Alert } from 'react-bootstrap';
 import chatService from '../../services/chatService';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import BlockStatusIndicator from '../user/BlockStatusIndicator';
+import BlockUserButton from '../user/BlockUserButton';
+import { useBlockStatus } from '../../hooks/useBlockStatus';
 import { toast } from 'react-toastify';
 import './ChatWindow.scss';
 
@@ -12,7 +15,21 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [replyToMessage, setReplyToMessage] = useState(null);
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef(null);  // Get other user ID from conversation
+  const getOtherUserId = () => {
+    if (!conversation) return null;
+    return conversation.user1Id === currentUserId ? conversation.user2Id : conversation.user1Id;
+  };
+
+  // Get other user info
+  const getOtherUser = () => {
+    if (!conversation) return { name: 'Unknown' };
+    return conversation.user1Id === currentUserId ? 
+      { id: conversation.user2Id, name: conversation.user2Name, avatar: conversation.user2Avatar } :
+      { id: conversation.user1Id, name: conversation.user1Name, avatar: conversation.user1Avatar };
+  };  // Block status
+  const { status, canCommunicate, loading: _blockLoading } = useBlockStatus(getOtherUserId());
+  const otherUser = getOtherUser();
 
   // Function to remove duplicate messages based on ID and timestamp
   const removeDuplicateMessages = (messageArray) => {
@@ -214,17 +231,8 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
       loadMessages(false);
     }
   };
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };  const getOtherUser = () => {
-    return {
-      id: conversation.otherUserId,
-      name: conversation.otherUserName,
-      avatar: conversation.otherUserAvatar,
-      isOnline: conversation.isOtherUserOnline,
-      lastActive: conversation.otherUserLastActive
-    };
   };
 
   const getOfflineTime = (lastActive) => {
@@ -344,11 +352,10 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
 
     return () => clearInterval(interval);
   }, []);
-
   if (!conversation) {
     return null;
   }
-  const otherUser = getOtherUser();
+  
   const isOnline = onlineUsers.has(otherUser.id) || otherUser.isOnline;
 
   return (
@@ -364,9 +371,11 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
             />
             {isOnline && <div className="online-indicator"></div>}
           </div>
-          
-          <div className="user-info flex-grow-1">
-            <h6 className="mb-0">{otherUser.name}</h6>
+            <div className="user-info flex-grow-1">
+            <h6 className="mb-0 d-flex align-items-center">
+              {otherUser.name}
+              <BlockStatusIndicator userId={otherUser.id} variant="badge" className="ms-2" />
+            </h6>
             <small className={`status ${isOnline ? 'online' : 'offline'}`}>
               {isOnline ? 'Đang hoạt động' : getOfflineTime(otherUser.lastActive)}
             </small>
@@ -380,6 +389,18 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
               <Dropdown.Item href={`/profile/${otherUser.id}`}>
                 <i className="bi bi-person me-2"></i>
                 Xem hồ sơ
+              </Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Item as="div" className="p-0">
+                <div className="px-3 py-2">
+                  <BlockUserButton
+                    userId={otherUser.id}
+                    userName={otherUser.name}
+                    variant="minimal"
+                    size="small"
+                    showConfirmDialog={true}
+                  />
+                </div>
               </Dropdown.Item>
               <Dropdown.Divider />
               <Dropdown.Item className="text-danger">
@@ -432,13 +453,51 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
           </Button>
         </div>
       )}      {/* Message Input */}
-      <Card.Footer className="message-input-container p-0">        <MessageInput
-          onSendMessage={handleSendMessage}
-          disabled={!conversation}
-          placeholder={`Nhắn tin cho ${otherUser.name}...`}
-          conversationId={conversation?.id}
-          replyToMessage={replyToMessage}
-        />
+      <Card.Footer className="message-input-container p-0">
+        {!canCommunicate ? (
+          <div className="blocked-message-container">
+            <Alert variant="warning" className="mb-0 mx-3 my-2">
+              {status.areMutuallyBlocking ? (
+                <>
+                  <div className="d-flex align-items-center">
+                    <BlockStatusIndicator userId={otherUser.id} variant="minimal" />
+                    <span className="ms-2">Cả hai đều đã chặn nhau. Không thể nhắn tin.</span>
+                  </div>
+                </>
+              ) : status.isBlockedBy ? (
+                <>
+                  <div className="d-flex align-items-center">
+                    <BlockStatusIndicator userId={otherUser.id} variant="minimal" />
+                    <span className="ms-2">Bạn đã bị {otherUser.name} chặn. Không thể nhắn tin.</span>
+                  </div>
+                </>
+              ) : status.isBlocked ? (
+                <>
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center">
+                      <BlockStatusIndicator userId={otherUser.id} variant="minimal" />
+                      <span className="ms-2">Bạn đã chặn {otherUser.name}.</span>
+                    </div>
+                    <BlockUserButton
+                      userId={otherUser.id}
+                      userName={otherUser.name}
+                      variant="minimal"
+                      size="small"
+                    />
+                  </div>
+                </>
+              ) : null}
+            </Alert>
+          </div>
+        ) : (
+          <MessageInput
+            onSendMessage={handleSendMessage}
+            disabled={!conversation || !canCommunicate}
+            placeholder={`Nhắn tin cho ${otherUser.name}...`}
+            conversationId={conversation?.id}
+            replyToMessage={replyToMessage}
+          />
+        )}
       </Card.Footer>
     </Card>
   );

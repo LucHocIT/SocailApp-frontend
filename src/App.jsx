@@ -10,6 +10,7 @@ import './index.scss';
 
 // Import context providers
 import { AppProvider } from './context';
+import { UserBlockProvider } from './context/UserBlockContext';
 
 // Import components
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -22,6 +23,7 @@ import RequestVerificationPage from './pages/RequestVerificationPage';
 import PostPage from './pages/PostPage';
 import Friends from './pages/Friends';
 import Chat from './pages/Chat';
+import SettingsPage from './pages/SettingsPage';
 
 
 function App() {
@@ -35,6 +37,7 @@ function App() {
   }, []);
   return (    <Router>
       <AppProvider>
+        <UserBlockProvider>
           <ToastContainer
             position="top-right" 
             autoClose={3000} 
@@ -56,8 +59,8 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/friends" element={<Friends />} />
               <Route path="/chat" element={<Chat />} />
-            </Route></Routes>        </div>
-        <footer className="app-footer">
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route></Routes>        </div>        <footer className="app-footer">
           <div className="container">
             <div className="row">
               <div className="col-md-6">
@@ -67,6 +70,7 @@ function App() {
                 <p>Made with ❤️ for social connections</p>
               </div>            </div>
           </div>        </footer>
+        </UserBlockProvider>
       </AppProvider>
     </Router>
   );

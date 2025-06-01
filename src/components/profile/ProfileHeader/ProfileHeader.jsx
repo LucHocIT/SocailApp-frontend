@@ -12,6 +12,8 @@ import {
 import PropTypes from 'prop-types';
 import styles from './ProfileHeader.module.scss';
 import ImageCropperModal from '../ImageCropper';
+import BlockUserButton from '../../user/BlockUserButton';
+import BlockStatusIndicator from '../../user/BlockStatusIndicator';
 
 const ProfileHeader = ({ 
   profileData, 
@@ -241,6 +243,13 @@ const ProfileHeader = ({
                 <span className={styles.verifiedTooltip}>Tài khoản đã xác thực</span>
               </span>
             )}
+            {!isOwnProfile && user && (
+              <BlockStatusIndicator 
+                userId={profileData.id} 
+                variant="badge"
+                className={styles.blockStatusBadge}
+              />
+            )}
           </h1>
 
           <p className={styles.username}>
@@ -347,6 +356,12 @@ const ProfileHeader = ({
                 <button className={styles.btnSecondary}>
                   <FaEnvelope /> Nhắn tin
                 </button>
+                <BlockUserButton 
+                  userId={profileData.id}
+                  userName={`${profileData.firstName} ${profileData.lastName}`}
+                  variant="secondary"
+                  size="medium"
+                />
               </>
             )}
           </div>
