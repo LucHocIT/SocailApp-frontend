@@ -41,8 +41,7 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
     } finally {
       setLoading(false);
     }
-  }, [conversation, page]);
-  const handleNewMessage = useCallback((message) => {
+  }, [conversation, page]);  const handleNewMessage = useCallback((message) => {
     if (message.type === 'messageRead') return;
     
     // Handle both direct ReceiveMessage and NewMessage events
@@ -50,12 +49,28 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
         (!message.conversationId && message.type !== 'newMessage')) {
       // For direct ReceiveMessage events, add to messages
       setMessages(prev => [...prev, message]);
+      
+      // If the message is from another user and we're currently viewing this conversation,
+      // automatically mark it as read
+      if (message.senderId !== currentUserId && message.conversationId === conversation?.id) {
+        // Mark as read immediately - the user is actively viewing the conversation
+        chatService.markConversationAsRead(conversation.id).catch(error => {
+          console.error('Error auto-marking message as read:', error);
+        });
+      }
     }
-  }, [conversation]);
-
+  }, [conversation, currentUserId]);
   useEffect(() => {
     if (conversation) {
       loadMessages(true);
+      
+      // Automatically mark conversation as read when opening it
+      // This ensures that if there are unread messages, they get marked as read
+      if (conversation.unreadCount > 0) {
+        chatService.markConversationAsRead(conversation.id).catch(error => {
+          console.error('Error marking conversation as read on open:', error);
+        });
+      }
     }
   }, [conversation, loadMessages]);
 

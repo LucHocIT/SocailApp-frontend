@@ -25,7 +25,7 @@ const ChatPage = () => {
     }
   };  const handleNewMessage = useCallback((message) => {
     if (message.type === 'messageRead') {
-      // Handle message read status
+      // Handle message read status - ensure the conversation is updated immediately
       setConversations(prev => prev.map(conv => 
         conv.id === message.conversationId 
           ? { ...conv, unreadCount: 0 }
@@ -34,34 +34,7 @@ const ChatPage = () => {
       return;
     }
 
-    if (message.type === 'newMessage') {
-      // Handle new message notification for users not in conversation
-      setConversations(prev => {
-        const existingIndex = prev.findIndex(conv => conv.id === message.conversationId);
-        
-        if (existingIndex !== -1) {
-          const updated = [...prev];
-          const conversation = { ...updated[existingIndex] };
-          
-          // Update last message info
-          conversation.lastMessage = message.message.content;
-          conversation.lastMessageTime = message.message.sentAt;
-          conversation.unreadCount = message.unreadCount;
-
-          // Move to top
-          updated.splice(existingIndex, 1);
-          updated.unshift(conversation);
-          
-          return updated;
-        }
-        
-        return prev;
-      });
-
-      // Show notification
-      toast.info(`Tin nhắn mới từ ${message.message.senderName}`);
-      return;
-    }
+    // Note: Removed newMessage handler as system notifications are disabled per user request
 
     // Handle direct message (ReceiveMessage) - for users in the conversation
     setConversations(prev => {
@@ -76,6 +49,8 @@ const ChatPage = () => {
         conversation.lastMessageTime = message.sentAt;
         
         // Update unread count if not current conversation
+        // If this is the currently selected conversation, don't increment unread count
+        // because the user is actively viewing it and it will be auto-marked as read
         if (selectedConversation?.id !== message.conversationId) {
           conversation.unreadCount = (conversation.unreadCount || 0) + 1;
         }
@@ -90,10 +65,10 @@ const ChatPage = () => {
       return prev;
     });
 
-    // Show notification if not current conversation
-    if (selectedConversation?.id !== message.conversationId) {
-      toast.info(`Tin nhắn mới từ ${message.senderName}`);
-    }
+    // Note: Removed notification toast as per user request
+    // if (selectedConversation?.id !== message.conversationId) {
+    //   toast.info(`Tin nhắn mới từ ${message.senderName}`);
+    // }
   }, [selectedConversation]);
   const handleUserStatusChange = useCallback((userId, isOnline) => {
     setOnlineUsers(prev => {
@@ -105,18 +80,31 @@ const ChatPage = () => {
       }
       return newSet;
     });
-  }, []);
-  const handleConversationUpdated = useCallback((conversation) => {
+  }, []);  const handleConversationUpdated = useCallback((updateData) => {
     setConversations(prev => {
-      const index = prev.findIndex(conv => conv.id === conversation.id);
+      const index = prev.findIndex(conv => conv.id === updateData.ConversationId);
       if (index !== -1) {
         const updated = [...prev];
-        updated[index] = conversation;
+        const conversation = { ...updated[index] };
+        
+        // Update conversation data
+        conversation.lastMessage = updateData.LastMessage;
+        conversation.lastMessageTime = updateData.LastMessageTime;
+        conversation.unreadCount = updateData.UnreadCount;
+        
+        // Move to top if it's not the currently selected conversation
+        if (selectedConversation?.id !== updateData.ConversationId) {
+          updated.splice(index, 1);
+          updated.unshift(conversation);
+        } else {
+          updated[index] = conversation;
+        }
+        
         return updated;
-      } else {
-        return [conversation, ...prev];
       }
-    });  }, []);
+      return prev;
+    });
+  }, [selectedConversation]);
 
   useEffect(() => {
     let isMounted = true;
@@ -172,17 +160,15 @@ const ChatPage = () => {
       // chatService.disconnect();
     };
   }, [user, handleNewMessage, handleUserStatusChange, handleConversationUpdated]);
-
   const handleSelectConversation = async (conversation) => {
     setSelectedConversation(conversation);
     
-    // Mark as read
+    // Mark as read (use only SignalR to avoid duplication)
     if (conversation.unreadCount > 0) {
       try {
-        await chatService.markAsRead(conversation.id);
         await chatService.markConversationAsRead(conversation.id);
         
-        // Update local state
+        // Update local state immediately
         setConversations(prev => prev.map(conv => 
           conv.id === conversation.id 
             ? { ...conv, unreadCount: 0 }

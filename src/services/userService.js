@@ -191,6 +191,17 @@ class UserService {
     }
   }
 
+  // Tìm kiếm chỉ bạn bè (cho chat)
+  async searchFriends(searchTerm, page = 1, pageSize = 10) {
+    try {
+      const encodedSearchTerm = encodeURIComponent(searchTerm);
+      const response = await api.get(`/profile/search/friends?SearchTerm=${encodedSearchTerm}&PageNumber=${page}&PageSize=${pageSize}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   // Xử lý lỗi
   handleError(error) {
     let errorMessage = 'Đã xảy ra lỗi không xác định';

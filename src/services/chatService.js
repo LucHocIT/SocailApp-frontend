@@ -157,20 +157,9 @@ class ChatService {
         });
       });
 
-      this.connection.on('NewMessage', (data) => {
-        this.messageHandlers.forEach(handler => {
-          try {
-            handler({
-              type: 'newMessage',
-              conversationId: data.ConversationId,
-              message: data.Message,
-              unreadCount: data.UnreadCount
-            });
-          } catch (error) {
-            console.error('Error in new message handler:', error);
-          }
-        });
-      });this.connection.on('MessageRead', (data) => {
+      // Note: Removed NewMessage handler as notifications are disabled per user request
+
+      this.connection.on('MessageRead', (data) => {
         this.messageHandlers.forEach(handler => {
           try {
             handler({
