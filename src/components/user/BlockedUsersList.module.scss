@@ -1,0 +1,307 @@
+// Blocked Users List Styles
+.container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #212529;
+  }
+
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+
+    &:hover {
+      background: #e9ecef;
+      color: #495057;
+    }
+  }
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 200px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  color: #6c757d;
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e9ecef;
+    border-top: 2px solid #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 40px;
+  color: #6c757d;
+
+  .emptyIcon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #495057;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+.usersList {
+  padding: 16px 0;
+}
+
+.userItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f1f3f4;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #fafbfc;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0; // For text truncation
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e9ecef;
+}
+
+.userDetails {
+  flex: 1;
+  min-width: 0;
+
+  .userName {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #212529;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .userEmail {
+    margin: 0 0 4px;
+    font-size: 14px;
+    color: #6c757d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .blockReason {
+    margin: 0 0 4px;
+    font-size: 13px;
+    color: #dc3545;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .blockDate {
+    margin: 0;
+    font-size: 12px;
+    color: #adb5bd;
+  }
+}
+
+.actions {
+  margin-left: 12px;
+}
+
+.loadMore {
+  padding: 20px 24px;
+  text-align: center;
+  border-top: 1px solid #e9ecef;
+  background: #fafbfc;
+}
+
+.loadMoreButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #0b5ed7;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+// Modal Styles
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: hidden;
+
+  .container {
+    max-height: none;
+    height: 100%;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .modalOverlay {
+    padding: 10px;
+  }
+
+  .modal {
+    max-width: none;
+  }
+
+  .header,
+  .userItem,
+  .loadMore {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .userInfo {
+    gap: 10px;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .userDetails {
+    .userName {
+      font-size: 15px;
+    }
+
+    .userEmail {
+      font-size: 13px;
+    }
+
+    .blockReason {
+      font-size: 12px;
+    }
+  }
+
+  .actions {
+    margin-left: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .userItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .userInfo {
+    width: 100%;
+  }
+
+  .actions {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+}
