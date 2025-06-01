@@ -27,11 +27,17 @@ const ReactionPicker = ({ isOpen, onClose, onReactionSelect, currentReaction = n
     onReactionSelect(reactionType);
     onClose();
   };
-
   return (
     <div ref={pickerRef} className={styles.reactionPicker}>
       <div className={styles.reactionGrid}>
-        {Object.entries(REACTION_EMOJIS).map(([type, emoji]) => (
+        {[
+          ['like', '👍'],
+          ['love', '❤️'],
+          ['haha', '😂'],
+          ['wow', '😮'],
+          ['sad', '😢'],
+          ['angry', '😠']
+        ].map(([type, emoji]) => (
           <button
             key={type}
             type="button"

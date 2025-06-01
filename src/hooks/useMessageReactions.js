@@ -7,8 +7,7 @@ const useMessageReactions = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const toggleReaction = useCallback(async (messageId, reactionType) => {
+  const toggleReaction = useCallback(async (messageId, reactionType, optimisticCallback = null) => {
     if (!user) {
       toast.error('You must be logged in to react to messages');
       return { success: false, message: 'Login required' };
@@ -21,6 +20,12 @@ const useMessageReactions = () => {
 
     setIsLoading(true);
     setError(null);
+    
+    // Optimistic update - update UI immediately before API call
+    if (optimisticCallback) {
+      optimisticCallback(messageId, reactionType, user.id);
+    }
+    
     try {
       const result = await chatService.toggleMessageReaction(messageId, reactionType);
       return { success: true, data: result };
@@ -28,6 +33,13 @@ const useMessageReactions = () => {
       const errorMessage = err.message || 'Failed to toggle reaction';
       setError(errorMessage);
       toast.error('Failed to update reaction: ' + errorMessage);
+      
+      // Rollback optimistic update on error
+      if (optimisticCallback) {
+        // Call rollback by toggling again
+        optimisticCallback(messageId, reactionType, user.id, true);
+      }
+      
       return { success: false, message: errorMessage };
     } finally {
       setIsLoading(false);

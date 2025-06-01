@@ -27,37 +27,38 @@ const Message = ({
   };  const handleReply = () => {
     onReply(message);
   };
-
   const handleReactionSelect = async (reactionType) => {
-    try {
-      await toggleReaction(message.id, reactionType);
+    // Optimistic update function
+    const optimisticUpdate = (msgId, reactType, userId, isRollback = false) => {
       if (onReactionToggle) {
-        onReactionToggle(message.id, reactionType);
+        onReactionToggle(msgId, reactType, userId, isRollback);
       }
+    };
+    
+    try {
+      await toggleReaction(message.id, reactionType, optimisticUpdate);
     } catch (error) {
       console.error('Failed to toggle reaction:', error);
     }
   };
 
   const handleReactionClick = async (reactionType) => {
-    try {
-      await toggleReaction(message.id, reactionType);
+    // Optimistic update function  
+    const optimisticUpdate = (msgId, reactType, userId, isRollback = false) => {
       if (onReactionToggle) {
-        onReactionToggle(message.id, reactionType);
+        onReactionToggle(msgId, reactType, userId, isRollback);
       }
+    };
+    
+    try {
+      await toggleReaction(message.id, reactionType, optimisticUpdate);
     } catch (error) {
       console.error('Failed to toggle reaction:', error);
     }
   };
-
   // Get current user's reaction if any
   const getCurrentUserReaction = () => {
-    if (!message.hasReactedByCurrentUser) return null;
-    
-    for (const [reactionType, hasReacted] of Object.entries(message.hasReactedByCurrentUser)) {
-      if (hasReacted) return reactionType;
-    }
-    return null;
+    return message.hasReactedByCurrentUser ? message.currentUserReactionType : null;
   };
 
   const renderMediaContent = () => {
@@ -179,13 +180,12 @@ const Message = ({
                   <i className="bi bi-check2-all text-muted"></i>
                 </div>
               )}
-            </div>
-
-            {/* Message Reactions */}
+            </div>            {/* Message Reactions */}
             {message.reactionCounts && Object.keys(message.reactionCounts).length > 0 && (
               <MessageReactions
                 reactionCounts={message.reactionCounts}
-                hasReactedByCurrentUser={message.hasReactedByCurrentUser || {}}
+                hasReactedByCurrentUser={message.hasReactedByCurrentUser || false}
+                currentUserReactionType={message.currentUserReactionType}
                 onReactionClick={handleReactionClick}
               />
             )}

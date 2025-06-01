@@ -285,7 +285,8 @@ class ChatService {
                 userId: data.UserId,
                 userName: data.UserName
               },
-              conversationId: data.ConversationId
+              conversationId: data.ConversationId,
+              reactionSummary: data.ReactionSummary
             });
           } catch (error) {
             console.error('Error in reaction added handler:', error);
@@ -301,7 +302,8 @@ class ChatService {
               messageId: data.MessageId,
               userId: data.UserId,
               reactionType: data.ReactionType,
-              conversationId: data.ConversationId
+              conversationId: data.ConversationId,
+              reactionSummary: data.ReactionSummary
             });
           } catch (error) {
             console.error('Error in reaction removed handler:', error);

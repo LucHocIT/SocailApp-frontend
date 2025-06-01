@@ -70,49 +70,55 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
         if (message.id === reactionEvent.messageId) {
           const updatedMessage = { ...message };
           
-          if (reactionEvent.type === 'reactionAdded') {
-            // Update reaction counts and user reaction status
-            const { reaction } = reactionEvent;
-            updatedMessage.reactionCounts = {
-              ...updatedMessage.reactionCounts,
-              [reaction.reactionType]: (updatedMessage.reactionCounts?.[reaction.reactionType] || 0) + 1
-            };
-            
-            // If it's current user's reaction, update hasReactedByCurrentUser
-            if (reaction.userId === currentUserId) {
-              updatedMessage.hasReactedByCurrentUser = {
-                ...updatedMessage.hasReactedByCurrentUser,
-                [reaction.reactionType]: true
+          // If we have complete reaction summary from server, use it
+          if (reactionEvent.reactionSummary) {
+            updatedMessage.reactionCounts = reactionEvent.reactionSummary.reactionCounts || {};
+            updatedMessage.hasReactedByCurrentUser = reactionEvent.reactionSummary.hasReactedByCurrentUser || false;
+            updatedMessage.currentUserReactionType = reactionEvent.reactionSummary.currentUserReactionType || null;
+            updatedMessage.totalReactions = Object.values(updatedMessage.reactionCounts).reduce((sum, count) => sum + count, 0);
+          } else {
+            // Fallback to manual calculation for backward compatibility
+            if (reactionEvent.type === 'reactionAdded') {
+              // Update reaction counts
+              const { reaction } = reactionEvent;
+              updatedMessage.reactionCounts = {
+                ...updatedMessage.reactionCounts,
+                [reaction.reactionType]: (updatedMessage.reactionCounts?.[reaction.reactionType] || 0) + 1
               };
-            }
-          } else if (reactionEvent.type === 'reactionRemoved') {
-            // Update reaction counts
-            if (updatedMessage.reactionCounts && reactionEvent.reactionType) {
-              const currentCount = updatedMessage.reactionCounts[reactionEvent.reactionType] || 0;
-              if (currentCount > 0) {
-                updatedMessage.reactionCounts = {
-                  ...updatedMessage.reactionCounts,
-                  [reactionEvent.reactionType]: currentCount - 1
-                };
-                
-                // Remove the reaction type if count reaches 0
-                if (updatedMessage.reactionCounts[reactionEvent.reactionType] === 0) {
-                  const { [reactionEvent.reactionType]: _, ...remainingCounts } = updatedMessage.reactionCounts;
-                  updatedMessage.reactionCounts = remainingCounts;
+              
+              // If it's current user's reaction, update current user reaction status
+              if (reaction.userId === currentUserId) {
+                updatedMessage.hasReactedByCurrentUser = true;
+                updatedMessage.currentUserReactionType = reaction.reactionType;
+              }
+              
+            } else if (reactionEvent.type === 'reactionRemoved') {
+              // Update reaction counts
+              if (updatedMessage.reactionCounts && reactionEvent.reactionType) {
+                const currentCount = updatedMessage.reactionCounts[reactionEvent.reactionType] || 0;
+                if (currentCount > 0) {
+                  updatedMessage.reactionCounts = {
+                    ...updatedMessage.reactionCounts,
+                    [reactionEvent.reactionType]: currentCount - 1
+                  };
+                  
+                  // Remove the reaction type if count reaches 0
+                  if (updatedMessage.reactionCounts[reactionEvent.reactionType] === 0) {
+                    const { [reactionEvent.reactionType]: _, ...remainingCounts } = updatedMessage.reactionCounts;
+                    updatedMessage.reactionCounts = remainingCounts;
+                  }
                 }
+              }
+              
+              // Remove current user's reaction if it's their reaction being removed
+              if (reactionEvent.userId === currentUserId) {
+                updatedMessage.hasReactedByCurrentUser = false;
+                updatedMessage.currentUserReactionType = null;
               }
             }
             
-            // Remove current user's reaction if it's their reaction being removed
-            if (reactionEvent.userId === currentUserId && updatedMessage.hasReactedByCurrentUser) {
-              updatedMessage.hasReactedByCurrentUser = {
-                ...updatedMessage.hasReactedByCurrentUser,
-                [reactionEvent.reactionType]: false
-              };
-            }
-          } else if (reactionEvent.type === 'reactionUpdated') {
-            // Update with latest reaction data
-            updatedMessage.reactionCounts = reactionEvent.reactions || {};
+            // Update total reactions count
+            updatedMessage.totalReactions = Object.values(updatedMessage.reactionCounts).reduce((sum, count) => sum + count, 0);
           }
           
           return updatedMessage;
@@ -244,12 +250,90 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
   const cancelReply = () => {
     setReplyToMessage(null);
   };
-
-  const handleReactionToggle = useCallback((messageId, reactionType) => {
-    // This is called from the Message component after a successful reaction toggle
-    // The actual UI update will come through SignalR events
-    console.log('Reaction toggled:', messageId, reactionType);
-  }, []);
+  const handleReactionToggle = useCallback((messageId, reactionType, userId, isRollback = false) => {
+    setMessages(prev => {
+      return prev.map(message => {
+        if (message.id === messageId) {
+          const updatedMessage = { ...message };
+          
+          // Initialize reaction data if not exists
+          if (!updatedMessage.reactionCounts) {
+            updatedMessage.reactionCounts = {};
+          }
+          
+          // Determine if user currently has this reaction
+          const userHasThisReaction = updatedMessage.hasReactedByCurrentUser && 
+                                      updatedMessage.currentUserReactionType === reactionType;
+          
+          if (isRollback) {
+            // Rollback the optimistic update
+            return message; // Revert to original state
+          }
+          
+          if (userHasThisReaction) {
+            // User is removing their reaction
+            const currentCount = updatedMessage.reactionCounts[reactionType] || 0;
+            if (currentCount > 0) {
+              updatedMessage.reactionCounts = {
+                ...updatedMessage.reactionCounts,
+                [reactionType]: currentCount - 1
+              };
+              
+              // Remove the reaction type if count reaches 0
+              if (updatedMessage.reactionCounts[reactionType] === 0) {
+                const { [reactionType]: _, ...remainingCounts } = updatedMessage.reactionCounts;
+                updatedMessage.reactionCounts = remainingCounts;
+              }
+            }
+            
+            // Update user reaction status
+            if (userId === currentUserId) {
+              updatedMessage.hasReactedByCurrentUser = false;
+              updatedMessage.currentUserReactionType = null;
+            }
+          } else {
+            // User is adding a new reaction or changing reaction
+            
+            // If user had a different reaction, remove it first
+            if (updatedMessage.hasReactedByCurrentUser && updatedMessage.currentUserReactionType) {
+              const oldReactionType = updatedMessage.currentUserReactionType;
+              const oldCount = updatedMessage.reactionCounts[oldReactionType] || 0;
+              if (oldCount > 0) {
+                updatedMessage.reactionCounts = {
+                  ...updatedMessage.reactionCounts,
+                  [oldReactionType]: oldCount - 1
+                };
+                
+                // Remove the old reaction type if count reaches 0
+                if (updatedMessage.reactionCounts[oldReactionType] === 0) {
+                  const { [oldReactionType]: _, ...remainingCounts } = updatedMessage.reactionCounts;
+                  updatedMessage.reactionCounts = remainingCounts;
+                }
+              }
+            }
+            
+            // Add the new reaction
+            updatedMessage.reactionCounts = {
+              ...updatedMessage.reactionCounts,
+              [reactionType]: (updatedMessage.reactionCounts[reactionType] || 0) + 1
+            };
+            
+            // Update user reaction status
+            if (userId === currentUserId) {
+              updatedMessage.hasReactedByCurrentUser = true;
+              updatedMessage.currentUserReactionType = reactionType;
+            }
+          }
+          
+          // Update total reactions count
+          updatedMessage.totalReactions = Object.values(updatedMessage.reactionCounts).reduce((sum, count) => sum + count, 0);
+          
+          return updatedMessage;
+        }
+        return message;
+      });
+    });
+  }, [currentUserId]);
 
   // useEffect để cập nhật trạng thái mỗi phút
   useEffect(() => {

@@ -4,7 +4,8 @@ import styles from './MessageReactions.module.scss';
 
 const MessageReactions = ({ 
   reactionCounts = {}, 
-  hasReactedByCurrentUser = {},
+  hasReactedByCurrentUser = false,
+  currentUserReactionType = null,
   onReactionClick,
   onReactionHover,
   onReactionLeave 
@@ -36,12 +37,12 @@ const MessageReactions = ({
       onReactionLeave();
     }
   };
-
   return (
     <div className={styles.messageReactions}>
       {activeReactions.map(([reactionType, count]) => {
-        const emoji = REACTION_EMOJIS[reactionType];
-        const isUserReacted = hasReactedByCurrentUser[reactionType] || false;
+        // Get emoji - try lowercase first, then capitalized as fallback
+        const emoji = REACTION_EMOJIS[reactionType.toLowerCase()] || REACTION_EMOJIS[reactionType] || '👍';
+        const isUserReacted = hasReactedByCurrentUser && currentUserReactionType === reactionType;
         
         return (
           <button

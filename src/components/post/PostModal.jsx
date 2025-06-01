@@ -95,10 +95,9 @@ const PostModal = ({ show, onHide, post }) => {
           className={styles.postImage}
           fluid={true} 
         />
-      );
-    } else if (media.mediaType === 'video') {
+      );    } else if (media.mediaType === 'video') {
       return (
-        <>
+        <div className={styles.videoWrapper}>
           <video 
             className={styles.postVideo}
             controls
@@ -114,21 +113,20 @@ const PostModal = ({ show, onHide, post }) => {
             <source src={media.mediaUrl} type="video/webm" />
             Your browser does not support the video tag.
           </video>
-          <div className="video-fallback" style={{display: 'none', alignItems: 'center', justifyContent: 'center', height: '300px', background: '#f0f0f0'}}>
-            <div style={{textAlign: 'center'}}>
+          <div className={styles.videoFallback} style={{display: 'none'}}>
+            <div className={styles.fallbackContent}>
               <p>Video không thể phát được</p>
               <a href={media.mediaUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
                 Tải xuống video
               </a>
             </div>
           </div>
-        </>
+        </div>
       );
     } else {
       return renderFilePreview(media);
     }
   };
-
   // Render media item for grid
   const renderMediaItem = (media, index) => {
     if (media.mediaType === 'image') {
@@ -142,13 +140,21 @@ const PostModal = ({ show, onHide, post }) => {
       );
     } else if (media.mediaType === 'video') {
       return (
-        <video 
-          className={styles.gridVideo}
-          preload="metadata"
-          muted
-        >
-          <source src={media.mediaUrl} type={media.mediaMimeType || 'video/mp4'} />
-        </video>
+        <div className={styles.videoWrapper}>
+          <video 
+            className={styles.gridVideo}
+            controls
+            preload="metadata"
+            poster={media.thumbnailUrl}
+          >
+            <source src={media.mediaUrl} type={media.mediaMimeType || 'video/mp4'} />
+            <source src={media.mediaUrl} type="video/webm" />
+            Your browser does not support the video tag.
+          </video>
+          {media.duration && (
+            <div className={styles.videoDuration}>{media.duration}</div>
+          )}
+        </div>
       );
     } else {
       return renderFilePreview(media);
