@@ -9,7 +9,8 @@ const MessageList = ({
   onLoadMore, 
   hasMore, 
   loading, 
-  onReply 
+  onReply,
+  onReactionToggle
 }) => {
   const scrollRef = useRef(null);
   const prevScrollHeight = useRef(0);
@@ -133,8 +134,7 @@ const MessageList = ({
             // Create unique key using message ID and timestamp to avoid React key duplication warnings
             const uniqueKey = `${message.id}-${new Date(message.sentAt).getTime()}`;
 
-            return (
-              <Message
+            return (              <Message
                 key={uniqueKey}
                 message={message}
                 isOwn={message.senderId === currentUserId}
@@ -142,6 +142,7 @@ const MessageList = ({
                 isFirstInGroup={isFirstInGroup}
                 isLastInGroup={isLastInGroup}
                 onReply={onReply}
+                onReactionToggle={onReactionToggle}
               />
             );
           })}

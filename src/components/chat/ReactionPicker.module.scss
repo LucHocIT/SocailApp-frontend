@@ -1,0 +1,77 @@
+.reactionPicker {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 20px;
+  padding: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e1e5e9;
+  z-index: 1000;
+  margin-bottom: 8px;
+  animation: fadeInUp 0.2s ease-out;
+}
+
+.reactionGrid {
+  display: flex;
+  gap: 4px;
+}
+
+.reactionButton {
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  
+  &:hover {
+    background: #f0f2f5;
+    transform: scale(1.1);
+  }
+  
+  &.selected {
+    background: #e3f2fd;
+    border: 2px solid #2196f3;
+  }
+}
+
+.emoji {
+  font-size: 20px;
+  line-height: 1;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .reactionPicker {
+    background: #2d3748;
+    border-color: #4a5568;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+  
+  .reactionButton:hover {
+    background: #4a5568;
+  }
+  
+  .reactionButton.selected {
+    background: #2b6cb0;
+    border-color: #3182ce;
+  }
+}

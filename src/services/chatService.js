@@ -21,6 +21,7 @@ class ChatService {
       throw error;
     }
   }
+
   async getOrCreateConversation(otherUserId) {
     try {
       const response = await api.post(`/simple-chat/conversations/with/${otherUserId}`);
@@ -53,7 +54,8 @@ class ChatService {
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
-    }  }
+    }
+  }
   
   async markAsRead(conversationId) {
     try {
@@ -86,7 +88,7 @@ class ChatService {
   async sendMediaMessage(conversationId, mediaData, replyToMessageId = null) {
     try {
       const messageData = {
-        content: null, // Media-only message
+        content: null,
         replyToMessageId,
         mediaUrl: mediaData.mediaUrl,
         mediaType: mediaData.mediaType,
@@ -104,15 +106,77 @@ class ChatService {
     }
   }
 
+  // Message Reaction API methods
+  async addMessageReaction(messageId, reactionType) {
+    try {
+      const response = await api.post(`/simple-chat/messages/${messageId}/reactions`, {
+        reactionType
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error adding message reaction:', error);
+      throw error;
+    }
+  }
+
+  async removeMessageReaction(messageId) {
+    try {
+      await api.delete(`/simple-chat/messages/${messageId}/reactions`);
+    } catch (error) {
+      console.error('Error removing message reaction:', error);
+      throw error;
+    }
+  }
+
+  async toggleMessageReaction(messageId, reactionType) {
+    try {
+      const response = await api.put(`/simple-chat/messages/${messageId}/reactions/toggle`, {
+        reactionType
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error toggling message reaction:', error);
+      throw error;
+    }
+  }
+
+  async getMessageReactions(messageId) {
+    try {
+      const response = await api.get(`/simple-chat/messages/${messageId}/reactions`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting message reactions:', error);
+      throw error;
+    }
+  }
+
+  async getMessageReactionDetails(messageId) {
+    try {
+      const response = await api.get(`/simple-chat/messages/${messageId}/reactions/details`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting message reaction details:', error);
+      throw error;
+    }
+  }
+
+  async getMessageReactionsByType(messageId, reactionType) {
+    try {
+      const response = await api.get(`/simple-chat/messages/${messageId}/reactions/${reactionType}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting message reactions by type:', error);
+      throw error;
+    }
+  }
+
   // SignalR connection
   async connect() {
-    // Prevent multiple connection attempts
     if (this.isConnecting) {
       console.log('SignalR connection already in progress');
       return;
     }
 
-    // If already connected, don't reconnect
     if (this.connection && this.isConnected) {
       console.log('SignalR already connected');
       return;
@@ -121,7 +185,6 @@ class ChatService {
     this.isConnecting = true;
 
     try {
-      // Clean up any existing connection
       if (this.connection) {
         await this.disconnect();
       }
@@ -141,7 +204,6 @@ class ChatService {
         .withAutomaticReconnect([0, 2000, 10000, 30000])
         .build();
 
-      // Set up connection state handlers
       this.connection.onreconnecting((error) => {
         console.log('SignalR reconnecting...', error);
         this.isConnected = false;
@@ -187,7 +249,9 @@ class ChatService {
             console.error('Error in status handler:', error);
           }
         });
-      });      this.connection.on('ConversationUpdated', (conversation) => {
+      });
+
+      this.connection.on('ConversationUpdated', (conversation) => {
         this.conversationHandlers.forEach(handler => {
           try {
             handler(conversation);
@@ -196,8 +260,6 @@ class ChatService {
           }
         });
       });
-
-      // Note: Removed NewMessage handler as notifications are disabled per user request
 
       this.connection.on('MessageRead', (data) => {
         this.messageHandlers.forEach(handler => {
@@ -209,6 +271,55 @@ class ChatService {
             });
           } catch (error) {
             console.error('Error in message read handler:', error);
+          }
+        });
+      });      // Message Reaction SignalR handlers
+      this.connection.on('ReactionAdded', (data) => {
+        this.messageHandlers.forEach(handler => {
+          try {
+            handler({
+              type: 'reactionAdded',
+              messageId: data.MessageId,
+              reaction: {
+                reactionType: data.ReactionType,
+                userId: data.UserId,
+                userName: data.UserName
+              },
+              conversationId: data.ConversationId
+            });
+          } catch (error) {
+            console.error('Error in reaction added handler:', error);
+          }
+        });
+      });
+
+      this.connection.on('ReactionRemoved', (data) => {
+        this.messageHandlers.forEach(handler => {
+          try {
+            handler({
+              type: 'reactionRemoved',
+              messageId: data.MessageId,
+              userId: data.UserId,
+              reactionType: data.ReactionType,
+              conversationId: data.ConversationId
+            });
+          } catch (error) {
+            console.error('Error in reaction removed handler:', error);
+          }
+        });
+      });
+
+      this.connection.on('MessageReactionUpdated', (data) => {
+        this.messageHandlers.forEach(handler => {
+          try {
+            handler({
+              type: 'reactionUpdated',
+              messageId: data.MessageId,
+              reactions: data.Reactions,
+              conversationId: data.ConversationId
+            });
+          } catch (error) {
+            console.error('Error in reaction updated handler:', error);
           }
         });
       });
@@ -299,5 +410,4 @@ class ChatService {
   }
 }
 
-// Export singleton instance
 export default new ChatService();

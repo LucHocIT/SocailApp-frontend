@@ -159,8 +159,22 @@
     }
 
     .message-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 0.5rem;
       opacity: 0;
       transition: opacity 0.2s ease;
+
+      .message:hover & {
+        opacity: 1;
+      }
+
+      // Ensure reaction button is aligned properly
+      .reaction-button-container {
+        display: flex;
+        align-items: center;
+      }
 
       .message-menu-btn {
         background: none;
@@ -313,6 +327,15 @@
 
     &:hover {
       background: rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  // Message Reactions Styles
+  .message-bubble-container {
+    position: relative;
+
+    .message-reactions {
+      margin-top: 4px;
     }
   }
 }

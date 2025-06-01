@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Dropdown, Image } from 'react-bootstrap';
 import { FaFile, FaDownload } from 'react-icons/fa';
+import MessageReactions from './MessageReactions';
+import ReactionButton from './ReactionButton';
+import useMessageReactions from '../../hooks/useMessageReactions';
 import './Message.scss';
 
 const Message = ({ 
@@ -9,9 +12,11 @@ const Message = ({
   showAvatar, 
   isFirstInGroup, 
   isLastInGroup, 
-  onReply 
+  onReply,
+  onReactionToggle
 }) => {
   const [showTime, setShowTime] = useState(false);
+  const { toggleReaction, isLoading } = useMessageReactions();
 
   const formatFullTime = (dateString) => {
     return new Date(dateString).toLocaleString('vi-VN');
@@ -19,9 +24,40 @@ const Message = ({
 
   const handleMessageClick = () => {
     setShowTime(!showTime);
-  };
-  const handleReply = () => {
+  };  const handleReply = () => {
     onReply(message);
+  };
+
+  const handleReactionSelect = async (reactionType) => {
+    try {
+      await toggleReaction(message.id, reactionType);
+      if (onReactionToggle) {
+        onReactionToggle(message.id, reactionType);
+      }
+    } catch (error) {
+      console.error('Failed to toggle reaction:', error);
+    }
+  };
+
+  const handleReactionClick = async (reactionType) => {
+    try {
+      await toggleReaction(message.id, reactionType);
+      if (onReactionToggle) {
+        onReactionToggle(message.id, reactionType);
+      }
+    } catch (error) {
+      console.error('Failed to toggle reaction:', error);
+    }
+  };
+
+  // Get current user's reaction if any
+  const getCurrentUserReaction = () => {
+    if (!message.hasReactedByCurrentUser) return null;
+    
+    for (const [reactionType, hasReacted] of Object.entries(message.hasReactedByCurrentUser)) {
+      if (hasReacted) return reactionType;
+    }
+    return null;
   };
 
   const renderMediaContent = () => {
@@ -60,14 +96,15 @@ const Message = ({
       
       case 'file':
       default:
-        return (
-          <div className="message-media message-file">
+        return (          <div className="message-media message-file">
             <div className="file-info">
               <FaFile className="file-icon" />
               <div className="file-details">
-                <span className="file-name">
-                  {message.mediaFilename || 'File'}
-                </span>
+                {message.mediaFilename && (
+                  <span className="file-name">
+                    {message.mediaFilename}
+                  </span>
+                )}
                 {message.mediaFileSize && (
                   <span className="file-size">
                     {(message.mediaFileSize / 1024).toFixed(1)} KB
@@ -121,9 +158,7 @@ const Message = ({
                 </div>
               </div>
             </div>
-          )}
-
-          {/* Message bubble */}
+          )}          {/* Message bubble */}
           <div className="message-bubble-container">            <div 
               className="message-bubble"
               onClick={handleMessageClick}
@@ -131,8 +166,8 @@ const Message = ({
               {/* Media content */}
               {renderMediaContent()}
               
-              {/* Text content (if any) */}
-              {message.content && (
+              {/* Text content (only if no media) */}
+              {message.content && !message.mediaUrl && (
                 <div className="message-text">
                   {message.content}
                 </div>
@@ -146,8 +181,24 @@ const Message = ({
               )}
             </div>
 
+            {/* Message Reactions */}
+            {message.reactionCounts && Object.keys(message.reactionCounts).length > 0 && (
+              <MessageReactions
+                reactionCounts={message.reactionCounts}
+                hasReactedByCurrentUser={message.hasReactedByCurrentUser || {}}
+                onReactionClick={handleReactionClick}
+              />
+            )}
+
             {/* Message actions dropdown */}
             <div className="message-actions">
+              {/* Reaction Button */}
+              <ReactionButton
+                onReactionSelect={handleReactionSelect}
+                currentReaction={getCurrentUserReaction()}
+                disabled={isLoading}
+              />
+
               <Dropdown drop="start">
                 <Dropdown.Toggle 
                   variant="link" 

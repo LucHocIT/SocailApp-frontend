@@ -61,10 +61,75 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
       console.error('Error loading messages:', error);
       toast.error('Không thể tải tin nhắn');
     } finally {
-      setLoading(false);
-    }
-  }, [conversation, page]);  const handleNewMessage = useCallback((message) => {
+      setLoading(false);    }
+  }, [conversation, page]);  const handleReactionEvent = useCallback((reactionEvent) => {
+    if (!conversation?.id || reactionEvent.conversationId !== conversation.id) return;
+    
+    setMessages(prev => {
+      return prev.map(message => {
+        if (message.id === reactionEvent.messageId) {
+          const updatedMessage = { ...message };
+          
+          if (reactionEvent.type === 'reactionAdded') {
+            // Update reaction counts and user reaction status
+            const { reaction } = reactionEvent;
+            updatedMessage.reactionCounts = {
+              ...updatedMessage.reactionCounts,
+              [reaction.reactionType]: (updatedMessage.reactionCounts?.[reaction.reactionType] || 0) + 1
+            };
+            
+            // If it's current user's reaction, update hasReactedByCurrentUser
+            if (reaction.userId === currentUserId) {
+              updatedMessage.hasReactedByCurrentUser = {
+                ...updatedMessage.hasReactedByCurrentUser,
+                [reaction.reactionType]: true
+              };
+            }
+          } else if (reactionEvent.type === 'reactionRemoved') {
+            // Update reaction counts
+            if (updatedMessage.reactionCounts && reactionEvent.reactionType) {
+              const currentCount = updatedMessage.reactionCounts[reactionEvent.reactionType] || 0;
+              if (currentCount > 0) {
+                updatedMessage.reactionCounts = {
+                  ...updatedMessage.reactionCounts,
+                  [reactionEvent.reactionType]: currentCount - 1
+                };
+                
+                // Remove the reaction type if count reaches 0
+                if (updatedMessage.reactionCounts[reactionEvent.reactionType] === 0) {
+                  const { [reactionEvent.reactionType]: _, ...remainingCounts } = updatedMessage.reactionCounts;
+                  updatedMessage.reactionCounts = remainingCounts;
+                }
+              }
+            }
+            
+            // Remove current user's reaction if it's their reaction being removed
+            if (reactionEvent.userId === currentUserId && updatedMessage.hasReactedByCurrentUser) {
+              updatedMessage.hasReactedByCurrentUser = {
+                ...updatedMessage.hasReactedByCurrentUser,
+                [reactionEvent.reactionType]: false
+              };
+            }
+          } else if (reactionEvent.type === 'reactionUpdated') {
+            // Update with latest reaction data
+            updatedMessage.reactionCounts = reactionEvent.reactions || {};
+          }
+          
+          return updatedMessage;
+        }
+        return message;
+      });
+    });
+  }, [conversation, currentUserId]);
+
+  const handleNewMessage = useCallback((message) => {
     if (message.type === 'messageRead') return;
+    
+    // Handle reaction events
+    if (message.type === 'reactionAdded' || message.type === 'reactionRemoved' || message.type === 'reactionUpdated') {
+      handleReactionEvent(message);
+      return;
+    }
     
     // Handle both direct ReceiveMessage and NewMessage events
     if (message.conversationId === conversation?.id || 
@@ -94,9 +159,8 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
         chatService.markConversationAsRead(conversation.id).catch(error => {
           console.error('Error auto-marking message as read:', error);
         });
-      }
-    }
-  }, [conversation, currentUserId]);
+      }    }
+  }, [conversation, currentUserId, handleReactionEvent]);
   useEffect(() => {
     if (conversation) {
       loadMessages(true);
@@ -177,10 +241,15 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
   const handleReplyToMessage = (message) => {
     setReplyToMessage(message);
   };
-
   const cancelReply = () => {
     setReplyToMessage(null);
   };
+
+  const handleReactionToggle = useCallback((messageId, reactionType) => {
+    // This is called from the Message component after a successful reaction toggle
+    // The actual UI update will come through SignalR events
+    console.log('Reaction toggled:', messageId, reactionType);
+  }, []);
 
   // useEffect để cập nhật trạng thái mỗi phút
   useEffect(() => {
@@ -246,14 +315,14 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
               <span className="visually-hidden">Đang tải...</span>
             </div>
           </div>
-        ) : (
-          <MessageList
+        ) : (          <MessageList
             messages={messages}
             currentUserId={currentUserId}
             onLoadMore={handleLoadMore}
             hasMore={hasMore}
             loading={loading}
             onReply={handleReplyToMessage}
+            onReactionToggle={handleReactionToggle}
           />
         )}
         <div ref={messagesEndRef} />

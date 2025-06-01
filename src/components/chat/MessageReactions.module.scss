@@ -1,0 +1,70 @@
+.messageReactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.reactionBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f0f2f5;
+  border: 1px solid #e4e6ea;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 24px;
+  
+  &:hover {
+    background: #e4e6ea;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.userReacted {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    color: #1976d2;
+    font-weight: 600;
+  }
+  
+  &.hovered {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.emoji {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.count {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  min-width: 8px;
+  text-align: center;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .reactionBadge {
+    background: #3a3a3a;
+    border-color: #555;
+    color: #e0e0e0;
+    
+    &:hover {
+      background: #4a4a4a;
+    }
+    
+    &.userReacted {
+      background: #2b6cb0;
+      border-color: #3182ce;
+      color: #90cdf4;
+    }
+  }
+}

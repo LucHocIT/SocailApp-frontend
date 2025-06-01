@@ -12,6 +12,20 @@ const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, re
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Helper function to get media display text
+  const getMediaDisplayText = (mediaType) => {
+    switch (mediaType.toLowerCase()) {
+      case 'image':
+        return '🖼️ Hình ảnh';
+      case 'video':
+        return '🎥 Video';
+      case 'file':
+        return '📁 File';
+      default:
+        return '📁 File';
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim() && !disabled) {
@@ -76,7 +90,9 @@ const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, re
       if (file.size > maxSize) {
         toast.error(`File quá lớn. Kích thước tối đa: ${maxSize / (1024 * 1024)}MB`);
         return;
-      }      // Upload to server
+      }
+
+      // Upload to server
       const uploadResult = await chatService.uploadChatMedia(file, mediaType);
       
       if (uploadResult.success) {
@@ -86,10 +102,10 @@ const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, re
         // Trigger message update in parent component if available
         if (onSendMessage) {
           // Signal parent that a new message was sent (for UI updates)
-          onSendMessage('📁 ' + (uploadResult.filename || 'File'));
+          onSendMessage(getMediaDisplayText(mediaType));
         }
         
-        toast.success('Đã gửi file thành công!');
+        toast.success(`Đã gửi ${getMediaDisplayText(mediaType).toLowerCase()} thành công!`);
       } else {
         toast.error(uploadResult.message || 'Không thể upload file');
       }
