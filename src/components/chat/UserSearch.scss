@@ -2,20 +2,152 @@
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
-
   // Always visible mode styling
   &.always-visible {
     box-shadow: none;
     border-bottom: 1px solid #e5e5e5;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
     border-radius: 0;
+    background: #f8f9fa;
 
     .card-body {
       padding: 0.75rem 1rem !important;
-    }
+      background: white;
+      margin: 0.75rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e8ecef;
+    }    .search-input-container {
+      .form-control {
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
 
-    .search-results {
-      max-height: 200px; // Reduced height for always-visible mode
+        &:focus {
+          border-color: #667eea;
+          box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+      }
+
+      .search-input-enhanced {
+        padding-left: 35px;
+        padding-right: 35px;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 2;
+        font-size: 0.9rem;
+      }
+
+      .clear-search-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+        padding: 0;
+        border: none;
+        background: none;
+        color: #6c757d;
+        font-size: 0.8rem;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: #dc3545;
+        }
+
+        &:focus {
+          box-shadow: none;
+        }
+      }
+    }.search-results {
+      max-height: 300px; // Increased for better UX
+      border-radius: 8px;
+      opacity: 0;
+      transform: translateY(-10px);
+      animation: fadeInUp 0.3s ease forwards;        .user-search-item {
+          border-radius: 8px;
+          margin-bottom: 0.25rem;
+          transition: all 0.2s ease;
+          opacity: 0;
+          transform: translateX(-10px);
+          animation: slideInLeft 0.3s ease forwards;
+
+          &:hover {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            transform: translateY(-1px) translateX(2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+            .chat-action {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .user-avatar-container {
+            position: relative;
+            
+            .user-avatar {
+              width: 42px;
+              height: 42px;
+              border-radius: 50%;
+              object-fit: cover;
+              flex-shrink: 0;
+              border: 2px solid #fff;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .online-indicator {
+              position: absolute;
+              bottom: 2px;
+              right: 10px;
+              width: 12px;
+              height: 12px;
+              background: #28a745;
+              border: 2px solid #fff;
+              border-radius: 50%;
+              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            }
+          }
+
+          .user-info {
+            .user-name {
+              font-weight: 600;
+              color: #333;
+              margin-bottom: 0.125rem;
+              font-size: 0.95rem;
+            }
+
+            .user-username {
+              font-size: 0.8rem;
+              color: #666;
+            }
+          }
+
+          .chat-action {
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.2s ease;
+            font-size: 1.1rem;
+          }
+
+          // Staggered animation for multiple items
+          @for $i from 1 through 10 {
+            &:nth-child(#{$i}) {
+              animation-delay: #{$i * 0.05}s;
+            }
+          }
+        }
     }
   }
 
@@ -66,6 +198,26 @@
       }
     }
   }
+
+  // Empty state styling
+  .empty-state {
+    animation: fadeInUp 0.4s ease;
+    
+    i {
+      opacity: 0.6;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    p {
+      font-weight: 500;
+      margin-bottom: 0.25rem !important;
+    }
+
+    small {
+      opacity: 0.8;
+      font-size: 0.85rem;
+    }
+  }
 }
 
 // Scrollbar styling
@@ -84,4 +236,36 @@
 
 .search-results::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+// Animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
 }

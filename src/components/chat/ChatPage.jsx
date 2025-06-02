@@ -9,11 +9,11 @@ import { toast } from 'react-toastify';
 import './ChatPage.scss';
 
 const ChatPage = () => {
-  const { user } = useAuth();
-  const [conversations, setConversations] = useState([]);
+  const { user } = useAuth();  const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [isSearching, setIsSearching] = useState(false);
 
   const loadConversations = async () => {
     try {
@@ -185,8 +185,7 @@ const ChatPage = () => {
     } catch (error) {
       console.error('Error joining conversation:', error);
     }
-  };
-  const handleStartNewChat = async (selectedUser) => {
+  };  const handleStartNewChat = async (selectedUser) => {
     try {
       const conversation = await chatService.getOrCreateConversation(selectedUser.id);
       
@@ -205,6 +204,10 @@ const ChatPage = () => {
       console.error('Error starting new chat:', error);
       toast.error('Không thể tạo cuộc trò chuyện mới');
     }
+  };
+
+  const handleSearchStateChange = (searching) => {
+    setIsSearching(searching);
   };
 
   if (loading) {
@@ -226,17 +229,22 @@ const ChatPage = () => {
             <h5>Tin nhắn</h5>
           </div>
           
-          <UserSearch 
-            onUserSelect={handleStartNewChat}
-            alwaysVisible={true}
-          />
-          
-          <ConversationList
-            conversations={conversations}
-            selectedConversation={selectedConversation}
-            onSelectConversation={handleSelectConversation}
-            onlineUsers={onlineUsers}
-          />
+          <div className="sidebar-content">
+            <UserSearch 
+              onUserSelect={handleStartNewChat}
+              alwaysVisible={true}
+              onSearchStateChange={handleSearchStateChange}
+            />
+              {!isSearching && (
+              <ConversationList
+                conversations={conversations}
+                selectedConversation={selectedConversation}
+                onSelectConversation={handleSelectConversation}
+                onlineUsers={onlineUsers}
+                className={isSearching ? 'searching' : ''}
+              />
+            )}
+          </div>
         </Col>
         
         <Col md={8} lg={9} className="chat-window-container">

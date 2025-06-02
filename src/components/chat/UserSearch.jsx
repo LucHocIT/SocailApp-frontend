@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import userService from '../../services/userService';
 import './UserSearch.scss';
 
-const UserSearch = ({ onUserSelect, onClose, alwaysVisible = false }) => {
+const UserSearch = ({ onUserSelect, onClose, alwaysVisible = false, onSearchStateChange }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,16 +32,23 @@ const UserSearch = ({ onUserSelect, onClose, alwaysVisible = false }) => {
     const delayedSearch = setTimeout(() => {
       if (searchTerm.trim().length >= 2) {
         searchFriends();
+        onSearchStateChange && onSearchStateChange(true);
       } else {
         setSearchResults([]);
         setHasSearched(false);
+        onSearchStateChange && onSearchStateChange(false);
       }
     }, debounceTime);
 
     return () => clearTimeout(delayedSearch);
-  }, [searchTerm, alwaysVisible]);const handleUserSelect = (user) => {
+  }, [searchTerm, alwaysVisible, onSearchStateChange]);  const handleUserSelect = (user) => {
     onUserSelect(user);
-  };  return (
+    // Clear search after selecting user
+    setSearchTerm('');
+    setSearchResults([]);
+    setHasSearched(false);
+    onSearchStateChange && onSearchStateChange(false);
+  };return (
     <Card className={`user-search-card ${alwaysVisible ? 'always-visible' : ''}`}>
       {!alwaysVisible && (
         <Card.Header className="d-flex justify-content-between align-items-center">
@@ -56,8 +63,7 @@ const UserSearch = ({ onUserSelect, onClose, alwaysVisible = false }) => {
           <Form.Group className="mb-0">
             <div className="position-relative">
               {alwaysVisible && (
-                <i className="bi bi-search position-absolute" 
-                   style={{ left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#6c757d', zIndex: 1 }}></i>
+                <i className="bi bi-search search-icon"></i>
               )}
               <Form.Control
                 type="text"
@@ -65,8 +71,22 @@ const UserSearch = ({ onUserSelect, onClose, alwaysVisible = false }) => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 autoFocus={!alwaysVisible}
-                style={alwaysVisible ? { paddingLeft: '35px' } : {}}
+                className={alwaysVisible ? 'search-input-enhanced' : ''}
               />
+              {alwaysVisible && searchTerm && (
+                <button 
+                  type="button"
+                  className="btn btn-link clear-search-btn"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSearchResults([]);
+                    setHasSearched(false);
+                    onSearchStateChange && onSearchStateChange(false);
+                  }}
+                >
+                  <i className="bi bi-x-circle-fill"></i>
+                </button>
+              )}
             </div>
           </Form.Group>
         </div>
@@ -79,50 +99,47 @@ const UserSearch = ({ onUserSelect, onClose, alwaysVisible = false }) => {
               </div>
             </div>
           )}          {!loading && hasSearched && searchResults.length === 0 && (
-            <div className="text-center py-3 text-muted">
-              <i className="bi bi-search"></i>
-              <p className="mb-0 mt-2">Không tìm thấy bạn bè nào</p>
+            <div className="text-center py-4 text-muted empty-state">
+              <i className="bi bi-emoji-frown" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}></i>
+              <p className="mb-0">Không tìm thấy bạn bè nào</p>
+              <small>Thử tìm kiếm với từ khóa khác</small>
             </div>
           )}
 
           {!loading && searchResults.length > 0 && (
-            <ListGroup variant="flush">
-              {searchResults.map((user) => (
-                <ListGroup.Item
-                  key={user.id}
-                  className="user-search-item"
-                  onClick={() => handleUserSelect(user)}
-                >
-                  <div className="d-flex align-items-center">
-                    <img
-                      src={user.profilePictureUrl || '/default-avatar.png'}
-                      alt={`${user.firstName} ${user.lastName}`}
-                      className="user-avatar me-3"
-                    />
-                    <div className="user-info">
-                      <div className="user-name">
-                        {user.firstName} {user.lastName}
+            <div className="search-results-container">
+              <ListGroup variant="flush">
+                {searchResults.map((user) => (
+                  <ListGroup.Item
+                    key={user.id}
+                    className="user-search-item"
+                    onClick={() => handleUserSelect(user)}
+                  >
+                    <div className="d-flex align-items-center">
+                      <div className="user-avatar-container">
+                        <img
+                          src={user.profilePictureUrl || '/default-avatar.png'}
+                          alt={`${user.firstName} ${user.lastName}`}
+                          className="user-avatar me-3"
+                        />
+                        {user.isOnline && <div className="online-indicator"></div>}
                       </div>
-                      <div className="user-username text-muted">
-                        @{user.username}
+                      <div className="user-info flex-grow-1">
+                        <div className="user-name">
+                          {user.firstName} {user.lastName}
+                        </div>
+                        <div className="user-username text-muted">
+                          @{user.username}
+                        </div>
+                      </div>
+                      <div className="chat-action">
+                        <i className="bi bi-chat-dots text-muted"></i>
                       </div>
                     </div>
-                  </div>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          )}          {!hasSearched && searchTerm.length === 0 && (
-            <div className="text-center py-3 text-muted">
-              <i className="bi bi-person-plus" style={{ fontSize: '2rem' }}></i>
-              <p className="mb-0 mt-2">Nhập tên để tìm kiếm bạn bè</p>
-            </div>
-          )}
-
-          {searchTerm.length > 0 && searchTerm.length < 2 && (
-            <div className="text-center py-3 text-muted">
-              <p className="mb-0">Nhập ít nhất 2 ký tự để tìm kiếm</p>
-            </div>
-          )}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            </div>          )}
         </div>
       </Card.Body>
     </Card>  );
