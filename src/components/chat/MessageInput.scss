@@ -6,85 +6,133 @@
     bottom: 100%;
     left: 0;
     z-index: 1000;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     background: white;
+    border: 1px solid #e4e6ea;
 
-    // Override emoji picker styles
     .epr-main {
       border: none;
     }
   }
 
   .message-form {
-    padding: 1rem;
+    padding: 12px 16px;
+    background: #fff;
+    border-top: 1px solid #e4e6ea;
 
-    .input-group {
-      background: #f8f9fa;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 1px solid #e5e5e5;
-      transition: all 0.2s ease;
+    .input-container {
+      display: flex;
+      align-items: flex-end;
+      background: #f0f2f5;
+      border-radius: 20px;
+      padding: 6px;
+      min-height: 40px;
 
-      &:focus-within {
-        border-color: #1976d2;
-        box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
-      }
-
-      .emoji-btn,
-      .file-btn {
-        background: transparent;
+      .action-btn {
+        background: none;
         border: none;
-        color: #666;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0;
+        color: #65676b;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.1s ease;
+        font-size: 16px;
 
-        &:hover {
+        &:hover:not(:disabled) {
           background: rgba(0, 0, 0, 0.05);
-          color: #333;
         }
 
-        &:focus {
-          box-shadow: none;
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        &.emoji-btn {
+          margin-right: 6px;
+        }        &.file-btn {
+          margin-left: 6px;
+        }
+
+        &.location-btn {
+          margin-left: 6px;
+          color: #0084ff;
+          
+          &:hover:not(:disabled) {
+            background: rgba(0, 132, 255, 0.1);
+          }
         }
       }
 
-      .message-textarea {
-        border: none;
+      .message-input-field {
+        flex: 1;
         background: transparent;
-        padding: 0.75rem 0.5rem;
-        font-size: 0.9rem;
-        line-height: 1.4;
+        border: none;
+        outline: none;
+        resize: none;
+        padding: 8px 12px;
+        font-size: 15px;
+        line-height: 20px;
+        color: #050505;
+        max-height: 100px;
+        min-height: 20px;
+        overflow-y: auto;
 
-        &:focus {
-          box-shadow: none;
+        &::placeholder {
+          color: #65676b;
+        }
+
+        &:disabled {
+          background: transparent;
+          color: #bcc0c4;
+        }
+
+        // Custom scrollbar
+        &::-webkit-scrollbar {
+          width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
           background: transparent;
         }
 
-        &::placeholder {
-          color: #999;
+        &::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 2px;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 0, 0, 0.3);
         }
       }
 
       .send-btn {
-        background: #1976d2;
+        background: none;
         border: none;
-        color: white;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0;
+        color: #0084ff;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin-left: 6px;
+        font-size: 16px;
+        transition: background-color 0.1s ease;
 
         &:hover:not(:disabled) {
-          background: #1565c0;
-        }
-
-        &:focus {
-          box-shadow: none;
+          background: rgba(0, 132, 255, 0.1);
         }
 
         &:disabled {
-          background: #ccc;
-          opacity: 0.6;
+          color: #bcc0c4;
+          cursor: not-allowed;
         }
       }
     }
@@ -92,7 +140,7 @@
 }
 
 // Auto-resize textarea
-.message-textarea {
+.message-input-field {
   overflow-y: hidden;
   resize: none;
 }
@@ -101,12 +149,11 @@
 @media (max-width: 768px) {
   .message-input {
     .message-form {
-      padding: 0.75rem;
+      padding: 8px 12px;
     }
 
     .emoji-picker-container {
       width: 100vw;
-      left: -1rem;
-    }
+      left: -12px;    }
   }
 }

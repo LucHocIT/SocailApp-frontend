@@ -1,13 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { Form, Button, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import chatService from '../../services/chatService';
+import LocationPicker from './LocationPicker';
 import './MessageInput.scss';
 
 const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, replyToMessage }) => {
   const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -25,13 +27,16 @@ const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, re
         return '📁 File';
     }
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim() && !disabled) {
       onSendMessage(message);
       setMessage('');
       setShowEmojiPicker(false);
+      // Reset textarea height
+      if (inputRef.current) {
+        inputRef.current.style.height = 'auto';
+      }
     }
   };
 
@@ -39,6 +44,16 @@ const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, re
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setMessage(e.target.value);
+    
+    // Auto-resize textarea
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = inputRef.current.scrollHeight + 'px';
     }
   };
 
@@ -60,10 +75,34 @@ const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, re
   const toggleEmojiPicker = () => {
     setShowEmojiPicker(!showEmojiPicker);
   };
-
   const handleFileUpload = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+
+  const handleLocationShare = () => {
+    setShowLocationPicker(true);
+  };
+
+  const handleLocationSelect = async (locationData) => {
+    try {
+      setIsUploading(true);
+      
+      // Gửi tin nhắn vị trí
+      await chatService.sendLocationMessage(conversationId, locationData, replyToMessage?.id);
+      
+      // Trigger message update in parent component
+      if (onSendMessage) {
+        onSendMessage('📍 Đã chia sẻ vị trí');
+      }
+      
+      toast.success('Đã chia sẻ vị trí thành công!');
+    } catch (error) {
+      console.error('Error sending location:', error);
+      toast.error('Không thể chia sẻ vị trí');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -136,74 +175,75 @@ const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, re
             }}
           />
         </div>
-      )}
-
-      <Form onSubmit={handleSubmit} className="message-form">
-        <InputGroup>
+      )}      <Form onSubmit={handleSubmit} className="message-form">
+        <div className="input-container">
           {/* Emoji Button */}
-          <Button
-            variant="outline-secondary"
-            onClick={toggleEmojiPicker}
-            className="emoji-btn"
+          <button
             type="button"
+            onClick={toggleEmojiPicker}
+            className="action-btn emoji-btn"
+            disabled={disabled}
           >
             <i className="bi bi-emoji-smile"></i>
-          </Button>
-
-          {/* Message Input */}
-          <Form.Control
+          </button>          {/* Message Input */}
+          <textarea
             ref={inputRef}
-            as="textarea"
-            rows={1}
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleInputChange}
             onKeyPress={handleKeyPress}
-            placeholder={placeholder || 'Nhập tin nhắn...'}
+            placeholder={placeholder || 'Aa'}
             disabled={disabled}
-            className="message-textarea"
-            style={{
-              resize: 'none',
-              minHeight: '38px',
-              maxHeight: '120px'
-            }}
+            className="message-input-field"
+            rows={1}
           />          {/* File Upload Button */}
-          <OverlayTrigger
-            placement="top"
-            overlay={<Tooltip>Đính kèm file</Tooltip>}
+          <button
+            type="button"
+            className="action-btn file-btn"
+            disabled={disabled || isUploading}
+            onClick={handleFileUpload}
           >
-            <Button
-              variant="outline-secondary"
-              className="file-btn"
-              type="button"
-              disabled={disabled || isUploading}
-              onClick={handleFileUpload}
-            >
-              {isUploading ? (
-                <i className="bi bi-hourglass-split"></i>
-              ) : (
-                <i className="bi bi-paperclip"></i>
-              )}
-            </Button>
-          </OverlayTrigger>
+            {isUploading ? (
+              <i className="bi bi-hourglass-split"></i>
+            ) : (
+              <i className="bi bi-paperclip"></i>
+            )}
+          </button>
+
+          {/* Location Share Button */}
+          <button
+            type="button"
+            className="action-btn location-btn"
+            disabled={disabled || isUploading}
+            onClick={handleLocationShare}
+            title="Chia sẻ vị trí"
+          >
+            <i className="bi bi-geo-alt"></i>
+          </button>
 
           {/* Send Button */}
-          <Button
-            variant="primary"
+          <button
             type="submit"
             disabled={disabled || !message.trim()}
             className="send-btn"
           >
             <i className="bi bi-send-fill"></i>
-          </Button>        </InputGroup>
-      </Form>
-
-      {/* Hidden file input */}
+          </button>
+        </div>
+      </Form>      {/* Hidden file input */}
       <input
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
         style={{ display: 'none' }}
         accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar"
+      />
+
+      {/* Location Picker Modal */}
+      <LocationPicker
+        show={showLocationPicker}
+        onHide={() => setShowLocationPicker(false)}
+        onLocationSelect={handleLocationSelect}
+        disabled={disabled || isUploading}
       />
     </div>
   );

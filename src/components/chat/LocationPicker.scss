@@ -1,0 +1,44 @@
+.location-picker {
+  .location-options {
+    padding: 1rem 0;
+    
+    .location-icon {
+      font-size: 3rem;
+      color: #0084ff;
+      opacity: 0.8;
+    }
+    
+    .location-btn {
+      border-radius: 12px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 132, 255, 0.3);
+      }
+      
+      &:disabled {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .modal-header {
+    border-bottom: 1px solid #e9ecef;
+    
+    .modal-title {
+      color: #0084ff;
+      font-weight: 600;
+    }
+  }
+  
+  .modal-footer {
+    border-top: 1px solid #e9ecef;
+  }
+}

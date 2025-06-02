@@ -3,6 +3,7 @@ import { Dropdown, Image } from 'react-bootstrap';
 import { FaFile, FaDownload } from 'react-icons/fa';
 import MessageReactions from './MessageReactions';
 import ReactionButton from './ReactionButton';
+import LocationMessage from './LocationMessage';
 import useMessageReactions from '../../hooks/useMessageReactions';
 import './Message.scss';
 
@@ -60,8 +61,23 @@ const Message = ({
   const getCurrentUserReaction = () => {
     return message.hasReactedByCurrentUser ? message.currentUserReactionType : null;
   };
-
   const renderMediaContent = () => {
+    // Handle location messages
+    if (message.messageType === 'location' || (message.latitude && message.longitude)) {
+      const location = {
+        latitude: message.latitude,
+        longitude: message.longitude,
+        address: message.address || `Vị trí: ${message.latitude}, ${message.longitude}`,
+        mapUrl: `https://www.google.com/maps?q=${message.latitude},${message.longitude}`
+      };
+
+      return (
+        <div className="message-media">
+          <LocationMessage location={location} />
+        </div>
+      );
+    }
+
     if (!message.mediaUrl) return null;
 
     const mediaType = message.mediaType || 'file';

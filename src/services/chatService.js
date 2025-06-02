@@ -84,6 +84,24 @@ class ChatService {
       throw error.response?.data || { message: 'Error uploading media' };
     }
   }
+  async sendLocationMessage(conversationId, latitude, longitude, address = null, replyToMessageId = null) {
+    try {
+      const messageData = {
+        content: address || `Location: ${latitude}, ${longitude}`,
+        replyToMessageId,
+        messageType: 'location',
+        latitude,
+        longitude,
+        address
+      };
+
+      const response = await api.post(`/simple-chat/conversations/${conversationId}/messages`, messageData);
+      return response.data;
+    } catch (error) {
+      console.error('Error sending location message:', error);
+      throw error;
+    }
+  }
 
   async sendMediaMessage(conversationId, mediaData, replyToMessageId = null) {
     try {
