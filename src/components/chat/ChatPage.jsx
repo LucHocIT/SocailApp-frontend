@@ -13,7 +13,7 @@ const ChatPage = () => {
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [onlineUsers, setOnlineUsers] = useState(new Set());  const [showUserSearch, setShowUserSearch] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
 
   const loadConversations = async () => {
     try {
@@ -186,7 +186,6 @@ const ChatPage = () => {
       console.error('Error joining conversation:', error);
     }
   };
-
   const handleStartNewChat = async (selectedUser) => {
     try {
       const conversation = await chatService.getOrCreateConversation(selectedUser.id);
@@ -202,7 +201,6 @@ const ChatPage = () => {
 
       // Select the conversation
       setSelectedConversation(conversation);
-      setShowUserSearch(false);
     } catch (error) {
       console.error('Error starting new chat:', error);
       toast.error('Không thể tạo cuộc trò chuyện mới');
@@ -223,25 +221,17 @@ const ChatPage = () => {
 
   return (
     <Container fluid className="chat-page">
-      <Row className="h-100">
-        <Col md={4} lg={3} className="conversation-sidebar">
+      <Row className="h-100">        <Col md={4} lg={3} className="conversation-sidebar">
           <div className="sidebar-header">
             <h5>Tin nhắn</h5>
-            <button 
-              className="btn btn-primary btn-sm"
-              onClick={() => setShowUserSearch(!showUserSearch)}
-            >
-              <i className="bi bi-plus-circle"></i>
-            </button>
           </div>
           
-          {showUserSearch && (
-            <UserSearch 
-              onUserSelect={handleStartNewChat}
-              onClose={() => setShowUserSearch(false)}
-            />
-          )}
-            <ConversationList
+          <UserSearch 
+            onUserSelect={handleStartNewChat}
+            alwaysVisible={true}
+          />
+          
+          <ConversationList
             conversations={conversations}
             selectedConversation={selectedConversation}
             onSelectConversation={handleSelectConversation}

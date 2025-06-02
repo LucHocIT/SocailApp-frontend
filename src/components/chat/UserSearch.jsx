@@ -4,12 +4,11 @@ import { toast } from 'react-toastify';
 import userService from '../../services/userService';
 import './UserSearch.scss';
 
-const UserSearch = ({ onUserSelect, onClose }) => {
+const UserSearch = ({ onUserSelect, onClose, alwaysVisible = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  useEffect(() => {
+  const [hasSearched, setHasSearched] = useState(false);  useEffect(() => {
     const searchFriends = async () => {
       try {
         setLoading(true);
@@ -27,6 +26,9 @@ const UserSearch = ({ onUserSelect, onClose }) => {
       }
     };
 
+    // Optimized debounce timing for always-visible mode
+    const debounceTime = alwaysVisible ? 300 : 500;
+    
     const delayedSearch = setTimeout(() => {
       if (searchTerm.trim().length >= 2) {
         searchFriends();
@@ -34,31 +36,40 @@ const UserSearch = ({ onUserSelect, onClose }) => {
         setSearchResults([]);
         setHasSearched(false);
       }
-    }, 500);
+    }, debounceTime);
 
     return () => clearTimeout(delayedSearch);
-  }, [searchTerm]);  const handleUserSelect = (user) => {
+  }, [searchTerm, alwaysVisible]);const handleUserSelect = (user) => {
     onUserSelect(user);
-  };
-
-  return (
-    <Card className="user-search-card">      <Card.Header className="d-flex justify-content-between align-items-center">
-        <h6 className="mb-0">Tìm kiếm bạn bè</h6>
-        <Button variant="link" size="sm" onClick={onClose} className="p-0">
-          <i className="bi bi-x-lg"></i>
-        </Button>
-      </Card.Header>
+  };  return (
+    <Card className={`user-search-card ${alwaysVisible ? 'always-visible' : ''}`}>
+      {!alwaysVisible && (
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <h6 className="mb-0">Tìm kiếm bạn bè</h6>
+          <Button variant="link" size="sm" onClick={onClose} className="p-0">
+            <i className="bi bi-x-lg"></i>
+          </Button>
+        </Card.Header>
+      )}
       
-      <Card.Body className="p-3">
-        <Form.Group>
-          <Form.Control
-            type="text"
-            placeholder="Nhập tên hoặc username bạn bè..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            autoFocus
-          />
-        </Form.Group>
+      <Card.Body className={alwaysVisible ? "p-2" : "p-3"}>        <div className="search-input-container">
+          <Form.Group className="mb-0">
+            <div className="position-relative">
+              {alwaysVisible && (
+                <i className="bi bi-search position-absolute" 
+                   style={{ left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#6c757d', zIndex: 1 }}></i>
+              )}
+              <Form.Control
+                type="text"
+                placeholder={alwaysVisible ? "Tìm bạn bè..." : "Nhập tên hoặc username bạn bè..."}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoFocus={!alwaysVisible}
+                style={alwaysVisible ? { paddingLeft: '35px' } : {}}
+              />
+            </div>
+          </Form.Group>
+        </div>
 
         <div className="search-results mt-3">
           {loading && (
@@ -114,8 +125,7 @@ const UserSearch = ({ onUserSelect, onClose }) => {
           )}
         </div>
       </Card.Body>
-    </Card>
-  );
+    </Card>  );
 };
 
 export default UserSearch;

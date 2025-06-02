@@ -3,6 +3,22 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
 
+  // Always visible mode styling
+  &.always-visible {
+    box-shadow: none;
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 0.5rem;
+    border-radius: 0;
+
+    .card-body {
+      padding: 0.75rem 1rem !important;
+    }
+
+    .search-results {
+      max-height: 200px; // Reduced height for always-visible mode
+    }
+  }
+
   .card-header {
     background: #f8f9fa;
     border-bottom: 1px solid #e5e5e5;
