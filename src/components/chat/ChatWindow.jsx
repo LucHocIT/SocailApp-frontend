@@ -18,16 +18,17 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
   const messagesEndRef = useRef(null);  // Get other user ID from conversation
   const getOtherUserId = () => {
     if (!conversation) return null;
-    return conversation.user1Id === currentUserId ? conversation.user2Id : conversation.user1Id;
+    return conversation.otherUserId;
   };
-
   // Get other user info
   const getOtherUser = () => {
     if (!conversation) return { name: 'Unknown' };
-    return conversation.user1Id === currentUserId ? 
-      { id: conversation.user2Id, name: conversation.user2Name, avatar: conversation.user2Avatar } :
-      { id: conversation.user1Id, name: conversation.user1Name, avatar: conversation.user1Avatar };
-  };  // Block status
+    return {
+      id: conversation.otherUserId,
+      name: conversation.otherUserName,
+      avatar: conversation.otherUserAvatar
+    };
+  };// Block status
   const { status, canCommunicate, loading: _blockLoading } = useBlockStatus(getOtherUserId());
   const otherUser = getOtherUser();
 
@@ -370,8 +371,7 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
               className="avatar-img"
             />
             {isOnline && <div className="online-indicator"></div>}
-          </div>
-            <div className="user-info flex-grow-1">
+          </div>          <div className="user-info flex-grow-1">
             <h6 className="mb-0 d-flex align-items-center">
               {otherUser.name}
               <BlockStatusIndicator userId={otherUser.id} variant="badge" className="ms-2" />
@@ -379,36 +379,65 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
             <small className={`status ${isOnline ? 'online' : 'offline'}`}>
               {isOnline ? 'Đang hoạt động' : getOfflineTime(otherUser.lastActive)}
             </small>
-          </div>
+          </div>          {/* Action Icons */}
+          <div className="chat-actions d-flex align-items-center">
+            <Button 
+              variant="link" 
+              className="text-muted p-2 me-1 action-btn" 
+              title="Gọi thoại"
+              onClick={() => {
+                // TODO: Implement voice call
+                console.log('Voice call feature coming soon...');
+              }}
+            >
+              <i className="bi bi-telephone"></i>
+            </Button>
+            
+            <Button 
+              variant="link" 
+              className="text-muted p-2 me-1 action-btn" 
+              title="Gọi video"
+              onClick={() => {
+                // TODO: Implement video call
+                console.log('Video call feature coming soon...');
+              }}
+            >
+              <i className="bi bi-camera-video"></i>
+            </Button>
 
-          <Dropdown>
-            <Dropdown.Toggle variant="link" className="text-muted p-0">
-              <i className="bi bi-three-dots-vertical"></i>
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item href={`/profile/${otherUser.id}`}>
-                <i className="bi bi-person me-2"></i>
-                Xem hồ sơ
-              </Dropdown.Item>
-              <Dropdown.Divider />
-              <Dropdown.Item as="div" className="p-0">
-                <div className="px-3 py-2">
-                  <BlockUserButton
-                    userId={otherUser.id}
-                    userName={otherUser.name}
-                    variant="minimal"
-                    size="small"
-                    showConfirmDialog={true}
-                  />
-                </div>
-              </Dropdown.Item>
-              <Dropdown.Divider />
-              <Dropdown.Item className="text-danger">
-                <i className="bi bi-trash me-2"></i>
-                Xóa cuộc trò chuyện
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+            <Dropdown>
+              <Dropdown.Toggle 
+                variant="link" 
+                className="text-muted p-2 action-btn"
+                title="Cài đặt"
+              >
+                <i className="bi bi-three-dots-vertical"></i>
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item href={`/profile/${otherUser.id}`}>
+                  <i className="bi bi-person me-2"></i>
+                  Xem hồ sơ
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item as="div" className="p-0">
+                  <div className="px-3 py-2">
+                    <BlockUserButton
+                      userId={otherUser.id}
+                      userName={otherUser.name}
+                      variant="minimal"
+                      size="small"
+                      showConfirmDialog={true}
+                    />
+                  </div>
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item className="text-danger">
+                  <i className="bi bi-trash me-2"></i>
+                  Xóa cuộc trò chuyện
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
         </div>
       </Card.Header>
 
