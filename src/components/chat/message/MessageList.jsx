@@ -126,10 +126,14 @@ const MessageList = ({
               ? new Date(message.sentAt) - new Date(prevMessage.sentAt)
               : Infinity;
             
-            const showAvatar = !isFromSameSender || timeDiff > 300000; // 5 minutes
+            const nextTimeDiff = nextMessage 
+              ? new Date(nextMessage.sentAt) - new Date(message.sentAt)
+              : Infinity;
+            
+            // Show avatar on the LAST message in group instead of first
+            const showAvatar = !isFollowedBySameSender || nextTimeDiff > 300000; // 5 minutes
             const isFirstInGroup = !isFromSameSender || timeDiff > 300000;
-            const isLastInGroup = !isFollowedBySameSender || 
-              (nextMessage && new Date(nextMessage.sentAt) - new Date(message.sentAt) > 300000);
+            const isLastInGroup = !isFollowedBySameSender || nextTimeDiff > 300000;
 
             // Create unique key using message ID and timestamp to avoid React key duplication warnings
             const uniqueKey = `${message.id}-${new Date(message.sentAt).getTime()}`;

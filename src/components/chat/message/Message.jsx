@@ -170,12 +170,7 @@ const Message = ({
         )}
 
         {/* Message Content */}
-        <div className="message-content-wrapper">          {/* Sender name (only for first message in group from other users) */}
-          {!isOwn && isFirstInGroup && (
-            <div className="sender-name">
-              {message.senderName}
-            </div>
-          )}          {/* Reply reference */}
+        <div className="message-content-wrapper">          {/* Sender name removed for cleaner UI */}{/* Reply reference */}
           {message.replyToContent && (
             <div className="reply-reference">
               <div className="reply-bar"></div>
@@ -192,9 +187,7 @@ const Message = ({
               <div className="media-content">
                 {renderMediaContent()}
               </div>
-            )}
-
-            {/* Text bubble (only if there's text content) */}
+            )}            {/* Text bubble (only if there's text content) */}
             {message.content && (
               <div 
                 className="message-bubble"
@@ -203,13 +196,6 @@ const Message = ({
                 <div className="message-text">
                   {message.content}
                 </div>
-                
-                {/* Message status for own messages */}
-                {isOwn && (
-                  <div className="message-status">
-                    <i className="bi bi-check2-all text-muted"></i>
-                  </div>
-                )}
               </div>
             )}{/* Message Reactions */}
             {message.reactionCounts && Object.keys(message.reactionCounts).length > 0 && (
