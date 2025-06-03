@@ -5,3 +5,4 @@ export { default as PasswordChangeForm } from './PasswordChangeModal/PasswordCha
 export { default as UserList } from './UserList';
 export { default as FollowersModal } from './FollowersModal/FollowersModal';
 export { default as FollowingModal } from './FollowingModal/FollowingModal';
+export { default as ProfileSettingsSection } from './ProfileSettingsSection';

@@ -1,0 +1,45 @@
+// CSS Custom Properties for Settings Components
+:root {
+  // Background colors
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-hover: #f3f4f6;
+  --bg-info: #f0f9ff;
+  --bg-danger: #fef2f2;
+
+  // Text colors
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+
+  // Border colors
+  --border-light: #e5e7eb;
+  --border-info: #bfdbfe;
+  --border-danger: #fecaca;
+
+  // Theme colors
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --danger-color: #dc2626;
+  --danger-hover: #b91c1c;
+
+  // Transitions
+  --transition-base: all 0.2s ease;
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1f2937;
+    --bg-secondary: #111827;
+    --bg-hover: #374151;
+    --bg-info: #1e3a8a;
+    --bg-danger: #7f1d1d;
+
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+
+    --border-light: #374151;
+    --border-info: #1e40af;
+    --border-danger: #991b1b;
+  }
+}

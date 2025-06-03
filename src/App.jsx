@@ -23,7 +23,6 @@ import RequestVerificationPage from './pages/RequestVerificationPage';
 import PostPage from './pages/PostPage';
 import Friends from './pages/Friends';
 import Chat from './pages/Chat';
-import SettingsPage from './pages/SettingsPage';
 
 
 function App() {
@@ -59,7 +58,6 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/friends" element={<Friends />} />
               <Route path="/chat" element={<Chat />} />
-              <Route path="/settings" element={<SettingsPage />} />
             </Route></Routes>        </div>        <footer className="app-footer">
           <div className="container">
             <div className="row">

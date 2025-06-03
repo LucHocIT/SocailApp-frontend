@@ -3,6 +3,7 @@
 // Import our architecture files
 @use 'abstracts/variables' as *; // Using * imports all variables into the global scope
 @use 'abstracts/color-aliases' as *; // Import color aliases
+@use 'abstracts/css-variables'; // Import CSS custom properties
 @use 'sass:color';
 @use 'abstracts/mixins';
 @use 'base/reset';

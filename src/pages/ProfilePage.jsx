@@ -14,7 +14,8 @@ import {
   ProfileEditForm, 
   PasswordChangeForm, 
   FollowersModal, 
-  FollowingModal 
+  FollowingModal,
+  ProfileSettingsSection
 } from '../components/profile';
 
 const ProfilePage = () => {
@@ -29,12 +30,12 @@ const ProfilePage = () => {
   } = useProfile();
   const { userId } = useParams();
   const navigate = useNavigate();
-  
-  const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
   const [showPosts, setShowPosts] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [followers, setFollowers] = useState([]);
@@ -199,8 +200,7 @@ const ProfilePage = () => {
       </div>
     );
   }return (
-    <div className={styles.profileContainer}>
-      <ProfileHeader 
+    <div className={styles.profileContainer}>      <ProfileHeader 
         profileData={profileData}
         isOwnProfile={isOwnProfile}
         loading={loading}
@@ -211,6 +211,7 @@ const ProfilePage = () => {
         onTogglePosts={() => setShowPosts(prev => !prev)}
         onToggleEditing={() => setIsEditing(!isEditing)}
         onTogglePasswordChange={() => setIsChangingPassword(!isChangingPassword)}
+        onToggleSettings={() => setShowSettings(!showSettings)}
         onProfileUpdated={handleProfileUpdated}
       />
 
@@ -233,12 +234,17 @@ const ProfilePage = () => {
           followers={followers}
           onClose={() => setShowFollowers(false)}
         />
-      )}
-
-      {showFollowing && (
+      )}      {showFollowing && (
         <FollowingModal 
           following={following}
           onClose={() => setShowFollowing(false)}
+        />
+      )}
+
+      {showSettings && isOwnProfile && (
+        <ProfileSettingsSection 
+          profileData={profileData}
+          onClose={() => setShowSettings(false)}
         />
       )}
 

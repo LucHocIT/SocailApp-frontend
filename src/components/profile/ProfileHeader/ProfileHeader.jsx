@@ -7,7 +7,8 @@ import {
   FaEnvelope, FaUserCheck, FaUserPlus, 
   FaSpinner, FaUser, FaList, FaCalendarAlt,
   FaBirthdayCake, FaMapMarkerAlt, FaGlobe,
-  FaChevronDown, FaChevronUp, FaInfoCircle
+  FaChevronDown, FaChevronUp, FaInfoCircle,
+  FaCog
 } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import styles from './ProfileHeader.module.scss';
@@ -26,8 +27,9 @@ const ProfileHeader = ({
   onTogglePosts,
   onToggleEditing,
   onTogglePasswordChange,
+  onToggleSettings,
   onProfileUpdated
-}) => {  const { user } = useAuth();
+}) => {const { user } = useAuth();
   const { uploadCroppedProfilePicture } = useProfile();
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const [isCoverHovered, setIsCoverHovered] = useState(false);
@@ -328,8 +330,7 @@ const ProfileHeader = ({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className={styles.actionButtons}>
+          {/* Action Buttons */}          <div className={styles.actionButtons}>
             {isOwnProfile ? (
               <>
                 <button className={styles.btnPrimary} onClick={onToggleEditing}>
@@ -337,6 +338,9 @@ const ProfileHeader = ({
                 </button>
                 <button className={styles.btnSecondary} onClick={onTogglePasswordChange}>
                   <FaKey /> Đổi mật khẩu
+                </button>
+                <button className={styles.btnSecondary} onClick={onToggleSettings}>
+                  <FaCog /> Cài đặt
                 </button>
               </>            ) : user && (
               <>                <button
@@ -382,6 +386,7 @@ ProfileHeader.propTypes = {
   onTogglePosts: PropTypes.func.isRequired,
   onToggleEditing: PropTypes.func.isRequired,
   onTogglePasswordChange: PropTypes.func.isRequired,
+  onToggleSettings: PropTypes.func.isRequired,
   onProfileUpdated: PropTypes.func.isRequired
 };
 
