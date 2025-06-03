@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, Form, Button, Dropdown, Alert } from 'react-bootstrap';
 import chatService from '../../services/chatService';
-import MessageList from './MessageList';
-import MessageInput from './MessageInput';
+import MessageList from './message/MessageList';
+import MessageInput from './message/MessageInput';
 import BlockStatusIndicator from '../user/BlockStatusIndicator';
 import BlockUserButton from '../user/BlockUserButton';
 import { useBlockStatus } from '../../hooks/useBlockStatus';

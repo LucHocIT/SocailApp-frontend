@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { REACTION_EMOJIS } from '../../constants/reactions';
+import { REACTION_EMOJIS } from '../../../constants/reactions';
 import styles from './MessageReactions.module.scss';
 
 const MessageReactions = ({ 

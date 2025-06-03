@@ -1,17 +1,9 @@
 .location-message {
   display: block;
   max-width: 300px;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #e4e6ea;
-  
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: #0084ff;
-  }
   
   .location-map {
     position: relative;
@@ -33,22 +25,20 @@
       pointer-events: none;
       
       .location-pin {
-        font-size: 2rem;
+        font-size: 1.5rem;
         color: #ff4444;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
       }
     }
   }
   
   .location-info {
-    padding: 12px 16px;
+    padding: 8px 12px;
     background: white;
     
     .location-address {
       display: flex;
       align-items: flex-start;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       
       i {
         color: #0084ff;
@@ -63,34 +53,14 @@
         word-break: break-word;
       }
     }
-    
-    .location-coords {
-      margin-bottom: 8px;
+      .location-coords {
+      margin-bottom: 4px;
       font-family: 'Courier New', monospace;
     }
     
     .location-action {
       small {
         font-weight: 500;
-        
-        i {
-          opacity: 0.8;
-        }
-      }
-    }
-  }
-}
-
-// Dark mode support
-@media (prefers-color-scheme: dark) {
-  .location-message {
-    border-color: #3a3b3c;
-    
-    .location-info {
-      background: #242526;
-      
-      .address-text {
-        color: #e4e6ea;
       }
     }
   }

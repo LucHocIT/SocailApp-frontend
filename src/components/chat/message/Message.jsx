@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Dropdown, Image } from 'react-bootstrap';
 import { FaFile, FaDownload } from 'react-icons/fa';
 import MessageReactions from './MessageReactions';
-import ReactionButton from './ReactionButton';
-import LocationMessage from './LocationMessage';
-import useMessageReactions from '../../hooks/useMessageReactions';
+import ReactionButton from '../reaction/ReactionButton';
+import LocationMessage from '../location/LocationMessage';
+import useMessageReactions from '../../../hooks/useMessageReactions';
 import './Message.scss';
 
 const Message = ({ 
@@ -60,20 +60,36 @@ const Message = ({
   // Get current user's reaction if any
   const getCurrentUserReaction = () => {
     return message.hasReactedByCurrentUser ? message.currentUserReactionType : null;
-  };
-  const renderMediaContent = () => {
-    // Handle location messages
-    if (message.messageType === 'location' || (message.latitude && message.longitude)) {
-      const location = {
-        latitude: message.latitude,
-        longitude: message.longitude,
-        address: message.address || `Vị trí: ${message.latitude}, ${message.longitude}`,
-        mapUrl: `https://www.google.com/maps?q=${message.latitude},${message.longitude}`
-      };
-
-      return (
-        <div className="message-media">
+  };  const renderMediaContent = () => {    // Handle location messages
+    if (message.messageType === 'location' || message.LocationData || (message.latitude && message.longitude)) {
+      // Kiểm tra xem location message có expired không (1 giờ)
+      const isExpired = message.expiresAt && new Date() > new Date(message.expiresAt);
+      
+      if (isExpired) {
+        return (
+          <div className="message-media">
+            <div className="expired-location-message">
+              <i className="bi bi-geo-alt text-muted"></i>
+              <span className="text-muted">Vị trí đã hết hạn</span>
+            </div>
+          </div>
+        );
+      }      const location = {
+        latitude: message.LocationData?.Latitude || message.latitude,
+        longitude: message.LocationData?.Longitude || message.longitude,
+        address: message.LocationData?.Address || message.address || `Vị trí: ${message.LocationData?.Latitude || message.latitude}, ${message.LocationData?.Longitude || message.longitude}`,
+        mapUrl: `https://www.google.com/maps?q=${message.LocationData?.Latitude || message.latitude},${message.LocationData?.Longitude || message.longitude}`
+      };      return (
+        <div>
           <LocationMessage location={location} />
+          {message.isTemporary && (
+            <div className="location-expiry-info">
+              <small className="text-muted">
+                <i className="bi bi-clock me-1"></i>
+                Vị trí tạm thời - hết hạn sau 1 giờ
+              </small>
+            </div>
+          )}
         </div>
       );
     }
@@ -82,38 +98,32 @@ const Message = ({
 
     const mediaType = message.mediaType || 'file';
 
-    switch (mediaType.toLowerCase()) {
-      case 'image':
+    switch (mediaType.toLowerCase()) {      case 'image':
         return (
-          <div className="message-media">
-            <Image 
-              src={message.mediaUrl} 
-              alt="Shared image" 
-              className="message-image"
-              fluid
-              onClick={() => window.open(message.mediaUrl, '_blank')}
-              style={{ cursor: 'pointer', maxWidth: '300px', maxHeight: '200px' }}
-            />
-          </div>
+          <Image 
+            src={message.mediaUrl} 
+            alt="Shared image" 
+            className="message-image"
+            fluid
+            onClick={() => window.open(message.mediaUrl, '_blank')}
+            style={{ cursor: 'pointer', maxWidth: '300px', maxHeight: '200px', borderRadius: '12px' }}
+          />
         );
-      
-      case 'video':
+        case 'video':
         return (
-          <div className="message-media">
-            <video 
-              controls 
-              className="message-video"
-              style={{ maxWidth: '300px', maxHeight: '200px' }}
-            >
-              <source src={message.mediaUrl} type={message.mediaMimeType || 'video/mp4'} />
-              Your browser does not support the video tag.
-            </video>
-          </div>
+          <video 
+            controls 
+            className="message-video"
+            style={{ maxWidth: '300px', maxHeight: '200px', borderRadius: '12px' }}
+          >
+            <source src={message.mediaUrl} type={message.mediaMimeType || 'video/mp4'} />
+            Your browser does not support the video tag.
+          </video>
         );
-      
-      case 'file':
+        case 'file':
       default:
-        return (          <div className="message-media message-file">
+        return (
+          <div className="message-file">
             <div className="file-info">
               <FaFile className="file-icon" />
               <div className="file-details">
@@ -176,27 +186,32 @@ const Message = ({
               </div>
             </div>
           )}          {/* Message bubble */}
-          <div className="message-bubble-container">            <div 
-              className="message-bubble"
-              onClick={handleMessageClick}
-            >
-              {/* Media content */}
-              {renderMediaContent()}
-              
-              {/* Text content (only if no media) */}
-              {message.content && !message.mediaUrl && (
+          <div className="message-bubble-container">
+            {/* Media content (outside bubble) */}
+            {(message.messageType === 'location' || message.LocationData || (message.latitude && message.longitude) || message.mediaUrl) && (
+              <div className="media-content">
+                {renderMediaContent()}
+              </div>
+            )}
+
+            {/* Text bubble (only if there's text content) */}
+            {message.content && (
+              <div 
+                className="message-bubble"
+                onClick={handleMessageClick}
+              >
                 <div className="message-text">
                   {message.content}
                 </div>
-              )}
-              
-              {/* Message status for own messages */}
-              {isOwn && (
-                <div className="message-status">
-                  <i className="bi bi-check2-all text-muted"></i>
-                </div>
-              )}
-            </div>            {/* Message Reactions */}
+                
+                {/* Message status for own messages */}
+                {isOwn && (
+                  <div className="message-status">
+                    <i className="bi bi-check2-all text-muted"></i>
+                  </div>
+                )}
+              </div>
+            )}{/* Message Reactions */}
             {message.reactionCounts && Object.keys(message.reactionCounts).length > 0 && (
               <MessageReactions
                 reactionCounts={message.reactionCounts}

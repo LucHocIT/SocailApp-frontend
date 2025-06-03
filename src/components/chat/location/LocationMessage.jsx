@@ -2,6 +2,19 @@ import React from 'react';
 import './LocationMessage.scss';
 
 const LocationMessage = ({ location, onClick }) => {
+  if (!location) {
+    return (
+      <div className="location-message">
+        <div className="location-info">
+          <div className="location-address">
+            <i className="bi bi-geo-alt me-2"></i>
+            <span className="address-text text-muted">Dữ liệu vị trí không hợp lệ</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const { latitude, longitude, address, mapUrl } = location;
   
   const handleClick = () => {
@@ -12,11 +25,13 @@ const LocationMessage = ({ location, onClick }) => {
       window.open(mapUrl, '_blank', 'noopener,noreferrer');
     }
   };
+    // Tạo URL cho static map image (Google Static Maps API)
+  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+  const staticMapUrl = googleMapsApiKey 
+    ? `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=15&size=300x200&markers=color:red%7C${latitude},${longitude}&key=${googleMapsApiKey}`
+    : `https://via.placeholder.com/300x200/f0f2f5/65676b?text=📍+Vị+trí`;
   
-  // Tạo URL cho static map image (Google Static Maps API)
-  const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=15&size=300x200&markers=color:red%7C${latitude},${longitude}&key=YOUR_GOOGLE_MAPS_API_KEY`;
-  
-  // Fallback image nếu không có API key
+  // Fallback image nếu không có API key hoặc lỗi
   const fallbackMapUrl = `https://via.placeholder.com/300x200/f0f2f5/65676b?text=📍+Vị+trí`;
   
   return (
@@ -40,10 +55,9 @@ const LocationMessage = ({ location, onClick }) => {
           <i className="bi bi-geo-alt me-2"></i>
           <span className="address-text">{address}</span>
         </div>
-        
-        <div className="location-coords">
+          <div className="location-coords">
           <small className="text-muted">
-            {latitude.toFixed(6)}, {longitude.toFixed(6)}
+            {latitude?.toFixed(6) || 'N/A'}, {longitude?.toFixed(6) || 'N/A'}
           </small>
         </div>
         

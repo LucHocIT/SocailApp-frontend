@@ -46,39 +46,43 @@ const LocationPicker = ({ show, onHide, onLocationSelect, disabled }) => {
       }
     );
   };
-
   const getAddressFromCoords = async (lat, lng) => {
     try {
-      // Using Google Geocoding API (you might want to use your own API key)
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=YOUR_GOOGLE_MAPS_API_KEY`
-      );
+      const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
       
-      if (response.ok) {
-        const data = await response.json();
-        const address = data.results[0]?.formatted_address || 'Vị trí không xác định';
+      if (googleMapsApiKey) {
+        // Using Google Geocoding API
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleMapsApiKey}`
+        );
         
-        const locationData = {
-          latitude: lat,
-          longitude: lng,
-          address: address,
-          mapUrl: `https://www.google.com/maps?q=${lat},${lng}`
-        };
-        
-        onLocationSelect(locationData);
-        onHide();
-      } else {
-        // Fallback without detailed address
-        const locationData = {
-          latitude: lat,
-          longitude: lng,
-          address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-          mapUrl: `https://www.google.com/maps?q=${lat},${lng}`
-        };
-        
-        onLocationSelect(locationData);
-        onHide();
+        if (response.ok) {
+          const data = await response.json();
+          const address = data.results[0]?.formatted_address || 'Vị trí không xác định';
+          
+          const locationData = {
+            latitude: lat,
+            longitude: lng,
+            address: address,
+            mapUrl: `https://www.google.com/maps?q=${lat},${lng}`
+          };
+          
+          onLocationSelect(locationData);
+          onHide();
+          return;
+        }
       }
+      
+      // Fallback without detailed address
+      const locationData = {
+        latitude: lat,
+        longitude: lng,
+        address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+        mapUrl: `https://www.google.com/maps?q=${lat},${lng}`
+      };
+      
+      onLocationSelect(locationData);
+      onHide();
     } catch (error) {
       console.error('Error getting address:', error);
       // Fallback without detailed address

@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { Form } from 'react-bootstrap';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
-import chatService from '../../services/chatService';
-import LocationPicker from './LocationPicker';
+import chatService from '../../../services/chatService';
+import LocationPicker from '../location/LocationPicker';
 import './MessageInput.scss';
 
 const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, replyToMessage }) => {
@@ -83,21 +83,26 @@ const MessageInput = ({ onSendMessage, disabled, placeholder, conversationId, re
 
   const handleLocationShare = () => {
     setShowLocationPicker(true);
-  };
-
-  const handleLocationSelect = async (locationData) => {
+  };  const handleLocationSelect = async (locationData) => {
     try {
       setIsUploading(true);
       
-      // Gửi tin nhắn vị trí
-      await chatService.sendLocationMessage(conversationId, locationData, replyToMessage?.id);
+      // Gửi tin nhắn vị trí tạm thời (chỉ qua SignalR, không lưu database)
+      await chatService.sendTemporaryLocationMessage(
+        conversationId, 
+        locationData.latitude, 
+        locationData.longitude, 
+        locationData.address, 
+        replyToMessage?.id
+      );
       
       // Trigger message update in parent component
       if (onSendMessage) {
         onSendMessage('📍 Đã chia sẻ vị trí');
       }
       
-      toast.success('Đã chia sẻ vị trí thành công!');
+      setShowLocationPicker(false);
+      toast.success('Đã chia sẻ vị trí thành công! (Có hiệu lực trong 1 giờ)');
     } catch (error) {
       console.error('Error sending location:', error);
       toast.error('Không thể chia sẻ vị trí');

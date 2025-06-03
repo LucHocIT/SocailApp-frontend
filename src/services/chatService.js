@@ -83,22 +83,29 @@ class ChatService {
       console.error('Error uploading chat media:', error);
       throw error.response?.data || { message: 'Error uploading media' };
     }
-  }
-  async sendLocationMessage(conversationId, latitude, longitude, address = null, replyToMessageId = null) {
+  }  async sendTemporaryLocationMessage(conversationId, latitude, longitude, address = null, replyToMessageId = null) {
     try {
-      const messageData = {
-        content: address || `Location: ${latitude}, ${longitude}`,
-        replyToMessageId,
-        messageType: 'location',
-        latitude,
-        longitude,
-        address
-      };
-
-      const response = await api.post(`/simple-chat/conversations/${conversationId}/messages`, messageData);
-      return response.data;
+      // Gửi qua SignalR với các tham số riêng biệt như backend mong đợi
+      if (this.connection && this.isConnected) {
+        await this.connection.invoke('SendTemporaryLocationMessage', conversationId, latitude, longitude, address || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        return {
+          id: `temp_location_${Date.now()}`,
+          conversationId,
+          content: address || `📍 Đã chia sẻ vị trí`,
+          messageType: 'location',
+          latitude,
+          longitude,
+          address,
+          isTemporary: true,
+          expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 giờ từ bây giờ
+          sentAt: new Date(),
+          replyToMessageId
+        };
+      } else {
+        throw new Error('Kết nối SignalR không khả dụng');
+      }
     } catch (error) {
-      console.error('Error sending location message:', error);
+      console.error('Error sending temporary location message:', error);
       throw error;
     }
   }

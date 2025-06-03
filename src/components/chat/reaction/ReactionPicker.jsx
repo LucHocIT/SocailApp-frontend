@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { REACTION_EMOJIS } from '../../constants/reactions';
+import { REACTION_EMOJIS } from '../../../constants/reactions';
 import styles from './ReactionPicker.module.scss';
 
 const ReactionPicker = ({ isOpen, onClose, onReactionSelect, currentReaction = null }) => {
