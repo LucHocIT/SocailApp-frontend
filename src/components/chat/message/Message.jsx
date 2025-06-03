@@ -205,9 +205,7 @@ const Message = ({
                 currentUserReactionType={message.currentUserReactionType}
                 onReactionClick={handleReactionClick}
               />
-            )}
-
-            {/* Message actions dropdown */}
+            )}            {/* Message actions dropdown */}
             <div className="message-actions">
               {/* Reaction Button */}
               <ReactionButton
@@ -215,6 +213,15 @@ const Message = ({
                 currentReaction={getCurrentUserReaction()}
                 disabled={isLoading}
               />
+
+              {/* Reply Button */}
+              <button 
+                className="message-reply-btn"
+                onClick={handleReply}
+                title="Trả lời"
+              >
+                <i className="bi bi-reply"></i>
+              </button>
 
               <Dropdown drop="start">
                 <Dropdown.Toggle 
@@ -226,10 +233,6 @@ const Message = ({
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={handleReply}>
-                    <i className="bi bi-reply me-2"></i>
-                    Trả lời
-                  </Dropdown.Item>
                   <Dropdown.Item>
                     <i className="bi bi-files me-2"></i>
                     Sao chép
