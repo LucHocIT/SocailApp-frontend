@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { Dropdown, Image } from 'react-bootstrap';
 import { FaFile, FaDownload } from 'react-icons/fa';
 import MessageReactions from './MessageReactions';
@@ -7,26 +7,34 @@ import LocationMessage from '../location/LocationMessage';
 import useMessageReactions from '../../../hooks/useMessageReactions';
 import './Message.scss';
 
-const Message = ({ 
+const Message = forwardRef(({ 
   message, 
   isOwn, 
   showAvatar, 
   isFirstInGroup, 
   isLastInGroup, 
   onReply,
-  onReactionToggle
-}) => {
+  onReactionToggle,
+  onScrollToMessage
+}, ref) => {
   const [showTime, setShowTime] = useState(false);
   const { toggleReaction, isLoading } = useMessageReactions();
 
   const formatFullTime = (dateString) => {
     return new Date(dateString).toLocaleString('vi-VN');
   };
-
   const handleMessageClick = () => {
     setShowTime(!showTime);
-  };  const handleReply = () => {
+  };
+
+  const handleReply = () => {
     onReply(message);
+  };
+
+  const handleReplyClick = () => {
+    if (message.replyToMessageId && onScrollToMessage) {
+      onScrollToMessage(message.replyToMessageId);
+    }
   };
   const handleReactionSelect = async (reactionType) => {
     // Optimistic update function
@@ -55,12 +63,15 @@ const Message = ({
       await toggleReaction(message.id, reactionType, optimisticUpdate);
     } catch (error) {
       console.error('Failed to toggle reaction:', error);
-    }
-  };
+    }  };
+
   // Get current user's reaction if any
   const getCurrentUserReaction = () => {
     return message.hasReactedByCurrentUser ? message.currentUserReactionType : null;
-  };  const renderMediaContent = () => {    // Handle location messages
+  };
+
+  const renderMediaContent = () => {
+    // Handle location messages
     if (message.messageType === 'location' || message.LocationData || (message.latitude && message.longitude)) {
       // Kiểm tra xem location message có expired không (1 giờ)
       const isExpired = message.expiresAt && new Date() > new Date(message.expiresAt);
@@ -72,14 +83,17 @@ const Message = ({
               <i className="bi bi-geo-alt text-muted"></i>
               <span className="text-muted">Vị trí đã hết hạn</span>
             </div>
-          </div>
-        );
-      }      const location = {
+          </div>        );
+      }
+
+      const location = {
         latitude: message.LocationData?.Latitude || message.latitude,
         longitude: message.LocationData?.Longitude || message.longitude,
         address: message.LocationData?.Address || message.address || `Vị trí: ${message.LocationData?.Latitude || message.latitude}, ${message.LocationData?.Longitude || message.longitude}`,
         mapUrl: `https://www.google.com/maps?q=${message.LocationData?.Latitude || message.latitude},${message.LocationData?.Longitude || message.longitude}`
-      };      return (
+      };
+
+      return (
         <div>
           <LocationMessage location={location} />
           {message.isTemporary && (
@@ -98,7 +112,8 @@ const Message = ({
 
     const mediaType = message.mediaType || 'file';
 
-    switch (mediaType.toLowerCase()) {      case 'image':
+    switch (mediaType.toLowerCase()) {
+      case 'image':
         return (
           <Image 
             src={message.mediaUrl} 
@@ -106,10 +121,9 @@ const Message = ({
             className="message-image"
             fluid
             onClick={() => window.open(message.mediaUrl, '_blank')}
-            style={{ cursor: 'pointer', maxWidth: '300px', maxHeight: '200px', borderRadius: '12px' }}
-          />
+            style={{ cursor: 'pointer', maxWidth: '300px', maxHeight: '200px', borderRadius: '12px' }}          />
         );
-        case 'video':
+      case 'video':
         return (
           <video 
             controls 
@@ -120,7 +134,7 @@ const Message = ({
             Your browser does not support the video tag.
           </video>
         );
-        case 'file':
+      case 'file':
       default:
         return (
           <div className="message-file">
@@ -151,9 +165,12 @@ const Message = ({
         );
     }
   };
-
   return (
-    <div className={`message ${isOwn ? 'own' : 'other'} ${isFirstInGroup ? 'first' : ''} ${isLastInGroup ? 'last' : ''}`}>
+    <div 
+      ref={ref}
+      className={`message ${isOwn ? 'own' : 'other'} ${isFirstInGroup ? 'first' : ''} ${isLastInGroup ? 'last' : ''}`}
+      id={`message-${message.id}`}
+    >
       <div className="message-row">        {/* Avatar (only for other user's messages) */}
         {!isOwn && (
           <div className="message-avatar">
@@ -170,17 +187,24 @@ const Message = ({
         )}
 
         {/* Message Content */}
-        <div className="message-content-wrapper">          {/* Sender name removed for cleaner UI */}{/* Reply reference */}
+        <div className="message-content-wrapper">          {/* Sender name removed for cleaner UI */}          {/* Reply reference */}
           {message.replyToContent && (
-            <div className="reply-reference">
-              <div className="reply-bar"></div>
+            <div 
+              className="reply-reference"
+              onClick={handleReplyClick}
+            >
               <div className="reply-content">
+                {message.replyToSender && (
+                  <div className="reply-sender">
+                    {message.replyToSender}
+                  </div>
+                )}
                 <div className="reply-text">
                   {message.replyToContent}
                 </div>
               </div>
             </div>
-          )}          {/* Message bubble */}
+          )}{/* Message bubble */}
           <div className="message-bubble-container">
             {/* Media content (outside bubble) */}
             {(message.messageType === 'location' || message.LocationData || (message.latitude && message.longitude) || message.mediaUrl) && (
@@ -261,6 +285,6 @@ const Message = ({
       </div>
     </div>
   );
-};
+});
 
 export default Message;

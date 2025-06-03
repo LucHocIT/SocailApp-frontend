@@ -11,9 +11,27 @@ const MessageList = ({
   loading, 
   onReply,
   onReactionToggle
-}) => {
-  const scrollRef = useRef(null);
+}) => {const scrollRef = useRef(null);
   const prevScrollHeight = useRef(0);
+
+  // Scroll to specific message
+  const scrollToMessage = (messageId) => {
+    const messageElement = document.getElementById(`message-${messageId}`);
+    if (messageElement && scrollRef.current) {
+      messageElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      
+      // Add highlight effect
+      messageElement.style.transition = 'background-color 0.3s ease';
+      messageElement.style.backgroundColor = 'rgba(24, 119, 242, 0.1)';
+      
+      setTimeout(() => {
+        messageElement.style.backgroundColor = '';
+      }, 2000);
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current && loading && hasMore) {
@@ -136,9 +154,7 @@ const MessageList = ({
             const isLastInGroup = !isFollowedBySameSender || nextTimeDiff > 300000;
 
             // Create unique key using message ID and timestamp to avoid React key duplication warnings
-            const uniqueKey = `${message.id}-${new Date(message.sentAt).getTime()}`;
-
-            return (              <Message
+            const uniqueKey = `${message.id}-${new Date(message.sentAt).getTime()}`;            return (              <Message
                 key={uniqueKey}
                 message={message}
                 isOwn={message.senderId === currentUserId}
@@ -147,6 +163,7 @@ const MessageList = ({
                 isLastInGroup={isLastInGroup}
                 onReply={onReply}
                 onReactionToggle={onReactionToggle}
+                onScrollToMessage={scrollToMessage}
               />
             );
           })}

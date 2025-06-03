@@ -255,9 +255,27 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
 
   const handleReplyToMessage = (message) => {
     setReplyToMessage(message);
-  };
-  const cancelReply = () => {
+  };  const cancelReply = () => {
     setReplyToMessage(null);
+  };
+
+  // Scroll to specific message function
+  const scrollToMessage = (messageId) => {
+    const messageElement = document.getElementById(`message-${messageId}`);
+    if (messageElement) {
+      messageElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      
+      // Add highlight effect
+      messageElement.style.transition = 'background-color 0.3s ease';
+      messageElement.style.backgroundColor = 'rgba(24, 119, 242, 0.1)';
+      
+      setTimeout(() => {
+        messageElement.style.backgroundColor = '';
+      }, 2000);
+    }
   };
   const handleReactionToggle = useCallback((messageId, reactionType, userId, isRollback = false) => {
     setMessages(prev => {
@@ -448,8 +466,7 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Đang tải...</span>
             </div>
-          </div>
-        ) : (          <MessageList
+          </div>        ) : (          <MessageList
             messages={messages}
             currentUserId={currentUserId}
             onLoadMore={handleLoadMore}
@@ -457,6 +474,7 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
             loading={loading}
             onReply={handleReplyToMessage}
             onReactionToggle={handleReactionToggle}
+            onScrollToMessage={scrollToMessage}
           />
         )}
         <div ref={messagesEndRef} />
