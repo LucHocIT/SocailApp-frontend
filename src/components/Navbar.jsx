@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/hooks';
-import { FaChevronDown, FaSignOutAlt, FaUser, FaCog, FaBell, FaHome, FaUsers, FaComments } from 'react-icons/fa';
+import { FaChevronDown, FaUser, FaBell, FaHome, FaUsers, FaComments } from 'react-icons/fa';
 import AuthModals from './auth/AuthModals';
 import UserSearch from './user/UserSearch';
 import styles from './Navbar.module.scss';
 
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
@@ -187,18 +187,11 @@ const Navbar = () => {
                     {user.firstName} {user.lastName}
                   </span>
                   <FaChevronDown className={`${styles.dropdownIcon} ${dropdownOpen ? styles.open : ''}`} />
-                </button>
-                  {dropdownOpen && (
+                </button>                {dropdownOpen && (
                   <div className={styles.dropdown}>
                     <Link to="/profile" className={styles.dropdownItem}>
                       <FaUser /> Hồ sơ
                     </Link>
-                    <Link to="/settings" className={styles.dropdownItem}>
-                      <FaCog /> Cài đặt
-                    </Link>
-                    <button onClick={logout} className={styles.dropdownItem}>
-                      <FaSignOutAlt /> Đăng xuất
-                    </button>
                   </div>
                 )}
               </div>

@@ -8,7 +8,7 @@ import {
   FaSpinner, FaUser, FaList, FaCalendarAlt,
   FaBirthdayCake, FaMapMarkerAlt, FaGlobe,
   FaChevronDown, FaChevronUp, FaInfoCircle,
-  FaCog
+  FaCog, FaSignOutAlt
 } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import styles from './ProfileHeader.module.scss';
@@ -29,7 +29,8 @@ const ProfileHeader = ({
   onTogglePasswordChange,
   onToggleSettings,
   onProfileUpdated
-}) => {const { user } = useAuth();
+}) => {
+const { user, logout } = useAuth();
   const { uploadCroppedProfilePicture } = useProfile();
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const [isCoverHovered, setIsCoverHovered] = useState(false);
@@ -103,7 +104,6 @@ const ProfileHeader = ({
       uploadStateSetter(false);
     }
   };
-
   // Hàm xử lý khi hủy cắt ảnh
   const handleCropCancel = () => {
     setShowCropper(false);
@@ -114,6 +114,15 @@ const ProfileHeader = ({
       fileInputRef.current.value = '';
     } else {
       coverFileRef.current.value = '';
+    }
+  };
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
     }
   };
   const handleKeyPress = (handler) => (e) => {
@@ -365,10 +374,20 @@ const ProfileHeader = ({
                   userName={`${profileData.firstName} ${profileData.lastName}`}
                   variant="secondary"
                   size="medium"
-                />
-              </>
+                />              </>
             )}
           </div>
+
+          {/* Logout Button - positioned at bottom right for own profile */}
+          {isOwnProfile && (
+            <button 
+              className={styles.logoutButton}
+              onClick={handleLogout}
+              title="Đăng xuất"
+            >
+              <FaSignOutAlt />
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { 
   FaUser, FaLock, FaEye, FaBan, FaBell, 
-  FaGlobe, FaShieldAlt, FaSignOutAlt, FaCog
+  FaGlobe, FaShieldAlt, FaCog
 } from 'react-icons/fa';
-import { useAuth } from '../../context/hooks';
 import { 
   ProfileSettings, 
   PrivacySettings, 
@@ -16,9 +15,7 @@ import {
 import styles from './ProfileSettings.module.scss';
 
 const ProfileSettingsSection = ({ profileData, onClose }) => {
-  const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
-
   const tabs = [
     { id: 'profile', label: 'Hồ sơ', icon: FaUser },
     { id: 'privacy', label: 'Quyền riêng tư', icon: FaEye },
@@ -28,13 +25,6 @@ const ProfileSettingsSection = ({ profileData, onClose }) => {
     { id: 'language', label: 'Ngôn ngữ', icon: FaGlobe },
     { id: 'advanced', label: 'Nâng cao', icon: FaShieldAlt },
   ];
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -84,9 +74,7 @@ const ProfileSettingsSection = ({ profileData, onClose }) => {
                 <h3>{profileData?.firstName} {profileData?.lastName}</h3>
                 <p>@{profileData?.username}</p>
               </div>
-            </div>
-
-            <nav className={styles.settingsNav}>
+            </div>            <nav className={styles.settingsNav}>
               {tabs.map(tab => {
                 const Icon = tab.icon;
                 return (
@@ -100,16 +88,6 @@ const ProfileSettingsSection = ({ profileData, onClose }) => {
                   </button>
                 );
               })}
-              
-              <div className={styles.navDivider}></div>
-              
-              <button
-                className={`${styles.navItem} ${styles.logoutItem}`}
-                onClick={handleLogout}
-              >
-                <FaSignOutAlt className={styles.navIcon} />
-                <span>Đăng xuất</span>
-              </button>
             </nav>
           </div>
 

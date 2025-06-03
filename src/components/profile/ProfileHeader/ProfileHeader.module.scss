@@ -811,3 +811,38 @@ $gradient-success: linear-gradient(135deg, #42b72a 0%, #3ac01b 100%);
     transform: translateY(0);
   }
 }
+
+// Logout Button positioned at bottom right
+.logoutButton {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  transition: all 0.3s ease;
+  z-index: 10;
+  
+  &:hover {
+    background: linear-gradient(45deg, #b91c1c, #991b1b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  svg {
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+  }
+}
