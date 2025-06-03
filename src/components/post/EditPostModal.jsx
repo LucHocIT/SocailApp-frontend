@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Spinner, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaImage, FaTimes, FaFile, FaVideo, FaSave, FaEdit, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus } from 'react-icons/fa';
+import { FaImage, FaTimes, FaFile, FaVideo, FaSave, FaEdit, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus, FaLock, FaGlobe } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
@@ -15,6 +15,7 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
+  const [isPrivate, setIsPrivate] = useState(false);
   const mediaInputRef = useRef(null);
   const textareaRef = useRef(null);
   const emojiButtonRef = useRef(null);
@@ -39,6 +40,7 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
     if (post) {
       setContent(post.content || '');
       setLocation(post.location || '');
+      setIsPrivate(post.isPrivate || false);
       setShowEmojiPicker(false);
       setMediaFiles([]);
       
@@ -71,6 +73,9 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
       } else {
         setExistingMediaFiles([]);
       }
+
+      // Set privacy state
+      setIsPrivate(post.isPrivate || false);
     }
   }, [post]);
 
@@ -329,7 +334,8 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
       const updateData = {
         content: content.trim(),
         location: location || null,
-        mediaFiles: allMediaFiles
+        mediaFiles: allMediaFiles,
+        isPrivate: isPrivate
       };
 
       const updatedPost = await postService.updatePost(post.id, updateData);
@@ -599,6 +605,28 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
                   <FaMapMarkerAlt className={styles.mediaIcon} />
                 </Button>
               </OverlayTrigger>
+            </div>
+
+            {/* Privacy Controls */}
+            <div className={styles.privacySection}>
+              <div className={styles.privacyToggle}>
+                <Form.Check
+                  type="switch"
+                  id="edit-privacy-switch"
+                  checked={isPrivate}
+                  onChange={(e) => setIsPrivate(e.target.checked)}
+                  disabled={isSubmitting}
+                  className={styles.privacySwitch}
+                />
+                <div className={styles.privacyLabel}>
+                  <span className={styles.privacyIcon}>
+                    {isPrivate ? <FaLock /> : <FaGlobe />}
+                  </span>
+                  <span className={styles.privacyText}>
+                    {isPrivate ? 'Chỉ người theo dõi' : 'Công khai'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </Form>

@@ -78,6 +78,23 @@
   padding: 4px 8px;
 }
 
+.privacyIndicator {
+  display: inline-flex;
+  align-items: center;
+  margin-left: $spacing-1;
+  cursor: help;
+}
+
+.privacyIcon {
+  color: $text-muted;
+  font-size: 12px;
+  transition: $transition-base;
+  
+  &:hover {
+    color: $primary-color;
+  }
+}
+
 .timeInfo {
   font-size: $font-size-sm;
   color: $text-muted;
@@ -174,9 +191,16 @@
     background: linear-gradient(135deg, rgba($primary-color, 0.05), rgba($primary-color, 0.02));
     border-color: rgba($border-color, 0.2);
   }
-  
-  .username {
+    .username {
     color: $text-light;
+    
+    &:hover {
+      color: $primary-color;
+    }
+  }
+  
+  .privacyIcon {
+    color: rgba(255, 255, 255, 0.7);
     
     &:hover {
       color: $primary-color;

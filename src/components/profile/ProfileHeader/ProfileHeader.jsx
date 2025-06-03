@@ -337,9 +337,7 @@ const { user, logout } = useAuth();
               <span className={styles.statValue}>{profileData.postCount}</span>
               <span className={styles.statLabel}>Bài viết</span>
             </div>
-          </div>
-
-          {/* Action Buttons */}          <div className={styles.actionButtons}>
+          </div>          {/* Action Buttons */}          <div className={styles.actionButtons}>
             {isOwnProfile ? (
               <>
                 <button className={styles.btnPrimary} onClick={onToggleEditing}>
@@ -350,6 +348,13 @@ const { user, logout } = useAuth();
                 </button>
                 <button className={styles.btnSecondary} onClick={onToggleSettings}>
                   <FaCog /> Cài đặt
+                </button>
+                <button 
+                  className={styles.logoutButton}
+                  onClick={handleLogout}
+                  title="Đăng xuất"
+                >
+                  <FaSignOutAlt />
                 </button>
               </>            ) : user && (
               <>                <button
@@ -377,17 +382,6 @@ const { user, logout } = useAuth();
                 />              </>
             )}
           </div>
-
-          {/* Logout Button - positioned at bottom right for own profile */}
-          {isOwnProfile && (
-            <button 
-              className={styles.logoutButton}
-              onClick={handleLogout}
-              title="Đăng xuất"
-            >
-              <FaSignOutAlt />
-            </button>
-          )}
         </div>
       </div>
     </div>

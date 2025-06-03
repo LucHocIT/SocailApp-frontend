@@ -500,6 +500,72 @@
       }
     }
   }
+  
+  // Privacy Section
+  .privacySection {
+    padding: 16px;
+    border-top: 1px solid rgba($primary-color, 0.1);
+    background: linear-gradient(to bottom, $gray-100, white);
+  }
+
+  .privacyToggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #f8fbff 0%, #f0f8ff 100%);
+    border: 1px solid #d6ebff;
+    transition: all 0.2s ease;
+    justify-content: center;
+
+    &:hover {
+      background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+      border-color: #b3d9ff;
+    }
+  }
+
+  .privacySwitch {
+    margin: 0;
+    
+    .form-check-input {
+      margin: 0;
+      
+      &:checked {
+        background-color: #3498db;
+        border-color: #3498db;
+      }
+      
+      &:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+      }
+    }
+  }
+
+  .privacyLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  .privacyIcon {
+    display: flex;
+    align-items: center;
+    color: #3498db;
+    font-size: 16px;
+  }
+
+  .privacyText {
+    font-size: 15px;
+    font-weight: 500;
+    color: #495057;
+  }
 }
 
 @keyframes shimmer {

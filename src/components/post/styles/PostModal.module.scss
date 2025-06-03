@@ -168,6 +168,25 @@
 .headerTime {
   font-size: 0.75rem;
   opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.privacyIndicator {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.25rem;
+}
+
+.privacyIcon {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: white;
+  }
 }
 
 .modalBody {

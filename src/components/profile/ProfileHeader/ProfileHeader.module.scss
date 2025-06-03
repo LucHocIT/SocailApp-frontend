@@ -812,11 +812,8 @@ $gradient-success: linear-gradient(135deg, #42b72a 0%, #3ac01b 100%);
   }
 }
 
-// Logout Button positioned at bottom right
+// Logout Button aligned with action buttons
 .logoutButton {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -830,7 +827,8 @@ $gradient-success: linear-gradient(135deg, #42b72a 0%, #3ac01b 100%);
   font-size: 16px;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
   transition: all 0.3s ease;
-  z-index: 10;
+  flex-shrink: 0;
+  margin-left: 8px;
   
   &:hover {
     background: linear-gradient(45deg, #b91c1c, #991b1b);

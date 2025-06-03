@@ -102,11 +102,10 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
       observer.disconnect();
     };
   }, []);
-  
-  return (
+    return (
     <>
       <Card 
-        className={`${styles.postCard} ${post.isNew ? styles.newPost : ''}`} 
+        className={`${styles.postCard} ${post.isNew ? styles.newPost : ''} ${post.isPrivate ? styles.privatePost : ''}`} 
         data-aos="fade-up" 
         ref={cardRef} 
         onTouchStart={handleDoubleTap} 

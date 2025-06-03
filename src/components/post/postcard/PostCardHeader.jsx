@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Image, Badge, Dropdown, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaEllipsisV, FaTrash, FaPencilAlt, FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import { FaEllipsisV, FaTrash, FaPencilAlt, FaBookmark, FaRegBookmark, FaLock, FaGlobe } from 'react-icons/fa';
 import TimeAgo from 'react-timeago';
 import { parseDate } from '../../../utils/dateUtils';
 import styles from '../styles/postcard/PostCard.module.scss';
@@ -38,6 +38,17 @@ const PostCardHeader = ({
               <Badge bg="primary" pill className={styles.categoryBadge}>
                 {post.category}
               </Badge>
+            )}
+            {/* Privacy indicator */}
+            {post.isPrivate && (
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip>Bài viết riêng tư</Tooltip>}
+              >
+                <span className={styles.privacyIndicator}>
+                  <FaLock className={styles.privacyIcon} />
+                </span>
+              </OverlayTrigger>
             )}
           </div>
           <div className={styles.timeInfo}>

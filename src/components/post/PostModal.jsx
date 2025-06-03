@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Modal, Button, Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import TimeAgo from 'react-timeago';
-import { FaFile, FaDownload } from 'react-icons/fa';
+import { FaFile, FaDownload, FaLock, FaGlobe } from 'react-icons/fa';
 import { useAuth } from '../../context/hooks';
 import { parseDate } from '../../utils/dateUtils';
 import PostReactionButton from './reactions/PostReactionButton';
@@ -198,10 +198,14 @@ const PostModal = ({ show, onHide, post }) => {
               src={post.profilePictureUrl || '/images/default-avatar.png'}
               className={styles.headerAvatar} 
               roundedCircle={true} 
-            />
-            <div className={styles.headerUserText}>
+            />            <div className={styles.headerUserText}>
               <span className={styles.headerUsername}>{post.username}</span>              <span className={styles.headerTime}>
                 <TimeAgo date={parseDate(post.createdAt)} />
+                {post.isPrivate && (
+                  <span className={styles.privacyIndicator} title="Bài viết riêng tư">
+                    <FaLock className={styles.privacyIcon} />
+                  </span>
+                )}
               </span>
             </div>
           </Link>

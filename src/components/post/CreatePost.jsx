@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, Form, Button, Image, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus } from 'react-icons/fa';
+import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus, FaLock, FaGlobe } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
@@ -16,6 +16,7 @@ const CreatePost = ({ onPostCreated }) => {
   const [location, setLocation] = useState('');  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
+  const [isPrivate, setIsPrivate] = useState(false);
   const mediaInputRef = useRef(null);
   const textareaRef = useRef(null);
   const emojiButtonRef = useRef(null);
@@ -275,7 +276,8 @@ const CreatePost = ({ onPostCreated }) => {
       }const postData = {
         content: content.trim(),
         location: location || null,
-        mediaFiles: uploadedMediaFiles
+        mediaFiles: uploadedMediaFiles,
+        isPrivate: isPrivate
       };
       
       const newPost = await postService.createPost(postData);
@@ -284,6 +286,7 @@ const CreatePost = ({ onPostCreated }) => {
       setContent('');
       setMediaFiles([]);
       setLocation('');
+      setIsPrivate(false);
       setShowEmojiPicker(false);
       
       // Revoke all object URLs
@@ -445,6 +448,30 @@ const CreatePost = ({ onPostCreated }) => {
             </div>
           )}
 
+          {/* Privacy setting */}
+          <div className={styles.privacySetting}>
+            <Button
+              variant={isPrivate ? 'primary' : 'light'}
+              className={`${styles.privacyButton} ${styles.privateButton}`}
+              onClick={() => setIsPrivate(true)}
+              disabled={isSubmitting}
+              type="button"
+            >
+              <FaLock className={styles.privacyIcon} />
+              Riêng tư
+            </Button>
+            <Button
+              variant={!isPrivate ? 'primary' : 'light'}
+              className={`${styles.privacyButton} ${styles.publicButton}`}
+              onClick={() => setIsPrivate(false)}
+              disabled={isSubmitting}
+              type="button"
+            >
+              <FaGlobe className={styles.privacyIcon} />
+              Công khai
+            </Button>
+          </div>
+
           {/* Form footer */}
           <div className={styles.formFooter}>
             <div className={styles.mediaButtons}>
@@ -529,23 +556,45 @@ const CreatePost = ({ onPostCreated }) => {
               </OverlayTrigger>
             </div>
 
-            <Button 
-              type="submit" 
-              className={styles.submitButton}
-              disabled={isSubmitting || (!content.trim() && mediaFiles.length === 0)}
-            >
-              {isSubmitting ? (
-                <>
-                  <Spinner as="span" animation="border" size="sm" className={styles.spinner} role="status" aria-hidden="true" />
-                  <span>Đang đăng...</span>
-                </>
-              ) : (
-                <>
-                  <FaPaperPlane className={`${styles.icon} ${styles.mediaIcon}`} />
-                  <span>Đăng bài</span>
-                </>
-              )}
-            </Button>
+            <div className={styles.postControls}>
+              {/* Privacy Toggle */}
+              <div className={styles.privacyToggle}>
+                <Form.Check
+                  type="switch"
+                  id="privacy-switch"
+                  checked={isPrivate}
+                  onChange={(e) => setIsPrivate(e.target.checked)}
+                  disabled={isSubmitting}
+                  className={styles.privacySwitch}
+                />
+                <div className={styles.privacyLabel}>
+                  <span className={styles.privacyIcon}>
+                    {isPrivate ? <FaLock /> : <FaGlobe />}
+                  </span>
+                  <span className={styles.privacyText}>
+                    {isPrivate ? 'Chỉ người theo dõi' : 'Công khai'}
+                  </span>
+                </div>
+              </div>
+
+              <Button 
+                type="submit" 
+                className={styles.submitButton}
+                disabled={isSubmitting || (!content.trim() && mediaFiles.length === 0)}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Spinner as="span" animation="border" size="sm" className={styles.spinner} role="status" aria-hidden="true" />
+                    <span>Đang đăng...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaPaperPlane className={`${styles.icon} ${styles.mediaIcon}`} />
+                    <span>Đăng bài</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </Form>
 
