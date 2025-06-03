@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Spinner, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaImage, FaTimes, FaFile, FaVideo, FaSave, FaEdit, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus, FaLock, FaGlobe } from 'react-icons/fa';
+import { FaImage, FaTimes, FaFile, FaVideo, FaSave, FaEdit, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus, FaLock, FaGlobe, FaUserSecret } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import postService from '../../services/postService';
@@ -12,10 +12,9 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
   const [existingMediaFiles, setExistingMediaFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [location, setLocation] = useState('');
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [privacyLevel, setPrivacyLevel] = useState(0); // 0 = Public, 1 = Private, 2 = Secret
   const mediaInputRef = useRef(null);
   const textareaRef = useRef(null);
   const emojiButtonRef = useRef(null);
@@ -35,12 +34,20 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showEmojiPicker]);
-  useEffect(() => {
+  }, [showEmojiPicker]);  useEffect(() => {
     if (post) {
       setContent(post.content || '');
       setLocation(post.location || '');
-      setIsPrivate(post.isPrivate || false);
+      // Map privacy level: backend provides privacyLevel (0=Public, 1=Private, 2=Secret)
+      // If privacyLevel exists, use it; otherwise fallback to isPrivate for backward compatibility
+      if (typeof post.privacyLevel !== 'undefined') {
+        setPrivacyLevel(post.privacyLevel);
+      } else if (typeof post.PrivacyLevel !== 'undefined') {
+        setPrivacyLevel(post.PrivacyLevel);
+      } else {
+        // Fallback to isPrivate for backward compatibility
+        setPrivacyLevel(post.isPrivate ? 1 : 0);
+      }
       setShowEmojiPicker(false);
       setMediaFiles([]);
       
@@ -73,9 +80,6 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
       } else {
         setExistingMediaFiles([]);
       }
-
-      // Set privacy state
-      setIsPrivate(post.isPrivate || false);
     }
   }, [post]);
 
@@ -329,13 +333,11 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
           orderIndex: index
         })),
         ...uploadedMediaFiles
-      ];
-
-      const updateData = {
+      ];      const updateData = {
         content: content.trim(),
         location: location || null,
         mediaFiles: allMediaFiles,
-        isPrivate: isPrivate
+        privacyLevel: privacyLevel
       };
 
       const updatedPost = await postService.updatePost(post.id, updateData);
@@ -605,28 +607,38 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
                   <FaMapMarkerAlt className={styles.mediaIcon} />
                 </Button>
               </OverlayTrigger>
-            </div>
-
-            {/* Privacy Controls */}
-            <div className={styles.privacySection}>
-              <div className={styles.privacyToggle}>
-                <Form.Check
-                  type="switch"
-                  id="edit-privacy-switch"
-                  checked={isPrivate}
-                  onChange={(e) => setIsPrivate(e.target.checked)}
-                  disabled={isSubmitting}
-                  className={styles.privacySwitch}
-                />
-                <div className={styles.privacyLabel}>
-                  <span className={styles.privacyIcon}>
-                    {isPrivate ? <FaLock /> : <FaGlobe />}
-                  </span>
-                  <span className={styles.privacyText}>
-                    {isPrivate ? 'Chỉ người theo dõi' : 'Công khai'}
-                  </span>
-                </div>
-              </div>
+            </div>            {/* Privacy Controls */}
+            <div className={styles.privacySetting}>
+              <Button
+                variant={privacyLevel === 0 ? 'primary' : 'light'}
+                className={`${styles.privacyButton} ${styles.publicButton}`}
+                onClick={() => setPrivacyLevel(0)}
+                disabled={isSubmitting}
+                type="button"
+              >
+                <FaGlobe className={styles.privacyIcon} />
+                Công khai
+              </Button>
+              <Button
+                variant={privacyLevel === 1 ? 'primary' : 'light'}
+                className={`${styles.privacyButton} ${styles.privateButton}`}
+                onClick={() => setPrivacyLevel(1)}
+                disabled={isSubmitting}
+                type="button"
+              >
+                <FaLock className={styles.privacyIcon} />
+                Riêng tư
+              </Button>
+              <Button
+                variant={privacyLevel === 2 ? 'primary' : 'light'}
+                className={`${styles.privacyButton} ${styles.secretButton}`}
+                onClick={() => setPrivacyLevel(2)}
+                disabled={isSubmitting}
+                type="button"
+              >
+                <FaUserSecret className={styles.privacyIcon} />
+                Bí mật
+              </Button>
             </div>
           </div>
         </Form>

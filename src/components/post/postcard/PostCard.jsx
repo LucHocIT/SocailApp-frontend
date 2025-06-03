@@ -103,12 +103,11 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
     };
   }, []);
     return (
-    <>
-      <Card 
-        className={`${styles.postCard} ${post.isNew ? styles.newPost : ''} ${post.isPrivate ? styles.privatePost : ''}`} 
+    <>      <Card 
+        className={`${styles.postCard} ${post.isNew ? styles.newPost : ''} ${(post.privacyLevel > 0 || post.PrivacyLevel > 0) ? styles.privatePost : ''}`} 
         data-aos="fade-up" 
         ref={cardRef} 
-        onTouchStart={handleDoubleTap} 
+        onTouchStart={handleDoubleTap}
         style={{ position: 'relative' }}
       >
         <PostCardHeader

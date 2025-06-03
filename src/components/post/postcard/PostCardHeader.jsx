@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Image, Badge, Dropdown, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaEllipsisV, FaTrash, FaPencilAlt, FaBookmark, FaRegBookmark, FaLock, FaGlobe } from 'react-icons/fa';
+import { FaEllipsisV, FaTrash, FaPencilAlt, FaBookmark, FaRegBookmark, FaLock, FaGlobe, FaUserSecret } from 'react-icons/fa';
 import TimeAgo from 'react-timeago';
 import { parseDate } from '../../../utils/dateUtils';
 import styles from '../styles/postcard/PostCard.module.scss';
@@ -38,15 +38,22 @@ const PostCardHeader = ({
               <Badge bg="primary" pill className={styles.categoryBadge}>
                 {post.category}
               </Badge>
-            )}
-            {/* Privacy indicator */}
-            {post.isPrivate && (
+            )}            {/* Privacy indicator */}
+            {(post.privacyLevel > 0 || post.PrivacyLevel > 0) && (
               <OverlayTrigger
                 placement="top"
-                overlay={<Tooltip>Bài viết riêng tư</Tooltip>}
+                overlay={<Tooltip>
+                  {(post.privacyLevel === 2 || post.PrivacyLevel === 2) ? "Bài viết bí mật" : 
+                   (post.privacyLevel === 1 || post.PrivacyLevel === 1) ? "Bài viết riêng tư" : 
+                   "Bài viết công khai"}
+                </Tooltip>}
               >
                 <span className={styles.privacyIndicator}>
-                  <FaLock className={styles.privacyIcon} />
+                  {(post.privacyLevel === 2 || post.PrivacyLevel === 2) ? (
+                    <FaUserSecret className={styles.privacyIcon} />
+                  ) : (
+                    <FaLock className={styles.privacyIcon} />
+                  )}
                 </span>
               </OverlayTrigger>
             )}
