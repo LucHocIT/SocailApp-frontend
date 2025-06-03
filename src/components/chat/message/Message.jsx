@@ -15,7 +15,8 @@ const Message = forwardRef(({
   isLastInGroup, 
   onReply,
   onReactionToggle,
-  onScrollToMessage
+  onScrollToMessage,
+  onDeleteMessage
 }, ref) => {
   const [showTime, setShowTime] = useState(false);
   const { toggleReaction, isLoading } = useMessageReactions();
@@ -25,10 +26,14 @@ const Message = forwardRef(({
   };
   const handleMessageClick = () => {
     setShowTime(!showTime);
+  };  const handleReply = () => {
+    onReply(message);
   };
 
-  const handleReply = () => {
-    onReply(message);
+  const handleDeleteClick = () => {
+    if (onDeleteMessage) {
+      onDeleteMessage(message.id);
+    }
   };
 
   const handleReplyClick = () => {
@@ -211,17 +216,24 @@ const Message = forwardRef(({
               <div className="media-content">
                 {renderMediaContent()}
               </div>
-            )}            {/* Text bubble (only if there's text content) */}
-            {message.content && (
+            )}            {/* Text bubble (only if there's text content and it's not a media message) */}
+            {message.content && !message.mediaUrl && (
               <div 
-                className="message-bubble"
+                className={`message-bubble ${message.isDeleted ? 'deleted' : ''}`}
                 onClick={handleMessageClick}
               >
                 <div className="message-text">
-                  {message.content}
+                  {message.isDeleted ? (
+                    <span className="text-muted">
+                      <i className="bi bi-trash me-1"></i>
+                      {message.content}
+                    </span>
+                  ) : (
+                    message.content
+                  )}
                 </div>
               </div>
-            )}            {/* Message Reactions */}
+            )}{/* Message Reactions */}
             {message.reactionCounts && Object.keys(message.reactionCounts).length > 0 && (
               <MessageReactions
                 reactionCounts={message.reactionCounts}
@@ -255,17 +267,15 @@ const Message = forwardRef(({
                   size="sm"
                 >
                   <i className="bi bi-three-dots"></i>
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
+                </Dropdown.Toggle>                <Dropdown.Menu>
                   <Dropdown.Item>
                     <i className="bi bi-files me-2"></i>
                     Sao chép
                   </Dropdown.Item>
-                  {isOwn && (
+                  {isOwn && !message.isDeleted && (
                     <>
                       <Dropdown.Divider />
-                      <Dropdown.Item className="text-danger">
+                      <Dropdown.Item className="text-danger" onClick={handleDeleteClick}>
                         <i className="bi bi-trash me-2"></i>
                         Xóa
                       </Dropdown.Item>
@@ -274,9 +284,7 @@ const Message = forwardRef(({
                 </Dropdown.Menu>
               </Dropdown>
             </div>
-          </div>
-
-          {/* Timestamp */}
+          </div>          {/* Timestamp */}
           {showTime && (
             <div className="message-time">
               {formatFullTime(message.sentAt)}

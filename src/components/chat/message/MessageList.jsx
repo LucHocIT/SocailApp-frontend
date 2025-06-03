@@ -10,7 +10,8 @@ const MessageList = ({
   hasMore, 
   loading, 
   onReply,
-  onReactionToggle
+  onReactionToggle,
+  onDeleteMessage
 }) => {const scrollRef = useRef(null);
   const prevScrollHeight = useRef(0);
 
@@ -164,6 +165,7 @@ const MessageList = ({
                 onReply={onReply}
                 onReactionToggle={onReactionToggle}
                 onScrollToMessage={scrollToMessage}
+                onDeleteMessage={onDeleteMessage}
               />
             );
           })}

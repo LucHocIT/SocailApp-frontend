@@ -145,9 +145,28 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
       });
     });
   }, [conversation, currentUserId]);
-
   const handleNewMessage = useCallback((message) => {
     if (message.type === 'messageRead') return;
+    
+    // Handle message deletion events
+    if (message.type === 'messageDeleted') {
+      setMessages(prev => {
+        return prev.map(msg => {
+          if (msg.id === message.messageId) {
+            return {
+              ...msg,
+              content: 'Tin nhắn đã được xóa',
+              isDeleted: true,
+              mediaUrl: null,
+              mediaType: null,
+              reactionCounts: {}
+            };
+          }
+          return msg;
+        });
+      });
+      return;
+    }
     
     // Handle reaction events
     if (message.type === 'reactionAdded' || message.type === 'reactionRemoved' || message.type === 'reactionUpdated') {
@@ -252,10 +271,42 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
     const diffDays = Math.floor(diffHours / 24);
     return `Hoạt động ${diffDays} ngày trước`;
   };
-
   const handleReplyToMessage = (message) => {
     setReplyToMessage(message);
-  };  const cancelReply = () => {
+  };
+
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      // Optimistic update - immediately mark as deleted
+      setMessages(prev => {
+        return prev.map(msg => {
+          if (msg.id === messageId) {
+            return {
+              ...msg,
+              content: 'Tin nhắn đã được xóa',
+              isDeleted: true,
+              mediaUrl: null,
+              mediaType: null,
+              reactionCounts: {}
+            };
+          }
+          return msg;
+        });
+      });
+
+      // Call API to delete message
+      await chatService.deleteMessage(messageId);
+      toast.success('Đã xóa tin nhắn');
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      toast.error('Không thể xóa tin nhắn');
+      
+      // Rollback optimistic update on error
+      loadMessages(true);
+    }
+  };
+
+  const cancelReply = () => {
     setReplyToMessage(null);
   };
 
@@ -475,6 +526,7 @@ const ChatWindow = ({ conversation, currentUserId, onlineUsers }) => {
             onReply={handleReplyToMessage}
             onReactionToggle={handleReactionToggle}
             onScrollToMessage={scrollToMessage}
+            onDeleteMessage={handleDeleteMessage}
           />
         )}
         <div ref={messagesEndRef} />

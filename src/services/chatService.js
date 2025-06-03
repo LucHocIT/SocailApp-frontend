@@ -152,7 +152,6 @@ class ChatService {
       throw error;
     }
   }
-
   async toggleMessageReaction(messageId, reactionType) {
     try {
       const response = await api.put(`/simple-chat/messages/${messageId}/reactions/toggle`, {
@@ -161,6 +160,16 @@ class ChatService {
       return response.data;
     } catch (error) {
       console.error('Error toggling message reaction:', error);
+      throw error;
+    }
+  }
+
+  async deleteMessage(messageId) {
+    try {
+      await api.delete(`/simple-chat/messages/${messageId}`);
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting message:', error);
       throw error;
     }
   }
@@ -334,9 +343,7 @@ class ChatService {
             console.error('Error in reaction removed handler:', error);
           }
         });
-      });
-
-      this.connection.on('MessageReactionUpdated', (data) => {
+      });      this.connection.on('MessageReactionUpdated', (data) => {
         this.messageHandlers.forEach(handler => {
           try {
             handler({
@@ -347,6 +354,21 @@ class ChatService {
             });
           } catch (error) {
             console.error('Error in reaction updated handler:', error);
+          }
+        });
+      });
+
+      this.connection.on('MessageDeleted', (data) => {
+        this.messageHandlers.forEach(handler => {
+          try {
+            handler({
+              type: 'messageDeleted',
+              messageId: data.MessageId,
+              conversationId: data.ConversationId,
+              deletedBy: data.DeletedBy
+            });
+          } catch (error) {
+            console.error('Error in message deleted handler:', error);
           }
         });
       });
