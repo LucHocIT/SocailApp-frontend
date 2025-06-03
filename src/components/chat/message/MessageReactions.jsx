@@ -8,7 +8,8 @@ const MessageReactions = ({
   currentUserReactionType = null,
   onReactionClick,
   onReactionHover,
-  onReactionLeave 
+  onReactionLeave,
+  isOwnMessage = false
 }) => {
   const [hoveredReaction, setHoveredReaction] = useState(null);
   // Filter out reactions with zero count
@@ -36,9 +37,8 @@ const MessageReactions = ({
     if (onReactionLeave) {
       onReactionLeave();
     }
-  };
-  return (
-    <div className={styles.messageReactions}>
+  };  return (
+    <div className={`${styles.messageReactions} ${!isOwnMessage ? styles.leftAligned : ''}`}>
       {activeReactions.map(([reactionType, count]) => {
         // Get emoji - try lowercase first, then capitalized as fallback
         const emoji = REACTION_EMOJIS[reactionType.toLowerCase()] || REACTION_EMOJIS[reactionType] || '👍';
@@ -54,10 +54,8 @@ const MessageReactions = ({
             onClick={() => handleReactionClick(reactionType)}
             onMouseEnter={() => handleReactionMouseEnter(reactionType)}
             onMouseLeave={handleReactionMouseLeave}
-            title={`${reactionType} (${count})`}
-          >
+            title={`${reactionType} (${count})`}          >
             <span className={styles.emoji}>{emoji}</span>
-            <span className={styles.count}>{count}</span>
           </button>
         );
       })}
@@ -66,3 +64,5 @@ const MessageReactions = ({
 };
 
 export default MessageReactions;
+
+

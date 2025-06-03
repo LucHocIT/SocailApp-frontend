@@ -221,15 +221,16 @@ const Message = forwardRef(({
                   {message.content}
                 </div>
               </div>
-            )}{/* Message Reactions */}
+            )}            {/* Message Reactions */}
             {message.reactionCounts && Object.keys(message.reactionCounts).length > 0 && (
               <MessageReactions
                 reactionCounts={message.reactionCounts}
                 hasReactedByCurrentUser={message.hasReactedByCurrentUser || false}
                 currentUserReactionType={message.currentUserReactionType}
                 onReactionClick={handleReactionClick}
+                isOwnMessage={isOwn}
               />
-            )}            {/* Message actions dropdown */}
+            )}{/* Message actions dropdown */}
             <div className="message-actions">
               {/* Reaction Button */}
               <ReactionButton
