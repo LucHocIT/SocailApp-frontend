@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, Form, Button, Image, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus, FaLock, FaGlobe } from 'react-icons/fa';
+import { FaImage, FaTimes, FaVideo, FaFile, FaPaperPlane, FaMapMarkerAlt, FaAt, FaHashtag, FaRegSmile, FaPlus, FaLock, FaGlobe, FaUserSecret } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/hooks';
@@ -16,7 +16,7 @@ const CreatePost = ({ onPostCreated }) => {
   const [location, setLocation] = useState('');  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [privacyLevel, setPrivacyLevel] = useState(0); // 0 = Public, 1 = Private, 2 = Secret
   const mediaInputRef = useRef(null);
   const textareaRef = useRef(null);
   const emojiButtonRef = useRef(null);
@@ -273,20 +273,19 @@ const CreatePost = ({ onPostCreated }) => {
           console.error('Upload failed:', uploadResult);
           throw new Error(uploadResult?.message || 'Không thể tải lên media files');
         }
-      }const postData = {
+      }      const postData = {
         content: content.trim(),
         location: location || null,
         mediaFiles: uploadedMediaFiles,
-        isPrivate: isPrivate
+        privacyLevel: privacyLevel
       };
       
       const newPost = await postService.createPost(postData);
-      
-      // Reset form
+        // Reset form
       setContent('');
       setMediaFiles([]);
       setLocation('');
-      setIsPrivate(false);
+      setPrivacyLevel(0);
       setShowEmojiPicker(false);
       
       // Revoke all object URLs
@@ -446,14 +445,22 @@ const CreatePost = ({ onPostCreated }) => {
                 ))}
               </div>
             </div>
-          )}
-
-          {/* Privacy setting */}
+          )}          {/* Privacy setting */}
           <div className={styles.privacySetting}>
             <Button
-              variant={isPrivate ? 'primary' : 'light'}
+              variant={privacyLevel === 0 ? 'primary' : 'light'}
+              className={`${styles.privacyButton} ${styles.publicButton}`}
+              onClick={() => setPrivacyLevel(0)}
+              disabled={isSubmitting}
+              type="button"
+            >
+              <FaGlobe className={styles.privacyIcon} />
+              Công khai
+            </Button>
+            <Button
+              variant={privacyLevel === 1 ? 'primary' : 'light'}
               className={`${styles.privacyButton} ${styles.privateButton}`}
-              onClick={() => setIsPrivate(true)}
+              onClick={() => setPrivacyLevel(1)}
               disabled={isSubmitting}
               type="button"
             >
@@ -461,14 +468,14 @@ const CreatePost = ({ onPostCreated }) => {
               Riêng tư
             </Button>
             <Button
-              variant={!isPrivate ? 'primary' : 'light'}
-              className={`${styles.privacyButton} ${styles.publicButton}`}
-              onClick={() => setIsPrivate(false)}
+              variant={privacyLevel === 2 ? 'primary' : 'light'}
+              className={`${styles.privacyButton} ${styles.secretButton}`}
+              onClick={() => setPrivacyLevel(2)}
               disabled={isSubmitting}
               type="button"
             >
-              <FaGlobe className={styles.privacyIcon} />
-              Công khai
+              <FaUserSecret className={styles.privacyIcon} />
+              Bí mật
             </Button>
           </div>
 
@@ -554,27 +561,25 @@ const CreatePost = ({ onPostCreated }) => {
                   <FaMapMarkerAlt className={styles.mediaIcon} />
                 </Button>
               </OverlayTrigger>
-            </div>
-
-            <div className={styles.postControls}>
-              {/* Privacy Toggle */}
-              <div className={styles.privacyToggle}>
-                <Form.Check
-                  type="switch"
-                  id="privacy-switch"
-                  checked={isPrivate}
-                  onChange={(e) => setIsPrivate(e.target.checked)}
+            </div>            <div className={styles.postControls}>
+              {/* Privacy Level Selector */}
+              <div className={styles.privacySelector}>
+                <Form.Select
+                  value={privacyLevel}
+                  onChange={(e) => setPrivacyLevel(parseInt(e.target.value))}
                   disabled={isSubmitting}
-                  className={styles.privacySwitch}
-                />
-                <div className={styles.privacyLabel}>
-                  <span className={styles.privacyIcon}>
-                    {isPrivate ? <FaLock /> : <FaGlobe />}
-                  </span>
-                  <span className={styles.privacyText}>
-                    {isPrivate ? 'Chỉ người theo dõi' : 'Công khai'}
-                  </span>
-                </div>
+                  className={styles.privacySelect}
+                >
+                  <option value={0}>
+                    🌍 Công khai - Mọi người có thể xem
+                  </option>
+                  <option value={1}>
+                    🔒 Riêng tư - Chỉ người theo dõi
+                  </option>
+                  <option value={2}>
+                    🤫 Bí mật - Chỉ mình tôi
+                  </option>
+                </Form.Select>
               </div>
 
               <Button 

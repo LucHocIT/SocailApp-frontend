@@ -394,7 +394,46 @@
   }
 }
 
-// Privacy Toggle
+// Privacy Level Selector
+.privacySelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.privacySelect {
+  min-width: 250px;
+  border: 1px solid #d6ebff;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f8fbff 0%, #f0f8ff 100%);
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+    border-color: #b3d9ff;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+// Legacy Privacy Toggle (keeping for backwards compatibility)
 .privacyToggle {
   display: flex;
   align-items: center;
