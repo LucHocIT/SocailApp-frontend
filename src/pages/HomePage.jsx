@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { FaUsers, FaComments, FaHeart, FaShare, FaBell, FaGlobe, FaRegLightbulb } from 'react-icons/fa';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import CreatePost from '../components/post/CreatePost';
+import { CreatePost } from '../components/post/Create';
 import PostList from '../components/post/PostList';
 import styles from './HomePage.module.scss';
 
