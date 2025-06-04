@@ -1,5 +1,5 @@
 export { default as CreatePost } from './CreatePost';
-export { default as EditPostModal } from './EditPostModal';
+export { EditPostModal } from './EditPost';
 export { default as PostList } from './PostList';
 export { default as PostModal } from './PostModal';
 // Export postcard components

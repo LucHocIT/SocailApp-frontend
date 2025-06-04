@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Spinner, Alert, Card } from 'react-bootstrap';
 import { FaSync } from 'react-icons/fa';
 import PostCard from './postcard/PostCard';
-import EditPostModal from './EditPostModal';
+import { EditPostModal } from './EditPost';
 import postService from '../../services/postService';
 
 const PostList = ({ username, onlyFollowing }) => {
