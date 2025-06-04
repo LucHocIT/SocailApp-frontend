@@ -16,8 +16,6 @@ const PostControls = ({
   setContent, 
   location, 
   setLocation, 
-  privacyLevel, 
-  setPrivacyLevel, 
   isSubmitting, 
   textareaRef 
 }) => {
@@ -238,30 +236,9 @@ const PostControls = ({
               type="button"
             >
               <FaTimes />
-            </Button>
-          </div>
+            </Button>          </div>
         </div>
       )}
-
-      {/* Privacy selector */}
-      <div className={styles.privacySelector}>
-        <Form.Select
-          value={privacyLevel}
-          onChange={(e) => setPrivacyLevel(parseInt(e.target.value))}
-          disabled={isSubmitting}
-          className={styles.privacySelect}
-        >
-          <option value={0}>
-            🌍 Công khai - Mọi người có thể xem
-          </option>
-          <option value={1}>
-            🔒 Riêng tư - Chỉ người theo dõi
-          </option>
-          <option value={2}>
-            🤫 Bí mật - Chỉ mình tôi
-          </option>
-        </Form.Select>
-      </div>
     </>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Card, Form, Button, Image, Spinner } from 'react-bootstrap';
-import { FaPaperPlane } from 'react-icons/fa';
+import { Card, Form, Button, Image, Spinner, Dropdown } from 'react-bootstrap';
+import { FaPaperPlane, FaEllipsisV, FaGlobe, FaLock, FaUserSecret } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../context/hooks';
 import postService from '../../../services/postService';
@@ -20,6 +20,24 @@ const CreatePost = ({ onPostCreated }) => {
 
   const handleContentChange = (e) => {
     setContent(e.target.value);
+  };
+
+  const getPrivacyIcon = (level) => {
+    switch (level) {
+      case 0: return <FaGlobe className={styles.privacyIcon} />;
+      case 1: return <FaLock className={styles.privacyIcon} />;
+      case 2: return <FaUserSecret className={styles.privacyIcon} />;
+      default: return <FaGlobe className={styles.privacyIcon} />;
+    }
+  };
+
+  const getPrivacyText = (level) => {
+    switch (level) {
+      case 0: return 'Công khai';
+      case 1: return 'Riêng tư';
+      case 2: return 'Bí mật';
+      default: return 'Công khai';
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -94,18 +112,63 @@ const CreatePost = ({ onPostCreated }) => {
   return (
     <Card className={styles.createPostCard}>
       <Card.Body className={styles.cardBody}>
-        <Form onSubmit={handleSubmit} className={styles.form}>
-          {/* User info */}
-          <div className={styles.userInfo}>
-            <Image
-              src={user?.profilePictureUrl || '/images/default-avatar.png'}
-              alt={user?.username}
-              className={styles.avatar}
-              roundedCircle
-            />            <div className={styles.userDetails}>
-              <span className={styles.username}>
-                {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.username}
-              </span>
+        <Form onSubmit={handleSubmit} className={styles.form}>          {/* User info with privacy menu */}
+          <div className={styles.createPostHeader}>
+            <div className={styles.userInfo}>
+              <Image
+                src={user?.profilePictureUrl || '/images/default-avatar.png'}
+                alt={user?.username}
+                className={styles.avatar}
+                roundedCircle
+              />
+              <div className={styles.userDetails}>
+                <span className={styles.username}>
+                  {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.username}
+                </span>
+              </div>
+            </div>
+            
+            {/* Privacy dropdown menu */}
+            <div className={styles.privacyMenuContainer}>
+              <Dropdown align="end">
+                <Dropdown.Toggle variant="link" className={styles.privacyMenuButton}>
+                  {getPrivacyIcon(privacyLevel)}
+                  <span className={styles.privacyText}>{getPrivacyText(privacyLevel)}</span>
+                  <FaEllipsisV className={styles.menuIcon} />
+                </Dropdown.Toggle>
+                <Dropdown.Menu className={styles.privacyDropdownMenu}>
+                  <Dropdown.Item 
+                    onClick={() => setPrivacyLevel(0)}
+                    className={privacyLevel === 0 ? styles.activePrivacyItem : ''}
+                  >
+                    <FaGlobe className={styles.dropdownIcon} />
+                    <div className={styles.privacyItemContent}>
+                      <span className={styles.privacyTitle}>Công khai</span>
+                      <span className={styles.privacyDescription}>Mọi người có thể xem</span>
+                    </div>
+                  </Dropdown.Item>
+                  <Dropdown.Item 
+                    onClick={() => setPrivacyLevel(1)}
+                    className={privacyLevel === 1 ? styles.activePrivacyItem : ''}
+                  >
+                    <FaLock className={styles.dropdownIcon} />
+                    <div className={styles.privacyItemContent}>
+                      <span className={styles.privacyTitle}>Riêng tư</span>
+                      <span className={styles.privacyDescription}>Chỉ người theo dõi</span>
+                    </div>
+                  </Dropdown.Item>
+                  <Dropdown.Item 
+                    onClick={() => setPrivacyLevel(2)}
+                    className={privacyLevel === 2 ? styles.activePrivacyItem : ''}
+                  >
+                    <FaUserSecret className={styles.dropdownIcon} />
+                    <div className={styles.privacyItemContent}>
+                      <span className={styles.privacyTitle}>Bí mật</span>
+                      <span className={styles.privacyDescription}>Chỉ mình tôi</span>
+                    </div>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             </div>
           </div>
 
@@ -121,14 +184,11 @@ const CreatePost = ({ onPostCreated }) => {
               rows={3}
               disabled={isSubmitting}
             />
-            
-            <PostControls
+              <PostControls
               content={content}
               setContent={setContent}
               location={location}
               setLocation={setLocation}
-              privacyLevel={privacyLevel}
-              setPrivacyLevel={setPrivacyLevel}
               isSubmitting={isSubmitting}
               textareaRef={textareaRef}
             />

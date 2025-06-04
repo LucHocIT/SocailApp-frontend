@@ -492,9 +492,8 @@
 }
 
 .privacyText {
-  font-size: 14px;
-  font-weight: 500;
-  color: #495057;
+  flex: 1;
+  text-align: left;
 }
 
 .mediaButton {
@@ -646,6 +645,136 @@
   animation: fadeIn 0.3s ease;
 }
 
+// Create Post Header with Privacy Menu
+.createPostHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(179, 217, 255, 0.3);
+}
+
+// Privacy Menu Container
+.privacyMenuContainer {
+  position: relative;
+}
+
+.privacyMenuButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #b3d9ff;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f8fbff 0%, #f0f8ff 100%);
+  color: #14171a;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+
+  &:hover {
+    background: linear-gradient(135deg, #e6f3ff 0%, #d9ecff 100%);
+    border-color: #3498db;
+    color: #14171a;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  }
+
+  &::after {
+    display: none;
+  }
+}
+
+.privacyIcon {
+  font-size: 14px;
+  color: #3498db;
+}
+
+.menuIcon {
+  font-size: 10px;
+  color: #65676b;
+  margin-left: 4px;
+}
+
+// Privacy Dropdown Menu
+.privacyDropdownMenu {
+  border: 1px solid #b3d9ff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(52, 152, 219, 0.15);
+  background: white;
+  padding: 8px 0;
+  min-width: 280px;
+  margin-top: 8px;
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: linear-gradient(135deg, #f8fbff 0%, #f0f8ff 100%);
+      color: #14171a;
+    }
+
+    &:focus {
+      background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+      color: #14171a;
+    }
+  }
+}
+
+.activePrivacyItem {
+  background: linear-gradient(135deg, #e6f3ff 0%, #d9ecff 100%) !important;
+  color: #14171a !important;
+  position: relative;
+
+  &::after {
+    content: '✓';
+    position: absolute;
+    right: 16px;
+    color: #3498db;
+    font-weight: bold;
+  }
+}
+
+.dropdownIcon {
+  font-size: 16px;
+  color: #3498db;
+  min-width: 16px;
+}
+
+.privacyItemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.privacyTitle {
+  font-weight: 600;
+  font-size: 14px;
+  color: #14171a;
+  line-height: 1.2;
+}
+
+.privacyDescription {
+  font-size: 12px;
+  color: #65676b;
+  line-height: 1.2;
+}
+
 // Dark mode support
 @media (prefers-color-scheme: dark) {
   .createPostCard {
@@ -739,6 +868,51 @@
 
   .submitButton {
     padding: 12px 16px;
+  }
+}
+
+// Responsive Design for Privacy Menu
+@media (max-width: 768px) {
+  .createPostHeader {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+  }
+
+  .privacyMenuButton {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-width: 100px;
+    gap: 6px;
+  }
+
+  .privacyIcon {
+    font-size: 12px;
+  }
+
+  .menuIcon {
+    font-size: 9px;
+  }
+
+  .privacyDropdownMenu {
+    min-width: 250px;
+    margin-top: 4px;
+
+    .dropdown-item {
+      padding: 10px 14px;
+      gap: 10px;
+    }
+  }
+
+  .dropdownIcon {
+    font-size: 14px;
+  }
+
+  .privacyTitle {
+    font-size: 13px;
+  }
+
+  .privacyDescription {
+    font-size: 11px;
   }
 }
 
