@@ -49,14 +49,14 @@
   gap: $spacing-2;
 
   svg {
-    font-size: $font-size-xl;
+    font-size: 1.5rem;
   }
 }
 
 .closeButton {
   @include button-base;
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
   border-radius: $border-radius-full;
   display: flex;
   align-items: center;
@@ -64,6 +64,10 @@
   color: white;
   background: rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
+
+  svg {
+    font-size: 1.4rem;
+  }
 
   &:hover {
     background: rgba(255, 255, 255, 0.3);
@@ -81,13 +85,36 @@ form {
 
 .formGroup {
   margin-bottom: $spacing-4;
+  transition: all 0.2s ease;
+
+  &.hasError {
+    margin-bottom: $spacing-5;
+  }
 
   label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
     margin-bottom: $spacing-2;
     color: $text-dark;
     font-weight: 500;
+    font-size: $font-size-base;
+    transition: color 0.2s ease;
   }
+
+  &.hasError label {
+    color: $danger-color;
+  }
+}
+
+.labelIcon {
+  color: $primary-color;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.formGroup:hover .labelIcon {
+  transform: scale(1.1);
 }
 
 .inputWrapper {
@@ -98,7 +125,7 @@ form {
 
 .input {
   width: 100%;
-  padding: $spacing-3;
+  padding: $spacing-3 calc($spacing-3 + 1.5rem) $spacing-3 $spacing-3;
   border: 2px solid $border-color;
   border-radius: $border-radius-lg;
   font-size: $font-size-base;
@@ -108,11 +135,24 @@ form {
     outline: none;
     border-color: $primary-color;
     box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    
+    ~ .inputIcon {
+      color: $primary-color;
+    }
   }
 
   &::placeholder {
     color: $text-light;
   }
+}
+
+.inputIcon {
+  position: absolute;
+  right: $spacing-3;
+  color: $text-light;
+  font-size: 1.1rem;
+  z-index: 2;
+  transition: color 0.2s ease;
 }
 
 .textareaWrapper {
@@ -121,7 +161,7 @@ form {
 
 .textarea {
   width: 100%;
-  padding: $spacing-3;
+  padding: $spacing-3 calc($spacing-3 + 2.5rem) $spacing-3 $spacing-3; // Extra padding for info icon (right)
   border: 2px solid $border-color;
   border-radius: $border-radius-lg;
   font-size: $font-size-base;
@@ -133,6 +173,14 @@ form {
     outline: none;
     border-color: $primary-color;
     box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    
+    ~ .textareaIcon {
+      color: $primary-color;
+    }
+    
+    ~ .emojiButton {
+      color: $primary-color;
+    }
   }
 
   &::placeholder {
@@ -140,17 +188,176 @@ form {
   }
 }
 
-.bioFooter {
+.textareaIcon {
+  position: absolute;
+  top: $spacing-3;
+  right: $spacing-3; // Position for info icon
+  color: $text-light;
+  font-size: 1.1rem;
+  z-index: 2;
+  transition: color 0.2s ease;
+}
+
+// Error states
+.input.error,
+.textarea.error {
+  border-color: $danger-color;
+  box-shadow: 0 0 0 3px rgba($danger-color, 0.1);
+}
+
+.errorMessage {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: $spacing-1;
+  color: $danger-color;
+  font-size: $font-size-sm;
+  margin-top: $spacing-1;
+  
+  svg {
+    font-size: 0.875rem;
+  }
+}
+
+.bioCounter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $spacing-1;
   margin-top: $spacing-2;
   padding: 0 $spacing-2;
+  
+  .warningText {
+    animation: fadeInUp 0.3s ease;
+  }
+}
+
+// Emoji picker button styles - positioned at bottom right outside textarea
+.emojiButton {
+  position: absolute;
+  bottom: $spacing-2;
+  right: $spacing-2;
+  background: none;
+  border: none;
+  color: $text-light;
+  font-size: 1.2rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 3;
+  
+  &:hover {
+    color: $primary-color;
+    background-color: rgba($primary-color, 0.1);
+    transform: scale(1.1);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    
+    &:hover {
+      transform: none;
+      background: none;
+      color: $text-light;
+    }
+  }
+}
+
+// Emoji picker container - positioned above the emoji button
+.emojiPickerContainer {
+  position: absolute;
+  bottom: calc(100% + $spacing-2);
+  right: 0;
+  z-index: 1000;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-2xl;
+  overflow: hidden;
+  border: 1px solid $border-color;
+  background: white;
+  
+  // Add arrow pointing down to the emoji button
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid white;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+  }
+  
+  // Responsive adjustments
+  @media (max-width: $breakpoint-sm) {
+    width: 280px;
+    right: 0;
+  }
+  
+  @media (max-width: 400px) {
+    left: 0;
+    right: 0;
+    width: 100%;
+    
+    &::after {
+      right: 20px;
+    }
+  }
+  
+  // Override emoji picker styles for consistency
+  :global(.EmojiPickerReact) {
+    border: none !important;
+    box-shadow: none !important;
+    
+    :global(.epr-header) {
+      padding: $spacing-2 !important;
+      background: $bg-light !important;
+      border-bottom: 1px solid $border-color !important;
+    }
+    
+    :global(.epr-body) {
+      padding: $spacing-2 !important;
+    }
+    
+    :global(.epr-emoji-category-label) {
+      background: $bg-light !important;
+      color: $text-dark !important;
+      font-weight: 600 !important;
+    }
+    
+    :global(.epr-emoji) {
+      &:hover {
+        background: rgba($primary-color, 0.1) !important;
+      }
+    }
+  }
 }
 
 .characterCount {
   font-size: $font-size-sm;
   color: $text-light;
+  transition: color 0.2s ease;
+  
+  &.warning {
+    color: $warning-color;
+    animation: pulse 1s infinite;
+  }
+  
+  &.danger {
+    color: $danger-color;
+    animation: pulse 1s infinite;
+  }
 }
 
 .warningText {
@@ -181,19 +388,44 @@ form {
   padding: $spacing-3;
   font-weight: 500;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
 
   @media (max-width: $breakpoint-sm) {
     width: 100%;
   }
 }
 
+.buttonIcon {
+  font-size: 1rem;
+}
+
 .saveButton {
   background: $gradient-primary;
   color: white;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: $shadow-lg;
+    
+    &::before {
+      left: 100%;
+    }
   }
 
   &:disabled {
@@ -206,12 +438,50 @@ form {
   background: white;
   border: 1px solid $border-color;
   color: $text-dark;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: $danger-color;
+    transition: width 0.3s ease;
+    z-index: -1;
+  }
 
   &:hover {
-    background: $danger-color;
-    border-color: $danger-color;
     color: white;
+    border-color: $danger-color;
+    
+    &::before {
+      width: 100%;
+    }
   }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+// Loading spinner
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @keyframes slideDown {
@@ -231,5 +501,21 @@ form {
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

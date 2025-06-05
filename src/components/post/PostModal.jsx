@@ -199,7 +199,9 @@ const PostModal = ({ show, onHide, post }) => {
               className={styles.headerAvatar} 
               roundedCircle={true} 
             />            <div className={styles.headerUserText}>
-              <span className={styles.headerUsername}>{post.username}</span>              <span className={styles.headerTime}>
+              <span className={styles.headerUsername}>
+                {post.firstName && post.lastName ? `${post.firstName} ${post.lastName}` : post.username}
+              </span><span className={styles.headerTime}>
                 <TimeAgo date={parseDate(post.createdAt)} />
                 {(post.privacyLevel > 0 || post.PrivacyLevel > 0) && (
                   <span className={styles.privacyIndicator} title={

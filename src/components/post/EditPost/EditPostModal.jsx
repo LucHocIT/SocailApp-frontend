@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Button, Form, Spinner } from 'react-bootstrap';
-import { FaSave, FaEdit } from 'react-icons/fa';
+import { Modal, Button, Form, Spinner, Container, Row, Col } from 'react-bootstrap';
+import { FaSave, FaEdit, FaTimes, FaImage, FaFileAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import postService from '../../../services/postService';
 import EditMediaUploader from './EditMediaUploader';
@@ -142,85 +142,153 @@ const EditPostModal = ({ show, post, onHide, onSave }) => {
       setIsSubmitting(false);
     }
   };
-
   return (
-    <Modal show={show} onHide={onHide} centered size="xl" className={styles.editModal}>
-      <Modal.Header closeButton>
-        <Modal.Title>
-          <FaEdit className={styles.titleIcon} /> Chỉnh sửa bài viết
+    <Modal 
+      show={show} 
+      onHide={onHide} 
+      centered 
+      size="xl" 
+      className={styles.editModal}
+      backdrop="static"
+      keyboard={!isSubmitting}
+    >
+      <Modal.Header className={styles.modalHeader}>
+        <Modal.Title className={styles.modalTitle}>
+          <div className={styles.titleContent}>
+            <FaEdit className={styles.titleIcon} />
+            <span>Chỉnh sửa bài viết</span>
+          </div>
         </Modal.Title>
+        <Button 
+          variant="link" 
+          onClick={onHide} 
+          className={styles.closeButton}
+          disabled={isSubmitting}
+        >
+          <FaTimes />
+        </Button>
       </Modal.Header>
 
-      <Modal.Body className={styles.content}>
-        <Form onSubmit={handleSubmit} className={styles.editorContainer}>
-          <div className={styles.textareaWrapper}>
-            <Form.Control
-              ref={textareaRef}
-              as="textarea"
-              value={content}
-              onChange={handleContentChange}
-              className={styles.textarea}
-              placeholder="Bạn đang nghĩ gì?"
-              rows={4}
-              disabled={isSubmitting}
-            />
-            
-            <EditPostControls
-              content={content}
-              setContent={setContent}
-              location={location}
-              setLocation={setLocation}
-              privacyLevel={privacyLevel}
-              setPrivacyLevel={setPrivacyLevel}
-              isSubmitting={isSubmitting}
-              textareaRef={textareaRef}
-            />
-          </div>
+      <Modal.Body className={styles.modalBody}>
+        <Container fluid className={styles.editContainer}>
+          <Row className={styles.editRow}>
+            {/* Editor Section */}
+            <Col lg={8} className={styles.editorSection}>
+              <div className={styles.editorWrapper}>
+                <div className={styles.textareaContainer}>
+                  <Form.Control
+                    ref={textareaRef}
+                    as="textarea"
+                    value={content}
+                    onChange={handleContentChange}
+                    className={styles.contentTextarea}
+                    placeholder="Chia sẻ suy nghĩ của bạn..."
+                    rows={6}
+                    disabled={isSubmitting}
+                  />
+                  
+                  {/* Character count */}
+                  <div className={styles.characterCount}>
+                    <span className={content.length > 2000 ? styles.overLimit : ''}>
+                      {content.length}/2000
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Post Controls */}
+                <EditPostControls
+                  content={content}
+                  setContent={setContent}
+                  location={location}
+                  setLocation={setLocation}
+                  privacyLevel={privacyLevel}
+                  setPrivacyLevel={setPrivacyLevel}
+                  isSubmitting={isSubmitting}
+                  textareaRef={textareaRef}
+                />
+              </div>
+            </Col>
 
-          <EditMediaUploader
-            mediaFiles={mediaFiles}
-            setMediaFiles={setMediaFiles}
-            existingMediaFiles={existingMediaFiles}
-            setExistingMediaFiles={setExistingMediaFiles}
-            isSubmitting={isSubmitting}
-          />
-        </Form>
+            {/* Media Preview Section */}
+            <Col lg={4} className={styles.mediaSection}>
+              <div className={styles.mediaSectionHeader}>
+                <div className={styles.sectionTitle}>
+                  <FaImage className={styles.sectionIcon} />
+                  <span>Media</span>
+                  <span className={styles.mediaCount}>
+                    ({existingMediaFiles.length + mediaFiles.length}/10)
+                  </span>
+                </div>
+              </div>
+              
+              <div className={styles.mediaPreviewArea}>
+                <EditMediaUploader
+                  mediaFiles={mediaFiles}
+                  setMediaFiles={setMediaFiles}
+                  existingMediaFiles={existingMediaFiles}
+                  setExistingMediaFiles={setExistingMediaFiles}
+                  isSubmitting={isSubmitting}
+                />
+              </div>
+            </Col>
+          </Row>
+          
+          {/* Post Statistics */}
+          <Row className={styles.statsRow}>
+            <Col>
+              <div className={styles.postStats}>
+                <div className={styles.statItem}>
+                  <FaFileAlt className={styles.statIcon} />
+                  <span>Nội dung: {content.trim().split(' ').filter(word => word).length} từ</span>
+                </div>
+                <div className={styles.statItem}>
+                  <FaImage className={styles.statIcon} />
+                  <span>Media: {existingMediaFiles.length + mediaFiles.length} file</span>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
       </Modal.Body>
 
-      <Modal.Footer className={styles.footer}>
-        <Button
-          variant="light"
-          onClick={onHide}
-          className={styles.cancelButton}
-          disabled={isSubmitting}
-        >
-          Hủy bỏ
-        </Button>
-        <Button
-          variant="primary"
-          onClick={handleSubmit}
-          className={styles.saveButton}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <>
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                className={styles.spinner}
-                role="status"
-                aria-hidden="true"
-              />
-              <span>Đang lưu...</span>
-            </>
-          ) : (
-            <>
-              <FaSave className={styles.icon} />
-              <span>Lưu thay đổi</span>
-            </>
-          )}
-        </Button>
+      <Modal.Footer className={styles.modalFooter}>
+        <div className={styles.footerContent}>
+          <Button
+            variant="outline-secondary"
+            onClick={onHide}
+            className={styles.cancelButton}
+            disabled={isSubmitting}
+          >
+            <FaTimes className={styles.buttonIcon} />
+            Hủy bỏ
+          </Button>
+          
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+            className={styles.saveButton}
+            disabled={isSubmitting || (!content.trim() && mediaFiles.length === 0 && existingMediaFiles.length === 0)}
+          >
+            {isSubmitting ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  className={styles.spinner}
+                  role="status"
+                  aria-hidden="true"
+                />
+                <span>Đang lưu...</span>
+              </>
+            ) : (
+              <>
+                <FaSave className={styles.buttonIcon} />
+                <span>Lưu thay đổi</span>
+              </>
+            )}
+          </Button>
+        </div>
       </Modal.Footer>
     </Modal>
   );

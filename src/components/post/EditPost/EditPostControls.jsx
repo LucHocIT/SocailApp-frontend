@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, ButtonGroup, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
 import { 
   FaAt, 
   FaHashtag, 
@@ -8,7 +8,8 @@ import {
   FaTimes,
   FaLock,
   FaGlobe,
-  FaUserSecret
+  FaUserSecret,
+  FaMapPin
 } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
 import { toast } from 'react-toastify';
@@ -167,54 +168,140 @@ const EditPostControls = ({
       setIsGettingLocation(false);
     }
   };
-
   return (
-    <>
-      {/* Content tools */}
-      <div className={styles.contentTools}>
-        <Button
-          variant="link"
-          className={styles.toolButton}
-          onClick={insertMention}
-          type="button"
-          disabled={isSubmitting}
-        >
-          <FaAt />
-        </Button>
-        <Button
-          variant="link"
-          className={styles.toolButton}
-          onClick={insertHashtag}
-          type="button"
-          disabled={isSubmitting}
-        >
-          <FaHashtag />
-        </Button>
-        <Button
-          variant="link"
-          className={styles.toolButton}
-          onClick={toggleEmojiPicker}
-          type="button"
-          disabled={isSubmitting}
-          ref={emojiButtonRef}
-        >
-          <FaRegSmile />
-        </Button>
-        <Button
-          variant="link"
-          className={styles.toolButton}
-          onClick={getCurrentLocation}
-          disabled={isSubmitting || isGettingLocation}
-          type="button"
-        >
-          <FaMapMarkerAlt />
-        </Button>
+    <div className={styles.controlsContainer}>
+      {/* Text Formatting Tools */}
+      <div className={styles.textToolsSection}>
+        <div className={styles.sectionLabel}>
+          <span>Công cụ định dạng</span>
+        </div>
+        <ButtonGroup className={styles.toolButtonGroup}>
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip>Nhắc tới ai đó (@mention)</Tooltip>}
+          >
+            <Button
+              variant="outline-primary"
+              className={styles.toolButton}
+              onClick={insertMention}
+              disabled={isSubmitting}
+            >
+              <FaAt />
+            </Button>
+          </OverlayTrigger>
+          
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip>Thêm hashtag (#tag)</Tooltip>}
+          >
+            <Button
+              variant="outline-primary"
+              className={styles.toolButton}
+              onClick={insertHashtag}
+              disabled={isSubmitting}
+            >
+              <FaHashtag />
+            </Button>
+          </OverlayTrigger>
+          
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip>Thêm emoji 😊</Tooltip>}
+          >
+            <Button
+              variant="outline-primary"
+              className={`${styles.toolButton} ${showEmojiPicker ? styles.active : ''}`}
+              onClick={toggleEmojiPicker}
+              disabled={isSubmitting}
+              ref={emojiButtonRef}
+            >
+              <FaRegSmile />
+            </Button>
+          </OverlayTrigger>
+          
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip>Thêm vị trí</Tooltip>}
+          >
+            <Button
+              variant="outline-primary"
+              className={styles.toolButton}
+              onClick={getCurrentLocation}
+              disabled={isSubmitting || isGettingLocation}
+            >
+              <FaMapMarkerAlt />
+              {isGettingLocation && (
+                <div className={styles.loadingSpinner}>
+                  <div className={styles.spinner}></div>
+                </div>
+              )}
+            </Button>
+          </OverlayTrigger>
+        </ButtonGroup>
       </div>
 
-      {/* Emoji picker - positioned absolutely */}
+      {/* Privacy Settings */}
+      <div className={styles.privacySection}>
+        <div className={styles.sectionLabel}>
+          <FaLock className={styles.sectionIcon} />
+          <span>Quyền riêng tư</span>
+        </div>
+        <ButtonGroup className={styles.privacyButtonGroup}>
+          <Button
+            variant={privacyLevel === 0 ? 'success' : 'outline-success'}
+            className={`${styles.privacyButton} ${styles.publicButton}`}
+            onClick={() => setPrivacyLevel(0)}
+            disabled={isSubmitting}
+          >
+            <FaGlobe className={styles.privacyIcon} />
+            <span className={styles.privacyText}>Công khai</span>
+          </Button>
+          
+          <Button
+            variant={privacyLevel === 1 ? 'warning' : 'outline-warning'}
+            className={`${styles.privacyButton} ${styles.privateButton}`}
+            onClick={() => setPrivacyLevel(1)}
+            disabled={isSubmitting}
+          >
+            <FaLock className={styles.privacyIcon} />
+            <span className={styles.privacyText}>Riêng tư</span>
+          </Button>
+          
+          <Button
+            variant={privacyLevel === 2 ? 'danger' : 'outline-danger'}
+            className={`${styles.privacyButton} ${styles.secretButton}`}
+            onClick={() => setPrivacyLevel(2)}
+            disabled={isSubmitting}
+          >
+            <FaUserSecret className={styles.privacyIcon} />
+            <span className={styles.privacyText}>Bí mật</span>
+          </Button>
+        </ButtonGroup>
+      </div>
+
+      {/* Location Display */}
+      {location && (
+        <div className={styles.locationContainer}>
+          <Badge bg="info" className={styles.locationBadge}>
+            <FaMapPin className={styles.locationIcon} />
+            <span className={styles.locationText}>{location}</span>
+            <Button
+              variant="link"
+              size="sm"
+              className={styles.removeLocationButton}
+              onClick={removeLocation}
+              disabled={isSubmitting}
+            >
+              <FaTimes />
+            </Button>
+          </Badge>
+        </div>
+      )}
+
+      {/* Emoji Picker */}
       {showEmojiPicker && (
         <div 
-          className={styles.emojiPickerContainer}
+          className={styles.emojiPickerOverlay}
           style={{
             position: 'fixed',
             top: `${emojiPickerPosition.top}px`,
@@ -222,70 +309,22 @@ const EditPostControls = ({
             zIndex: 9999
           }}
         >
-          <EmojiPicker
-            onEmojiClick={handleEmojiClick}
-            width={300}
-            height={400}
-          />
-        </div>
-      )}
-
-      {/* Location display */}
-      {location && (
-        <div className={styles.locationContainer}>
-          <div className={styles.locationDisplay}>
-            <FaMapMarkerAlt className={styles.locationIcon} />
-            <span className={styles.locationText}>{location}</span>
-            <Button
-              variant="light"
-              size="sm"
-              className={styles.removeLocationBtn}
-              onClick={removeLocation}
-              type="button"
-            >
-              <FaTimes />
-            </Button>
+          <div className={styles.emojiPickerContainer}>
+            <EmojiPicker
+              onEmojiClick={handleEmojiClick}
+              width={320}
+              height={420}
+              theme="light"
+              searchPlaceholder="Tìm emoji..."
+              previewConfig={{
+                showPreview: true,
+                defaultEmoji: "1f60a"
+              }}
+            />
           </div>
         </div>
       )}
-
-      {/* Privacy Section */}
-      <div className={styles.privacySection}>
-        <h6>Quyền riêng tư</h6>
-        <div className={styles.privacyButtons}>
-          <Button
-            variant={privacyLevel === 0 ? 'primary' : 'light'}
-            className={`${styles.privacyButton} ${styles.publicButton}`}
-            onClick={() => setPrivacyLevel(0)}
-            disabled={isSubmitting}
-            type="button"
-          >
-            <FaGlobe className={styles.privacyIcon} />
-            Công khai
-          </Button>
-          <Button
-            variant={privacyLevel === 1 ? 'primary' : 'light'}
-            className={`${styles.privacyButton} ${styles.privateButton}`}
-            onClick={() => setPrivacyLevel(1)}
-            disabled={isSubmitting}
-            type="button"
-          >
-            <FaLock className={styles.privacyIcon} />
-            Riêng tư
-          </Button>
-          <Button
-            variant={privacyLevel === 2 ? 'primary' : 'light'}
-            className={`${styles.privacyButton} ${styles.secretButton}`}
-            onClick={() => setPrivacyLevel(2)}
-            disabled={isSubmitting}
-            type="button"
-          >
-            <FaUserSecret className={styles.privacyIcon} />
-            Bí mật
-          </Button>
-        </div>
-      </div>
-    </>
+    </div>
   );
 };
 
