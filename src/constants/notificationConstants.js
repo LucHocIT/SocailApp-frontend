@@ -1,12 +1,25 @@
-// Notification Types
+// Notification Types - matching backend enum values
 export const NOTIFICATION_TYPES = {
-    LIKE: 0,
-    COMMENT: 1,
-    FOLLOW: 2,
-    COMMENT_REPLY: 3,
-    COMMENT_LIKE: 4,
-    WELCOME: 5,
-    SYSTEM: 6
+    LIKE: 1,
+    COMMENT: 2,
+    FOLLOW: 3,
+    COMMENT_REPLY: 4,
+    COMMENT_LIKE: 5,
+    MENTION: 6,
+    WELCOME: 7,
+    SYSTEM: 8
+};
+
+// String to numeric mapping for backend compatibility
+export const NOTIFICATION_TYPE_MAP = {
+    'Like': 1,
+    'Comment': 2,
+    'Follow': 3,
+    'CommentReply': 4,
+    'CommentLike': 5,
+    'Mention': 6,
+    'Welcome': 7,
+    'System': 8
 };
 
 // Notification Actions

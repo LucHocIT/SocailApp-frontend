@@ -10,7 +10,7 @@ import PostCardFooter from './PostCardFooter';
 import { ReactionUsersModal } from '../reactions';
 import PostModal from '../PostModal';
 
-const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {  
+const PostCard = ({ post, onPostUpdated, onPostDeleted, focusCommentId }) => {  
   const { user } = useAuth();
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarkedByCurrentUser || false);
   const [viewsCount, setViewsCount] = useState(post.viewsCount || Math.floor(Math.random() * 50) + 5);
@@ -135,11 +135,11 @@ const PostCard = ({ post, onPostUpdated, onPostDeleted }) => {
         onHide={() => setShowReactionUsersModal(false)} 
         postId={post.id}
       />
-      
-      <PostModal
+        <PostModal
         show={showPostModal}
         onHide={() => setShowPostModal(false)}
         post={post}
+        focusCommentId={focusCommentId}
       />
     </>
   );

@@ -10,9 +10,10 @@ import {
     FaThumbsUp, 
     FaGift, 
     FaBell,
-    FaTimes 
+    FaTimes,
+    FaAt 
 } from 'react-icons/fa';
-import { NOTIFICATION_TYPES } from '../../constants/notificationConstants';
+import { NOTIFICATION_TYPES, NOTIFICATION_TYPE_MAP } from '../../constants/notificationConstants';
 import styles from './NotificationItem.module.scss';
 
 const NotificationItem = ({ 
@@ -20,9 +21,14 @@ const NotificationItem = ({
     onMarkAsRead, 
     onDelete, 
     onClick 
-}) => {
-    const getNotificationIcon = (type) => {
-        switch (type) {
+}) => {    const getNotificationIcon = (type) => {
+        // Normalize notification type to handle both string and numeric types
+        let notificationType = type;
+        if (typeof type === 'string') {
+            notificationType = NOTIFICATION_TYPE_MAP[type] || type;
+        }
+        
+        switch (notificationType) {
             case NOTIFICATION_TYPES.LIKE:
                 return <FaHeart className={styles.likeIcon} />;
             case NOTIFICATION_TYPES.COMMENT:
@@ -33,6 +39,8 @@ const NotificationItem = ({
                 return <FaReply className={styles.replyIcon} />;
             case NOTIFICATION_TYPES.COMMENT_LIKE:
                 return <FaThumbsUp className={styles.likeIcon} />;
+            case NOTIFICATION_TYPES.MENTION:
+                return <FaAt className={styles.mentionIcon} />;
             case NOTIFICATION_TYPES.WELCOME:
                 return <FaGift className={styles.welcomeIcon} />;
             case NOTIFICATION_TYPES.SYSTEM:
@@ -40,7 +48,7 @@ const NotificationItem = ({
             default:
                 return <FaBell className={styles.defaultIcon} />;
         }
-    };    const handleClick = () => {
+    };const handleClick = () => {
         if (!notification.isRead) {
             onMarkAsRead([notification.id]);
         }

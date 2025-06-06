@@ -214,9 +214,12 @@ const CommentItem = ({ comment, postId, onCommentUpdated, onCommentDeleted, dept
       editTextareaRef.current.style.height = `${Math.min(editTextareaRef.current.scrollHeight, 120)}px`;
     }
   }, [editText, editMode]);
-
   return (
-    <div ref={commentRef} className={`${styles.commentContainer} ${depth > 0 ? styles.nested : ''}`}>
+    <div 
+      ref={commentRef} 
+      id={`comment-${comment.id}`}
+      className={`${styles.commentContainer} ${depth > 0 ? styles.nested : ''}`}
+    >
       <div className={styles.comment}>
         <Link to={`/profile/${comment.username}`} className={styles.commentAvatar}>
           <Image 

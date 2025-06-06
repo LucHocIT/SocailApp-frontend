@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Modal, Button, Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import TimeAgo from 'react-timeago';
@@ -9,10 +9,9 @@ import PostReactionButton from './reactions/PostReactionButton';
 import { CommentForm, CommentList } from '../../components/comment';
 import styles from './styles/PostModal.module.scss';
 
-const PostModal = ({ show, onHide, post }) => {
+const PostModal = ({ show, onHide, post, focusCommentId }) => {
   const { user } = useAuth();
   const commentListRef = useRef(null);
-
   // Handler for when a new comment is added
   const handleCommentAdded = (newComment) => {
     // Update the comment count in the header
@@ -24,6 +23,19 @@ const PostModal = ({ show, onHide, post }) => {
       commentListRef.current.handleCommentAdded(newComment);
     }
   };
+  // Scroll to specific comment when modal opens
+  useEffect(() => {
+    if (show && focusCommentId && commentListRef.current) {
+      // Wait for modal to fully open and comments to load
+      const timer = setTimeout(() => {
+        if (commentListRef.current.scrollToComment) {
+          commentListRef.current.scrollToComment(focusCommentId);
+        }
+      }, 1000); // Increased delay to ensure comments are loaded
+
+      return () => clearTimeout(timer);
+    }
+  }, [show, focusCommentId]);
 
   // Get media files array - support both new format (MediaFiles) and legacy format (mediaUrl)
   const getMediaFiles = () => {

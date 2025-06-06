@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../../context/hooks';
-import { toast } from 'react-toastify';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { 
@@ -62,11 +61,9 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
     
     setLoginError(''); // Clear any previous errors
     setIsProcessing(true);
-    
-    try {
+      try {
       const result = await login(values.username, values.password);
       if (result) {
-        toast.success('Đăng nhập thành công!');
         // Đăng nhập thành công vẫn được phép đóng modal
         onClose();
       }
@@ -127,11 +124,9 @@ const LoginModal = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =
       if (!accessToken) {
         throw new Error('Không nhận được token xác thực từ ' + provider);
       }
-      
-      const result = await socialLogin(provider, accessToken);
+        const result = await socialLogin(provider, accessToken);
       
       if (result) {
-        toast.success('Đăng nhập thành công!');
         onClose(); // Đăng nhập thành công vẫn được phép đóng modal
       }    } catch (error) {
       console.error(`${provider} login failed`);

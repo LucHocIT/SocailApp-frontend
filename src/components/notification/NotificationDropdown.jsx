@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { FaBell, FaCheck, FaTrash, FaCog } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../hooks/useNotifications';
+import { NOTIFICATION_TYPES, NOTIFICATION_TYPE_MAP } from '../../constants/notificationConstants';
 import NotificationItem from './NotificationItem';
 import styles from './NotificationDropdown.module.scss';
 
@@ -19,10 +21,11 @@ const NotificationDropdown = () => {
         deleteReadNotifications
     } = useNotifications();
 
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [filter, setFilter] = useState('all'); // all, unread, read
     const [page, setPage] = useState(1);
-    const dropdownRef = useRef();    // Load notifications when dropdown opens
+    const dropdownRef = useRef();// Load notifications when dropdown opens
     useEffect(() => {
         if (isOpen) {
             loadNotifications({ 
@@ -55,11 +58,75 @@ const NotificationDropdown = () => {
         if (window.confirm('Bạn có chắc chắn muốn xóa tất cả thông báo đã đọc?')) {
             deleteReadNotifications();
         }
-    };
-
-    const handleNotificationClick = (notification) => {
+    };    const handleNotificationClick = (notification) => {
         // Handle navigation based on notification type
-        console.log('Notification clicked:', notification);
+        try {
+            // Normalize notification type to handle both string and numeric types
+            let notificationType = notification.type;
+            if (typeof notificationType === 'string') {
+                notificationType = NOTIFICATION_TYPE_MAP[notificationType] || notification.type;
+            }
+            
+            switch (notificationType) {                case NOTIFICATION_TYPES.LIKE:
+                case NOTIFICATION_TYPES.COMMENT:
+                    // Navigate to the post page
+                    if (notification.postId) {
+                        // If it's a comment notification and we have comment ID, include it
+                        if (notificationType === NOTIFICATION_TYPES.COMMENT && notification.commentId) {
+                            navigate(`/post/${notification.postId}?commentId=${notification.commentId}`);
+                        } else {
+                            navigate(`/post/${notification.postId}`);
+                        }
+                    }
+                    break;
+                      
+                case NOTIFICATION_TYPES.FOLLOW:
+                    // Navigate to the user's profile who followed
+                    if (notification.fromUser) {
+                        // Use user ID for more reliable routing
+                        navigate(`/profile/${notification.fromUser.id}`);
+                    }
+                    break;
+                      case NOTIFICATION_TYPES.COMMENT_REPLY:
+                case NOTIFICATION_TYPES.COMMENT_LIKE:
+                    // Navigate to the post containing the comment with comment ID
+                    if (notification.postId) {
+                        if (notification.commentId) {
+                            navigate(`/post/${notification.postId}?commentId=${notification.commentId}`);
+                        } else {
+                            navigate(`/post/${notification.postId}`);
+                        }
+                    } else if (notification.comment && notification.comment.postId) {
+                        if (notification.comment.id) {
+                            navigate(`/post/${notification.comment.postId}?commentId=${notification.comment.id}`);
+                        } else {
+                            navigate(`/post/${notification.comment.postId}`);
+                        }
+                    }
+                    break;
+                    
+                case NOTIFICATION_TYPES.MENTION:
+                    // Navigate to the post where user was mentioned
+                    if (notification.postId) {
+                        navigate(`/post/${notification.postId}`);
+                    }
+                    break;
+                    
+                case NOTIFICATION_TYPES.WELCOME:
+                case NOTIFICATION_TYPES.SYSTEM:
+                    // For welcome and system notifications, don't navigate anywhere
+                    // Just mark as read, which is already handled in NotificationItem
+                    break;
+                    
+                default:
+                    console.log('Unknown notification type:', notification.type);
+                    break;
+            }
+        } catch (error) {
+            console.error('Error navigating from notification:', error);
+        }
+        
+        // Close the dropdown after navigation
         setIsOpen(false);
     };
 

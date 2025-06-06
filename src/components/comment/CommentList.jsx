@@ -16,7 +16,7 @@ const CommentList = forwardRef(({ postId, sortBy = 'newest' }, ref) => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef(null);
   const observerRef = useRef(null);
-    // Expose methods to parent through ref
+  // Expose methods to parent through ref
   useImperativeHandle(ref, () => ({
     handleCommentAdded: (newComment) => {
       setComments(prevComments => [newComment, ...prevComments]);
@@ -25,6 +25,28 @@ const CommentList = forwardRef(({ postId, sortBy = 'newest' }, ref) => {
     scrollToTop: () => {
       if (containerRef.current) {
         containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+    scrollToComment: (commentId) => {
+      const commentElement = document.getElementById(`comment-${commentId}`);
+      if (commentElement && containerRef.current) {
+        const container = containerRef.current;
+        const containerRect = container.getBoundingClientRect();
+        const commentRect = commentElement.getBoundingClientRect();
+        
+        // Calculate scroll position relative to container
+        const scrollTop = container.scrollTop + commentRect.top - containerRect.top - 20;
+        
+        container.scrollTo({ 
+          top: scrollTop, 
+          behavior: 'smooth' 
+        });
+        
+        // Add highlight effect
+        commentElement.classList.add('highlighted-comment');
+        setTimeout(() => {
+          commentElement.classList.remove('highlighted-comment');
+        }, 3000);
       }
     }
   }));
