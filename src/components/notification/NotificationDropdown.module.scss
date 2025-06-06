@@ -1,0 +1,262 @@
+.notificationDropdown {
+    position: relative;
+}
+
+.notificationToggle {
+    position: relative;
+    background: none !important;
+    border: none !important;
+    padding: 8px !important;
+    color: #333 !important;
+    box-shadow: none !important;
+    
+    &:hover {
+        color: #007bff !important;
+    }
+
+    &:focus {
+        box-shadow: none !important;
+    }
+
+    &::after {
+        display: none !important;
+    }
+}
+
+.bellIcon {
+    font-size: 18px;
+    transition: color 0.2s ease;
+}
+
+.badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.notificationMenu {
+    width: 380px;
+    max-height: 600px;
+    padding: 0;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    
+    @media (max-width: 480px) {
+        width: 320px;
+        max-height: 70vh;
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #e9ecef;
+    background-color: #fff;
+}
+
+.title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.actionButton {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: #f8f9fa;
+        color: #333;
+    }
+}
+
+.filterTabs {
+    display: flex;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.filterTab {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+
+    &:hover {
+        background-color: #e9ecef;
+        color: #333;
+    }
+
+    &.active {
+        color: #007bff;
+        background-color: #fff;
+        border-bottom-color: #007bff;
+        font-weight: 500;
+    }
+}
+
+.notificationsList {
+    max-height: 400px;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    gap: 12px;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    padding: 20px;
+    text-align: center;
+    color: #dc3545;
+    font-size: 14px;
+}
+
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    gap: 12px;
+}
+
+.emptyIcon {
+    font-size: 32px;
+    opacity: 0.5;
+}
+
+.loadMore {
+    padding: 16px;
+    text-align: center;
+    border-top: 1px solid #e9ecef;
+}
+
+.loadMoreButton {
+    background: none;
+    border: 1px solid #007bff;
+    color: #007bff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+        background-color: #007bff;
+        color: white;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.footer {
+    padding: 12px 16px;
+    border-top: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+
+.viewAllButton {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #007bff;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: #e7f3ff;
+    }
+}
+
+// Animation for dropdown
+.notificationMenu {
+    animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

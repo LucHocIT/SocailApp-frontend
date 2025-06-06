@@ -11,6 +11,7 @@ import './index.scss';
 // Import context providers
 import { AppProvider } from './context';
 import { UserBlockProvider } from './context/UserBlockContext';
+import NotificationProvider from './context/NotificationContext';
 
 // Import components
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -37,20 +38,21 @@ function App() {
   return (    <Router>
       <AppProvider>
         <UserBlockProvider>
-          <ToastContainer
-            position="top-right" 
-            autoClose={3000} 
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-          />
-          <Navbar />
-          <div className="app-content"><Routes>
+          <NotificationProvider>
+            <ToastContainer
+              position="top-right" 
+              autoClose={3000} 
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
+            <Navbar />
+            <div className="app-content"><Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/request-verification" element={<RequestVerificationPage />} />            <Route path="/post/:postId" element={<PostPage />} />
             {/* Public profile route - anyone can view profiles */}
@@ -68,6 +70,7 @@ function App() {
                 <p>Made with ❤️ for social connections</p>
               </div>            </div>
           </div>        </footer>
+          </NotificationProvider>
         </UserBlockProvider>
       </AppProvider>
     </Router>
