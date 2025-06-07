@@ -203,11 +203,10 @@
 }
 
 // Message badge for unread count
-.messageBadge {
-  position: absolute;
+.messageBadge {  position: absolute;
   top: -8px;
   right: -8px;
-  background: linear-gradient(135deg, $danger-color, darken($danger-color, 10%));
+  background: linear-gradient(135deg, $danger-color, color.adjust($danger-color, $lightness: -10%));
   color: white;
   font-size: 10px;
   font-weight: 600;
