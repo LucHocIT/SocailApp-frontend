@@ -191,9 +191,49 @@
     transition: all 0.3s ease;
     opacity: 0.8;
   }
-  
-  &:hover .iconLabel {
+    &:hover .iconLabel {
     opacity: 1;
+  }
+}
+
+// Icon wrapper for positioning badges
+.iconWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+// Message badge for unread count
+.messageBadge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, $danger-color, darken($danger-color, 10%));
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba($danger-color, 0.3);
+  animation: pulse-badge 2s infinite;
+  z-index: 1;
+}
+
+@keyframes pulse-badge {
+  0% {
+    box-shadow: 0 2px 4px rgba($danger-color, 0.3), 0 0 0 0 rgba($danger-color, 0.4);
+  }
+  70% {
+    box-shadow: 0 2px 4px rgba($danger-color, 0.3), 0 0 0 6px rgba($danger-color, 0);
+  }
+  100% {
+    box-shadow: 0 2px 4px rgba($danger-color, 0.3), 0 0 0 0 rgba($danger-color, 0);
   }
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { useAuth } from '../../context/hooks';
+import { useAuth, useChat } from '../../context/hooks';
 import chatService from '../../services/chatService';
 import ConversationList from './ConversationList';
 import ChatWindow from './ChatWindow';
@@ -9,67 +9,13 @@ import { toast } from 'react-toastify';
 import './ChatPage.scss';
 
 const ChatPage = () => {
-  const { user } = useAuth();  const [conversations, setConversations] = useState([]);
+  const { user } = useAuth();
+  const { conversations, markConversationAsRead } = useChat();
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [isSearching, setIsSearching] = useState(false);
 
-  const loadConversations = async () => {
-    try {
-      const response = await chatService.getConversations();
-      setConversations(response.conversations || []);
-    } catch (error) {
-      console.error('Error loading conversations:', error);
-      toast.error('Không thể tải danh sách cuộc trò chuyện');
-    }
-  };  const handleNewMessage = useCallback((message) => {
-    if (message.type === 'messageRead') {
-      // Handle message read status - ensure the conversation is updated immediately
-      setConversations(prev => prev.map(conv => 
-        conv.id === message.conversationId 
-          ? { ...conv, unreadCount: 0 }
-          : conv
-      ));
-      return;
-    }
-
-    // Note: Removed newMessage handler as system notifications are disabled per user request
-
-    // Handle direct message (ReceiveMessage) - for users in the conversation
-    setConversations(prev => {
-      const existingIndex = prev.findIndex(conv => conv.id === message.conversationId);
-      
-      if (existingIndex !== -1) {
-        const updated = [...prev];
-        const conversation = { ...updated[existingIndex] };
-        
-        // Update last message info
-        conversation.lastMessage = message.content;
-        conversation.lastMessageTime = message.sentAt;
-        
-        // Update unread count if not current conversation
-        // If this is the currently selected conversation, don't increment unread count
-        // because the user is actively viewing it and it will be auto-marked as read
-        if (selectedConversation?.id !== message.conversationId) {
-          conversation.unreadCount = (conversation.unreadCount || 0) + 1;
-        }
-
-        // Move to top
-        updated.splice(existingIndex, 1);
-        updated.unshift(conversation);
-        
-        return updated;
-      }
-      
-      return prev;
-    });
-
-    // Note: Removed notification toast as per user request
-    // if (selectedConversation?.id !== message.conversationId) {
-    //   toast.info(`Tin nhắn mới từ ${message.senderName}`);
-    // }
-  }, [selectedConversation]);
   const handleUserStatusChange = useCallback((userId, isOnline) => {
     setOnlineUsers(prev => {
       const newSet = new Set(prev);
@@ -80,31 +26,7 @@ const ChatPage = () => {
       }
       return newSet;
     });
-  }, []);  const handleConversationUpdated = useCallback((updateData) => {
-    setConversations(prev => {
-      const index = prev.findIndex(conv => conv.id === updateData.ConversationId);
-      if (index !== -1) {
-        const updated = [...prev];
-        const conversation = { ...updated[index] };
-        
-        // Update conversation data
-        conversation.lastMessage = updateData.LastMessage;
-        conversation.lastMessageTime = updateData.LastMessageTime;
-        conversation.unreadCount = updateData.UnreadCount;
-        
-        // Move to top if it's not the currently selected conversation
-        if (selectedConversation?.id !== updateData.ConversationId) {
-          updated.splice(index, 1);
-          updated.unshift(conversation);
-        } else {
-          updated[index] = conversation;
-        }
-        
-        return updated;
-      }
-      return prev;
-    });
-  }, [selectedConversation]);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -121,20 +43,11 @@ const ChatPage = () => {
 
         if (!isMounted) return;
 
-        // Load conversations
-        await loadConversations();
-
-        if (!isMounted) return;
-
-        // Set up event handlers
-        const removeMessageHandler = chatService.onMessageReceived(handleNewMessage);
+        // Set up event handlers (conversations are handled by ChatContext)
         const removeStatusHandler = chatService.onUserStatusChanged(handleUserStatusChange);
-        const removeConversationHandler = chatService.onConversationUpdated(handleConversationUpdated);
 
         cleanup = () => {
-          removeMessageHandler();
           removeStatusHandler();
-          removeConversationHandler();
         };
 
         setLoading(false);
@@ -156,24 +69,17 @@ const ChatPage = () => {
       if (cleanup) {
         cleanup();
       }
-      // Don't disconnect here as it might be used elsewhere
-      // chatService.disconnect();
     };
-  }, [user, handleNewMessage, handleUserStatusChange, handleConversationUpdated]);
+  }, [user, handleUserStatusChange]);
+
   const handleSelectConversation = async (conversation) => {
     setSelectedConversation(conversation);
     
-    // Mark as read (use only SignalR to avoid duplication)
+    // Mark as read using ChatContext
     if (conversation.unreadCount > 0) {
       try {
         await chatService.markConversationAsRead(conversation.id);
-        
-        // Update local state immediately
-        setConversations(prev => prev.map(conv => 
-          conv.id === conversation.id 
-            ? { ...conv, unreadCount: 0 }
-            : conv
-        ));
+        markConversationAsRead(conversation.id);
       } catch (error) {
         console.error('Error marking as read:', error);
       }
@@ -185,20 +91,13 @@ const ChatPage = () => {
     } catch (error) {
       console.error('Error joining conversation:', error);
     }
-  };  const handleStartNewChat = async (selectedUser) => {
+  };
+
+  const handleStartNewChat = async (selectedUser) => {
     try {
       const conversation = await chatService.getOrCreateConversation(selectedUser.id);
       
-      // Add to conversations if new
-      setConversations(prev => {
-        const exists = prev.find(conv => conv.id === conversation.id);
-        if (!exists) {
-          return [conversation, ...prev];
-        }
-        return prev;
-      });
-
-      // Select the conversation
+      // Select the conversation (ChatContext will handle adding it to the list)
       setSelectedConversation(conversation);
     } catch (error) {
       console.error('Error starting new chat:', error);
@@ -224,7 +123,8 @@ const ChatPage = () => {
 
   return (
     <Container fluid className="chat-page">
-      <Row className="h-100">        <Col md={4} lg={3} className="conversation-sidebar">
+      <Row className="h-100">
+        <Col md={4} lg={3} className="conversation-sidebar">
           <div className="sidebar-header">
             <h5>Tin nhắn</h5>
           </div>
@@ -235,7 +135,7 @@ const ChatPage = () => {
               alwaysVisible={true}
               onSearchStateChange={handleSearchStateChange}
             />
-              {!isSearching && (
+            {!isSearching && (
               <ConversationList
                 conversations={conversations}
                 selectedConversation={selectedConversation}
@@ -257,9 +157,9 @@ const ChatPage = () => {
           ) : (
             <div className="no-conversation-selected">
               <div className="text-center">
-                <i className="bi bi-chat-dots-fill text-muted" style={{ fontSize: '4rem' }}></i>
-                <h4 className="text-muted mt-3">Chọn một cuộc trò chuyện</h4>
-                <p className="text-muted">Chọn một cuộc trò chuyện từ danh sách bên trái hoặc bắt đầu cuộc trò chuyện mới</p>
+                <i className="bi bi-chat-text-fill" style={{ fontSize: '4rem', color: '#ddd' }}></i>
+                <h4 className="mt-3 text-muted">Chọn một cuộc trò chuyện</h4>
+                <p className="text-muted">Nhấn vào cuộc trò chuyện để bắt đầu nhắn tin</p>
               </div>
             </div>
           )}

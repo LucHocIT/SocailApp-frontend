@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/hooks';
+import { useAuth, useChat } from '../context/hooks';
 import { FaChevronDown, FaUser, FaBell, FaHome, FaUsers, FaComments } from 'react-icons/fa';
 import AuthModals from './auth/AuthModals';
 import UserSearch from './user/UserSearch';
@@ -10,6 +10,7 @@ import styles from './Navbar.module.scss';
 
 const Navbar = () => {
   const { user } = useAuth();
+  const { unreadCount } = useChat();
   const location = useLocation();
   const [authModalOpen, setAuthModalOpen] = useState(false);  const [authModalMode, setAuthModalMode] = useState('login');
   const [scrolled, setScrolled] = useState(false);
@@ -69,7 +70,14 @@ const Navbar = () => {
               <span className={styles.iconLabel}>Bạn bè</span>
             </Link>
             <Link to="/chat" className={`${styles.navIcon} ${location.pathname === '/chat' ? styles.active : ''}`}>
-              <FaComments />
+              <div className={styles.iconWrapper}>
+                <FaComments />
+                {unreadCount > 0 && (
+                  <span className={styles.messageBadge}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </div>
               <span className={styles.iconLabel}>Tin nhắn</span>
             </Link>
           </div>
