@@ -80,15 +80,13 @@ export function NotificationProvider({ children }) {
             loadNotifications();
             loadUnreadCount();
         }
-    }, [user, loadNotifications, loadUnreadCount]);
-
-    // Auto refresh unread count every 30 seconds
+    }, [user, loadNotifications, loadUnreadCount]);    // Auto refresh unread count every 2 seconds for real-time updates
     useEffect(() => {
         if (!user) return;
         
         const interval = setInterval(() => {
             loadUnreadCount();
-        }, 30000);
+        }, 2000); // 2 seconds for real-time updates
 
         return () => clearInterval(interval);
     }, [user, loadUnreadCount]);

@@ -25,7 +25,10 @@ const NotificationDropdown = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [filter, setFilter] = useState('all'); // all, unread, read
     const [page, setPage] = useState(1);
-    const dropdownRef = useRef();// Load notifications when dropdown opens
+    const [hasNewNotification, setHasNewNotification] = useState(false);
+    const [previousUnreadCount, setPreviousUnreadCount] = useState(0);    const dropdownRef = useRef();
+
+// Load notifications when dropdown opens
     useEffect(() => {
         if (isOpen) {
             loadNotifications({ 
@@ -35,7 +38,21 @@ const NotificationDropdown = () => {
             });
             setPage(1);
         }
-    }, [isOpen, filter, loadNotifications]);
+    }, [isOpen, filter, loadNotifications]);    // Theo dõi thay đổi số lượng thông báo chưa đọc để kích hoạt hiệu ứng rung
+    useEffect(() => {
+        if (unreadCount > previousUnreadCount && previousUnreadCount > 0) {
+            // Có thông báo mới đến
+            setHasNewNotification(true);
+            
+            // Tắt hiệu ứng rung sau 10 giây
+            const timer = setTimeout(() => {
+                setHasNewNotification(false);
+            }, 10000);
+            
+            return () => clearTimeout(timer);
+        }
+        setPreviousUnreadCount(unreadCount);
+    }, [unreadCount, previousUnreadCount]);
 
     // Load more notifications
     const loadMore = () => {
@@ -142,13 +159,12 @@ const NotificationDropdown = () => {
             onToggle={setIsOpen}
             ref={dropdownRef}
             className={styles.notificationDropdown}
-        >
-            <Dropdown.Toggle 
+        >            <Dropdown.Toggle 
                 variant="link" 
                 className={styles.notificationToggle}
                 id="notification-dropdown"
             >
-                <FaBell className={styles.bellIcon} />
+                <FaBell className={`${styles.bellIcon} ${hasNewNotification ? styles.hasNewNotification : ''}`} />
                 {unreadCount > 0 && (
                     <span className={styles.badge}>
                         {unreadCount > 99 ? '99+' : unreadCount}

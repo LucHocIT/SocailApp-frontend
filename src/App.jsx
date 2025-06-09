@@ -16,6 +16,7 @@ import NotificationProvider from './context/NotificationContext';
 // Import components
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Navbar from './components/Navbar';
+import ChatWidget from './components/chat/ChatWidget';
 
 // Import pages
 import HomePage from './pages/HomePage';
@@ -49,9 +50,9 @@ function App() {
               pauseOnFocusLoss
               draggable
               pauseOnHover
-              theme="light"
-            />
+              theme="light"            />
             <Navbar />
+            <ChatWidget />
             <div className="app-content"><Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/request-verification" element={<RequestVerificationPage />} />            <Route path="/post/:postId" element={<PostPage />} />

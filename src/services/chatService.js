@@ -447,7 +447,6 @@ class ChatService {
       }
     }
   }
-
   async markConversationAsRead(conversationId) {
     if (this.connection && this.isConnected) {
       try {
@@ -456,6 +455,14 @@ class ChatService {
         console.error('Error marking conversation as read:', error);
       }
     }
+  }  // Helper method to check connection status
+  getConnectionStatus() {
+    return this.connection && this.isConnected;
+  }
+
+  // Alias for getConversationMessages to maintain compatibility
+  async getMessages(conversationId, page = 1, pageSize = 50) {
+    return this.getConversationMessages(conversationId, page, pageSize);
   }
 }
 

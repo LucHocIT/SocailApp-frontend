@@ -299,7 +299,7 @@
   position: relative;
   background: transparent;
   border: none;
-  font-size: $font-size-lg;
+  font-size: $font-size-xl; // Tăng kích thước icon chuông
   color: $text-color;
   padding: $spacing-3;
   border-radius: 50%;
@@ -315,14 +315,19 @@
   &:active {
     transform: translateY(0);
   }
+  
+  // Hiệu ứng rung khi có thông báo mới
+  &.hasNewNotification {
+    animation: bellShake 10s ease-in-out;
+  }
 }
 
 .notificationBadge {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 10px;
-  height: 10px;
+  top: 3px; // Điều chỉnh vị trí để phù hợp với icon lớn hơn
+  right: 3px;
+  width: 8px; // Giảm kích thước badge
+  height: 8px; // Giảm kích thước badge
   background-color: $danger-color;
   border-radius: 50%;
   border: 2px solid white;
@@ -339,6 +344,21 @@
   100% {
     box-shadow: 0 0 0 0 rgba($danger-color, 0);
   }
+}
+
+// Hiệu ứng rung cho icon chuông khi có thông báo mới
+@keyframes bellShake {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60% { transform: rotate(0deg); }
+  70% { transform: rotate(8deg); }
+  80% { transform: rotate(-2deg); }
+  90% { transform: rotate(4deg); }
+  100% { transform: rotate(0deg); }
 }
 
 .notificationsDropdown {

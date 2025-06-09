@@ -26,6 +26,11 @@
 .bellIcon {
     font-size: 18px;
     transition: color 0.2s ease;
+    
+    // Hiệu ứng rung khi có thông báo mới
+    &.hasNewNotification {
+        animation: bellShake 10s ease-in-out;
+    }
 }
 
 .badge {
@@ -259,4 +264,19 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+// Hiệu ứng rung cho icon chuông khi có thông báo mới
+@keyframes bellShake {
+    0% { transform: rotate(0deg); }
+    10% { transform: rotate(14deg); }
+    20% { transform: rotate(-8deg); }
+    30% { transform: rotate(14deg); }
+    40% { transform: rotate(-4deg); }
+    50% { transform: rotate(10deg); }
+    60% { transform: rotate(0deg); }
+    70% { transform: rotate(8deg); }
+    80% { transform: rotate(-2deg); }
+    90% { transform: rotate(4deg); }
+    100% { transform: rotate(0deg); }
 }
