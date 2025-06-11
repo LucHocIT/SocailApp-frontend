@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useProfile, useAuth } from '../../../context/hooks';
 import { 
@@ -15,6 +15,7 @@ import styles from './ProfileHeader.module.scss';
 import ImageCropperModal from '../ImageCropper';
 import BlockUserButton from '../../user/BlockUserButton';
 import BlockStatusIndicator from '../../user/BlockStatusIndicator';
+import chatService from '../../../services/chatService';
 
 const ProfileHeader = ({ 
   profileData, 
@@ -32,6 +33,7 @@ const ProfileHeader = ({
 }) => {
 const { user, logout } = useAuth();
   const { uploadCroppedProfilePicture } = useProfile();
+  const navigate = useNavigate();
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const [isCoverHovered, setIsCoverHovered] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -116,7 +118,6 @@ const { user, logout } = useAuth();
       coverFileRef.current.value = '';
     }
   };
-
   // Handle logout
   const handleLogout = async () => {
     try {
@@ -125,6 +126,39 @@ const { user, logout } = useAuth();
       console.error('Logout error:', error);
     }
   };
+
+  // Handle message/chat
+  const handleStartChat = async () => {
+    if (!user || !profileData) {
+      toast.error('Vui lòng đăng nhập để nhắn tin');
+      return;
+    }
+
+    try {
+      // Tạo hoặc lấy conversation với user này
+      const conversation = await chatService.getOrCreateConversation(profileData.id);
+      
+      // Chuyển hướng đến trang chat với conversation được chọn
+      navigate('/chat', { 
+        state: { 
+          selectedConversationId: conversation.id,
+          otherUser: {
+            id: profileData.id,
+            name: `${profileData.firstName} ${profileData.lastName}`,
+            avatar: profileData.profilePictureUrl
+          }
+        } 
+      });
+    } catch (error) {
+      console.error('Error starting chat:', error);
+      if (error.response?.status === 400) {
+        toast.error('Bạn chỉ có thể nhắn tin với bạn bè (người theo dõi lẫn nhau)');
+      } else {
+        toast.error('Không thể bắt đầu cuộc trò chuyện. Vui lòng thử lại sau.');
+      }
+    }
+  };
+
   const handleKeyPress = (handler) => (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       handler(e);
@@ -370,8 +404,10 @@ const { user, logout } = useAuth();
                       <FaUserPlus /> Theo dõi
                     </>
                   )}
-                </button>
-                <button className={styles.btnSecondary}>
+                </button>                <button 
+                  className={styles.btnSecondary} 
+                  onClick={handleStartChat}
+                >
                   <FaEnvelope /> Nhắn tin
                 </button>
                 <BlockUserButton 

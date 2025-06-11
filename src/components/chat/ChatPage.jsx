@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
 import { useAuth, useChat } from '../../context/hooks';
 import chatService from '../../services/chatService';
 import ConversationList from './ConversationList';
@@ -11,11 +12,11 @@ import './ChatPage.scss';
 const ChatPage = () => {
   const { user } = useAuth();
   const { conversations, markConversationAsRead } = useChat();
+  const location = useLocation();
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [isSearching, setIsSearching] = useState(false);
-
   const handleUserStatusChange = useCallback((userId, isOnline) => {
     setOnlineUsers(prev => {
       const newSet = new Set(prev);
@@ -27,6 +28,27 @@ const ChatPage = () => {
       return newSet;
     });
   }, []);
+
+  const handleSelectConversation = useCallback(async (conversation) => {
+    setSelectedConversation(conversation);
+    
+    // Mark as read using ChatContext
+    if (conversation.unreadCount > 0) {
+      try {
+        await chatService.markConversationAsRead(conversation.id);
+        markConversationAsRead(conversation.id);
+      } catch (error) {
+        console.error('Error marking as read:', error);
+      }
+    }
+
+    // Join conversation room
+    try {
+      await chatService.joinConversation(conversation.id);
+    } catch (error) {
+      console.error('Error joining conversation:', error);
+    }
+  }, [markConversationAsRead]);
 
   useEffect(() => {
     let isMounted = true;
@@ -70,28 +92,37 @@ const ChatPage = () => {
         cleanup();
       }
     };
-  }, [user, handleUserStatusChange]);
-
-  const handleSelectConversation = async (conversation) => {
-    setSelectedConversation(conversation);
+  }, [user, handleUserStatusChange]);  // Handle navigation state for auto-selecting conversation
+  useEffect(() => {
+    const { selectedConversationId, otherUser } = location.state || {};
     
-    // Mark as read using ChatContext
-    if (conversation.unreadCount > 0) {
-      try {
-        await chatService.markConversationAsRead(conversation.id);
-        markConversationAsRead(conversation.id);
-      } catch (error) {
-        console.error('Error marking as read:', error);
+    if (selectedConversationId && conversations.length > 0) {
+      // Tìm conversation trong danh sách
+      const conversation = conversations.find(c => c.id === selectedConversationId);
+      
+      if (conversation) {
+        setSelectedConversation(conversation);
+        
+        // Mark as read if needed
+        if (conversation.unreadCount > 0) {
+          handleSelectConversation(conversation);
+        }
+      } else if (otherUser) {
+        // Nếu không tìm thấy conversation nhưng có thông tin otherUser
+        // Tạo một conversation object tạm thời để hiển thị ChatWindow
+        const tempConversation = {
+          id: selectedConversationId,
+          otherUserId: otherUser.id,
+          otherUserName: otherUser.name,
+          otherUserAvatar: otherUser.avatar,
+          lastMessage: null,
+          lastMessageTime: null,
+          unreadCount: 0,
+          isOtherUserOnline: false
+        };
+        setSelectedConversation(tempConversation);
       }
-    }
-
-    // Join conversation room
-    try {
-      await chatService.joinConversation(conversation.id);
-    } catch (error) {
-      console.error('Error joining conversation:', error);
-    }
-  };
+    }  }, [location.state, conversations, handleSelectConversation]);
 
   const handleStartNewChat = async (selectedUser) => {
     try {
