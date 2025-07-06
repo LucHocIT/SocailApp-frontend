@@ -221,15 +221,19 @@ class ChatService {
     try {
       if (this.connection) {
         await this.disconnect();
-      }
-
-      const token = localStorage.getItem('token');
+      }      const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
       }
 
+      // Use environment-based URL or fallback to relative URLs for production
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const hubUrl = baseUrl.includes('localhost') 
+        ? `${baseUrl.replace('/api', '')}/chatHub`
+        : '/chatHub'; // Use relative URL when in production/Docker
+
       this.connection = new signalR.HubConnectionBuilder()
-        .withUrl('http://localhost:5063/chatHub', {
+        .withUrl(hubUrl, {
           accessTokenFactory: () => token,
           transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,
           skipNegotiation: false,

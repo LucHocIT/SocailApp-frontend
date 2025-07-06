@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance with default config
 const api = axios.create({
-  baseURL: 'http://localhost:5063/api', // Updated to match the actual backend port
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api', // Use relative URL for production
   headers: {
     'Content-Type': 'application/json',
   },
