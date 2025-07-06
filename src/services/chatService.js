@@ -226,11 +226,9 @@ class ChatService {
         throw new Error('No authentication token found');
       }
 
-      // Use environment-based URL or fallback to relative URLs for production
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const hubUrl = baseUrl.includes('localhost') 
-        ? `${baseUrl.replace('/api', '')}/chatHub`
-        : '/chatHub'; // Use relative URL when in production/Docker
+      // Use environment-based URL for SignalR hub
+      const baseUrl = import.meta.env.VITE_SIGNALR_HUB_URL || import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || window.location.origin;
+      const hubUrl = `${baseUrl}/chatHub`;
 
       this.connection = new signalR.HubConnectionBuilder()
         .withUrl(hubUrl, {
