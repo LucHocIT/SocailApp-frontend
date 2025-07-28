@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://social-media-app-dmfz.onrender.com', // Use backend URL for production
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://social-media-app-dmfz.onrender.com/api', // Use backend URL for production with /api prefix
   headers: {
     'Content-Type': 'application/json',
   },
