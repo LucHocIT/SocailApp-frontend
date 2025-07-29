@@ -43,6 +43,7 @@ console.log('Environment Variables:', {
 // Add a request interceptor to include the auth token in all requests
 api.interceptors.request.use(
   (config) => {
+    console.log('Making request to:', config.url, 'Full URL:', config.baseURL + config.url);
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -50,14 +51,25 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
 // Add a response interceptor to handle auth errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('Response received:', response.status, response.config.url);
+    return response;
+  },
   (error) => {
+    console.error('Response error:', {
+      status: error.response?.status,
+      url: error.config?.url,
+      message: error.message,
+      response: error.response?.data
+    });
+    
     if (error.response?.status === 401) {
       // Check if this is a token expiration case (user was previously logged in)
       // We only want to redirect for expired tokens, not for failed login attempts
