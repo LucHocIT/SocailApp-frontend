@@ -46,6 +46,11 @@ api.interceptors.request.use(
     console.log('Making request to:', config.url, 'Full URL:', config.baseURL + config.url);
     console.log('Current window location:', window.location.origin);
     console.log('Current hostname:', window.location.hostname);
+    console.log('Request config:', {
+      method: config.method,
+      headers: config.headers,
+      data: config.data
+    });
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
