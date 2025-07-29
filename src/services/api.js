@@ -2,10 +2,18 @@ import axios from 'axios';
 
 // Create an Axios instance with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://social-media-app-dmfz.onrender.com/api', // Use backend URL for production with /api prefix
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://social-media-app-dmfz.onrender.com', // Use backend URL for production
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+// Debug: Log the baseURL being used
+console.log('API Base URL:', api.defaults.baseURL);
+console.log('Environment Variables:', {
+  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  NODE_ENV: import.meta.env.NODE_ENV,
+  PROD: import.meta.env.PROD
 });
 
 // Add a request interceptor to include the auth token in all requests
