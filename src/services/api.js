@@ -81,7 +81,7 @@ api.interceptors.response.use(
       // Check if this is a token expiration case (user was previously logged in)
       // We only want to redirect for expired tokens, not for failed login attempts
       const token = localStorage.getItem('token');
-      if (token && !error.config.url.includes('/auth/login') && !error.config.url.includes('/auth/social-login')) {
+      if (token && !error.config.url.includes('/api/auth/login') && !error.config.url.includes('/api/auth/social-login')) {
         // Only for authenticated requests with expired token, not login attempts
         localStorage.removeItem('token');
         localStorage.removeItem('user');

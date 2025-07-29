@@ -3,7 +3,7 @@ import api from './api';
 class AuthService {  // Regular login with username and password
   async login(username, password) {
     try {
-      const response = await api.post('/auth/login', { username, password });
+      const response = await api.post('/api/auth/login', { username, password });
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -18,7 +18,7 @@ class AuthService {  // Regular login with username and password
   // Register a new user
   async register(userData) {
     try {
-      const response = await api.post('/auth/register', userData);
+      const response = await api.post('/api/auth/register', userData);
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -31,7 +31,7 @@ class AuthService {  // Regular login with username and password
   // Register a user with email verification code
   async registerWithVerification(userData) {
     try {
-      const response = await api.post('/auth/verifyAndRegister', userData);
+      const response = await api.post('/api/auth/verifyAndRegister', userData);
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -43,7 +43,7 @@ class AuthService {  // Regular login with username and password
   }  // Request verification code to be sent to email
   async requestVerificationCode(email) {
     try {
-      const response = await api.post('/auth/sendVerificationCode', { email });
+      const response = await api.post('/api/auth/sendVerificationCode', { email });
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -53,7 +53,7 @@ class AuthService {  // Regular login with username and password
   // Verify email verification code
   async verifyCode(email, code) {
     try {
-      const response = await api.post('/auth/verifyCode', { email, code });
+      const response = await api.post('/api/auth/verifyCode', { email, code });
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -63,7 +63,7 @@ class AuthService {  // Regular login with username and password
   // Forgot password - request reset code
   async requestPasswordReset(email) {
     try {
-      const response = await api.post('/auth/forgotPassword', { email });
+      const response = await api.post('/api/auth/forgotPassword', { email });
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -73,7 +73,7 @@ class AuthService {  // Regular login with username and password
   // Verify reset code
   async verifyResetCode(email, code) {
     try {
-      const response = await api.post('/auth/verifyResetCode', { email, code });
+      const response = await api.post('/api/auth/verifyResetCode', { email, code });
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -83,7 +83,7 @@ class AuthService {  // Regular login with username and password
   // Reset password
   async resetPassword(resetData) {
     try {
-      const response = await api.post('/auth/resetPassword', resetData);
+      const response = await api.post('/api/auth/resetPassword', resetData);
       return response.data;
     } catch (error) {
       throw this.handleError(error);
@@ -91,7 +91,7 @@ class AuthService {  // Regular login with username and password
   }  // Social login with Google or Facebook
   async socialLogin(provider, accessToken) {
     try {
-      const response = await api.post('/auth/social-login', {
+      const response = await api.post('/api/auth/social-login', {
         provider,
         accessToken
       });
