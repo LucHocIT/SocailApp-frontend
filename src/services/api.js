@@ -1,11 +1,35 @@
 import axios from 'axios';
 
+// Debug environment
+console.log('Environment check:', {
+  NODE_ENV: import.meta.env.NODE_ENV,
+  MODE: import.meta.env.MODE,
+  PROD: import.meta.env.PROD,
+  DEV: import.meta.env.DEV,
+  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL
+});
+
+// Determine the correct base URL
+let baseURL;
+if (import.meta.env.VITE_API_BASE_URL) {
+  baseURL = import.meta.env.VITE_API_BASE_URL;
+} else if (import.meta.env.PROD) {
+  // Production fallback
+  baseURL = 'https://social-media-app-dmfz.onrender.com';
+} else {
+  // Development fallback
+  baseURL = 'http://localhost:5063';
+}
+
+console.log('Using API Base URL:', baseURL);
+
 // Create an Axios instance with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://social-media-app-dmfz.onrender.com', // Use backend URL for production
+  baseURL: baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 second timeout
 });
 
 // Debug: Log the baseURL being used
